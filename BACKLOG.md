@@ -10,7 +10,7 @@
 - [x] **PTO-502** Expand drag-to-reschedule to Friday appts + suggestions · 3h · 🔥 Critical — ✅ shipped v1.6
 - [x] **PTO-503** Time Off Log: Hours/Days/Range toggle + polished picker · 4h · 🔥 Critical — ✅ shipped v1.7
 - [ ] **PTO-504** Smart Suggestions: expanded intelligence categories · 2d · 🔥 Critical
-- [ ] **PTO-505** Polished sidebar collapse button · 2h · 🟡 High
+- [x] **PTO-505** Polished sidebar collapse button · 2h · 🟡 High — ✅ shipped v1.8
 
 ## 🚀 Tier 1 — Original Quick Wins
 
@@ -48,7 +48,7 @@
 
 - [ ] **BUG-01** Chart re-renders on every refresh (perf)
 - [ ] **BUG-02** PH migration edge case if user manually deletes log entry
-- [ ] **BUG-03** Sidebar collapse button cut off in dark mode (see PTO-505)
+- [x] **BUG-03** Sidebar collapse button cut off in dark mode — ✅ fixed in PTO-505 (v1.8)
 - [ ] **DEBT-01** Split monolithic HTML into multiple files
 - [ ] **DEBT-02** Add lightweight test file with core flows
 - [ ] **DEBT-03** Inline Chart.js for true offline support

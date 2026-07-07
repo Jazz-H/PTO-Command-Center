@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.7 (production) |
-| Features shipped | 28 |
-| File size | ~122 KB (single HTML) |
-| Backlog items | 22 |
+| Version | 1.8 (production) |
+| Features shipped | 29 |
+| File size | ~123 KB (single HTML) |
+| Backlog items | 21 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -45,28 +45,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
-
-### 🔴 PTO-505: Polished sidebar collapse button (best-practice pattern)
-- **Effort:** 2h
-- **Priority:** 🟡 High (user requested — screenshot shows current implementation is awkward)
-- **Files touched:** `index.html` (sidebar HTML + CSS for toggle)
-- **Acceptance criteria:**
-  - [ ] **Current issue:** The button floats awkwardly at `right:-14px` and appears cut off in dark mode (per user screenshot; see BUG-03)
-  - [ ] **New design pattern** — pick one of these best practices:
-    - **Option A: Bottom-aligned toggle** (Notion/Linear style) — small button at bottom of sidebar next to user card
-    - **Option B: Persistent edge-hit-zone** (VS Code style) — invisible 4px column on sidebar's right edge that expands to show grabber on hover
-    - **Option C: Integrated with brand mark** (Slack style) — hover on brand mark reveals subtle collapse chevron
-    - Recommendation: **Option A** (bottom-aligned) for cleanliness
-  - [ ] **Visual improvements:**
-    - Proper 32×32 button with rounded corners (not tiny 24px circle floating outside)
-    - Clear icon (chevron-left / chevron-right that rotates smoothly)
-    - Hover state: subtle background fill, no border shadow issues in dark mode
-    - Active/pressed state: slightly darker
-    - Focus ring for keyboard accessibility
-  - [ ] **Micro-interaction:** 200ms icon rotation animation on toggle
-  - [ ] **Keyboard:** Ctrl/Cmd + B still works (already implemented)
-  - [ ] **Accessibility:** aria-expanded, aria-controls, aria-label update dynamically
-  - [ ] **Mobile:** button hides on ≤820px (sidebar becomes drawer overlay instead — ✅ shipped v1.4)
 
 ### 🔴 PTO-102: iCal (.ics) export
 - **Effort:** 3h
@@ -222,7 +200,7 @@ Five new user-requested backlog items added based on real-world usage feedback:
 |---|---|:-:|
 | BUG-01 | Chart re-renders on every refresh (perf) | Low |
 | BUG-02 | PH migration edge case if user manually deletes log entry | Medium |
-| BUG-03 | Sidebar collapse button cut off in dark mode (addressed by PTO-505) | Medium |
+| BUG-03 | ~~Sidebar collapse button cut off in dark mode~~ — ✅ fixed in PTO-505 (v1.8) | Medium |
 | DEBT-01 | Split monolithic HTML into multiple files | Low |
 | DEBT-02 | Add lightweight test file with core flows | Medium |
 | DEBT-03 | Chart.js CDN dependency — inline for true offline | Low |
@@ -245,6 +223,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.8 — Polished sidebar collapse button (July 2026)
+- **PTO-505** — Replaced the tiny circular toggle that floated at `right:-14px` (and clipped in dark mode) with a proper bottom-docked button below the user card (Notion/Linear pattern). Full-width "‹ Collapse" when expanded, icon-only centered "›" when collapsed, with a 200ms chevron rotation, hover/active/focus-ring states that behave in both themes, and dynamic `aria-expanded` / `aria-label` / `aria-controls`. Ctrl/Cmd+B unchanged; hidden on mobile (drawer mode). Fixes **BUG-03**.
 
 ### v1.7 — Log input modes + custom date picker (July 2026)
 - **PTO-503** — Add-entry input toggle (Hours / Days / Range). Days converts to hours (`days × workday`); Range creates one entry per business day (weekends, company holidays, and already-booked days excluded) sharing a `batchId`, with a live "N entries totaling M hours" preview. Batch delete removes the whole batch on confirm; batch edit applies type/status/notes to all siblings. Custom in-file date picker (replaces native inputs on the add form + edit modal): month grid with weekends greyed, company holidays in violet, existing entries dotted green, conflicts disabled, keyboard nav (arrows/PageUp-Down/Enter/Esc), and a Today button. Two-picker range selection. Verified end-to-end in Chromium including keyboard nav and Esc layering over the edit modal.
