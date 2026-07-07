@@ -244,6 +244,12 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 [data-theme="dark"] .cal-tag.anniv{background:var(--warn);color:var(--bg)}
 .cal-tag.fri-appt{background:var(--cyan);color:#fff}
 [data-theme="dark"] .cal-tag.fri-appt{background:var(--cyan);color:var(--bg)}
+.cal-tag.other{background:var(--n-500);color:#fff}
+[data-theme="dark"] .cal-tag.other{background:var(--n-500);color:var(--bg)}
+.cal-tag[draggable="true"]{cursor:grab}
+.cal-tag[draggable="true"]:active{cursor:grabbing}
+.cal-tag.dragging{opacity:.4}
+.cal-day.drop-target{outline:2px dashed var(--info);outline-offset:-2px;background:var(--info-soft)!important;transform:none!important}
 .milestone{display:flex;gap:14px;align-items:center;padding:12px 14px;border-radius:10px;margin-bottom:6px;border:1px solid var(--line);background:var(--card);transition:all .15s}
 .milestone:hover{border-color:var(--n-300);transform:translateX(2px)}
 .milestone.past{background:var(--hover-bg);opacity:.75}
@@ -1013,9 +1019,12 @@ function renderCalendar(){
     if (isAnniv && f.anniv!==false){ const tier = state.tiers.find(tr => isoDate(anniversaryFor(tr.years))===iso); if (tier) tags.push(`<span class="cal-tag anniv">${tier.label}</span>`); }
     if (hn && f.hol!==false){ tags.push(`<span class="cal-tag hol" title="${hn}">${hn.length>14?hn.slice(0,13)+'…':hn}</span>`); }
     if (e){
-      if (e.type==="Vacation" && f.vac!==false) tags.push(`<span class="cal-tag vac">Vacation · ${e.hours}h</span>`);
-      else if (e.type==="Sick" && f.sick!==false) tags.push(`<span class="cal-tag sick">Sick · ${e.hours}h</span>`);
-      else if (e.type==="Personal Holiday" && f.personal!==false) tags.push(`<span class="cal-tag personal">Personal Hol.</span>`);
+      const eIdx = state.entries.indexOf(e);
+      const drag = `draggable="true" ondragstart="dragStart(event,${eIdx})" title="Drag to reschedule"`;
+      if (e.type==="Vacation" && f.vac!==false) tags.push(`<span class="cal-tag vac" ${drag}>Vacation · ${e.hours}h</span>`);
+      else if (e.type==="Sick" && f.sick!==false) tags.push(`<span class="cal-tag sick" ${drag}>Sick · ${e.hours}h</span>`);
+      else if (e.type==="Personal Holiday" && f.personal!==false) tags.push(`<span class="cal-tag personal" ${drag}>Personal Hol.</span>`);
+      else if (!["Vacation","Sick","Personal Holiday"].includes(e.type)) tags.push(`<span class="cal-tag other" ${drag}>${e.type} · ${e.hours}h</span>`);
     }
     if (!e && sug.has(iso) && f.sug!==false){ tags.push(`<span class="cal-tag sug">💡 Try PTO</span>`); }
     // Friday appointment overlay
@@ -1024,7 +1033,7 @@ function renderCalendar(){
       tags.push(`<span class="cal-tag fri-appt" title="${appt.purpose}">${appt.purpose.length>14?appt.purpose.slice(0,13)+'…':appt.purpose}</span>`);
     }
 
-    return `<div class="${c.join(' ')}"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
+    return `<div class="${c.join(' ')}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropOnDay(event,'${iso}')"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
   }).join("");
   updateLegendUI();
 }
@@ -1043,6 +1052,47 @@ function goToToday(){
   calCursor = new Date(t.getFullYear(), t.getMonth(), 1);
   renderCalendar();
   toast(`Jumped to ${MONTHNAMES[t.getMonth()]} ${t.getFullYear()}`);
+}
+
+// --- Drag entries between days to reschedule ---
+let _dragEntryIdx = -1;
+function dragStart(ev, idx){
+  _dragEntryIdx = idx;
+  if (ev.dataTransfer){ ev.dataTransfer.effectAllowed = "move"; try{ ev.dataTransfer.setData("text/plain", String(idx)); }catch(_){} }
+  if (ev.target && ev.target.classList) ev.target.classList.add("dragging");
+}
+function dragOver(ev){
+  ev.preventDefault();
+  if (ev.dataTransfer) ev.dataTransfer.dropEffect = "move";
+  const cell = ev.currentTarget;
+  if (cell && !cell.classList.contains("empty")) cell.classList.add("drop-target");
+}
+function dragLeave(ev){ const cell = ev.currentTarget; if (cell) cell.classList.remove("drop-target"); }
+function dropOnDay(ev, iso){
+  ev.preventDefault();
+  const cell = ev.currentTarget; if (cell) cell.classList.remove("drop-target");
+  let idx = _dragEntryIdx;
+  if ((idx === null || idx < 0) && ev.dataTransfer){ const s = ev.dataTransfer.getData("text/plain"); if (s !== "") idx = Number(s); }
+  _dragEntryIdx = -1;
+  if (idx === null || idx < 0 || Number.isNaN(idx)) return;
+  rescheduleEntry(idx, iso);
+}
+function rescheduleEntry(idx, newDate){
+  const e = state.entries[idx];
+  if (!e || !newDate) return;
+  const oldDate = e.date, oldType = e.type;
+  if (oldDate === newDate){ renderCalendar(); return; }
+  if (state.entries.some((x,i) => i !== idx && x.date === newDate)){ toast("That day already has an entry"); renderCalendar(); return; }
+  e.date = newDate;
+  // Keep the Personal Holiday tracker in sync (mirrors saveEditEntry)
+  if (oldType === "Personal Holiday"){
+    const phOld = state.personalHolidays.find(p => p.date === oldDate);
+    if (phOld){ phOld.date = null; phOld.status = "Unscheduled"; phOld.notes = ""; }
+    const phNew = getPersonalHoliday(parseDate(newDate).getFullYear());
+    phNew.date = newDate; phNew.status = e.status === "Taken" ? "Taken" : "Scheduled";
+  }
+  save(); refresh();
+  toast(`Moved ${oldType} → ${fmt(parseDate(newDate),{weekday:"short",month:"short",day:"numeric"})}`);
 }
 
 function renderSettings(){
@@ -1116,6 +1166,11 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'j'){ e.preventDefault(); setTheme(getTheme()==='dark' ? 'light' : 'dark'); }
   if (e.key === 'Escape' && document.getElementById('editModal').classList.contains('open')) closeEditModal();
   if ((e.ctrlKey || e.metaKey) && e.key === 'b'){ e.preventDefault(); toggleSidebar(); }
+});
+document.addEventListener('dragend', () => {
+  document.querySelectorAll('.cal-tag.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.cal-day.drop-target').forEach(el => el.classList.remove('drop-target'));
+  _dragEntryIdx = -1;
 });
 
 document.getElementById("e_date").value = isoDate(today());
