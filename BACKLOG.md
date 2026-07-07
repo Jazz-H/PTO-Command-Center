@@ -30,7 +30,7 @@
 - [ ] **PTO-304** Personal Holiday reminder email · 4h · 🟡 High
 - [ ] **PTO-305** Year-over-year usage comparison chart · 6h · 🟡 Medium
 - [ ] **PTO-306** Team calendar overlay · 2d · 🟡 Medium
-- [ ] **PTO-307** CSV export · 3h · 🟡 Medium
+- [x] **PTO-307** CSV export · 3h · 🟡 Medium — ✅ shipped v1.11
 - [ ] **PTO-308** Anniversary celebration email · 3h · 🟢 Low
 
 ## 🎢 Tier 3 — Strategic

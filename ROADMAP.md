@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.10 (production) |
-| Features shipped | 31 |
-| File size | ~130 KB (single HTML) |
-| Backlog items | 20 |
+| Version | 1.11 (production) |
+| Features shipped | 32 |
+| File size | ~131 KB (single HTML) |
+| Backlog items | 19 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -125,9 +125,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ### 🟡 PTO-306: Team calendar overlay
 - **Effort:** 2 days · **Priority:** Medium
 
-### 🟡 PTO-307: CSV export
-- **Effort:** 3h · **Priority:** Medium
-
 ### 🟢 PTO-308: Anniversary celebration email
 - **Effort:** 3h · **Priority:** Low
 
@@ -192,6 +189,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.11 — CSV export (July 2026)
+- **PTO-307** — "Export CSV" button in Settings writes `pto_entries_YYYYMMDD.csv` with columns Date, Day, Type, Hours, Status, Notes (sorted by date). Proper CSV quoting/escaping for commas, quotes, and newlines, plus a UTF-8 BOM so Excel opens it cleanly. Verified: header, row count, and escaping of a `Trip: Rome, "gelato"` note.
 
 ### v1.10 — iCal export (July 2026)
 - **PTO-102** — "Export to calendar (.ics)" button in Settings generates a valid RFC 5545 file (`PRODID:-//Jazz Harris//PTO Command Center//EN`, CRLF, line folding, escaped text). Each entry becomes an all-day `VEVENT` (exclusive `DTEND`), with type emoji in the summary, `CATEGORIES` per type (Vacation/Sick/Personal Holiday/…), status + notes in the description, unique UIDs, and `TRANSP:TRANSPARENT`. A checkbox optionally includes CCCI company holidays as events. Filename `pto_calendar_YYYYMMDD.ics`. Imports into Outlook / Google / Apple Calendar. Verified: structure, all-day dates, counts (16 entries / 25 with holidays), unique UIDs, no errors.

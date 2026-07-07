@@ -683,6 +683,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)"/>
     <button class="btn ghost" onclick="exportICS()" title="Download an .ics calendar file for Outlook / Google / Apple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Export to calendar (.ics)</button>
     <label class="na-toggle" style="cursor:pointer"><input type="checkbox" id="ics_holidays"/> Include company holidays</label>
+    <button class="btn ghost" onclick="exportCSV()" title="Download entries as a CSV spreadsheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Export CSV</button>
     <button class="btn ghost" onclick="resetAll()" style="color:var(--accent); border-color:var(--accent-line)">Reset all data</button>
   </div>
 </div>
@@ -1848,6 +1849,15 @@ function exportICS(){
   const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_calendar_${isoDate(today())}.ics`; a.click(); URL.revokeObjectURL(url);
   const n = state.entries.length + (includeHol ? state.holidays.length : 0);
   toast(`Exported ${n} event${n===1?"":"s"} to .ics`);
+}
+function csvCell(s){ s = String(s==null?"":s); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; }
+function exportCSV(){
+  const rows = [["Date","Day","Type","Hours","Status","Notes"]];
+  [...state.entries].sort((a,b) => a.date.localeCompare(b.date)).forEach(e => { const d = parseDate(e.date); rows.push([e.date, DAYNAMES[d.getDay()], e.type, e.hours, e.status||"", e.notes||""]); });
+  const csv = rows.map(r => r.map(csvCell).join(",")).join("\r\n");
+  const blob = new Blob(["﻿" + csv], {type:"text/csv;charset=utf-8"}); // BOM so Excel reads UTF-8
+  const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_entries_${isoDate(today())}.csv`; a.click(); URL.revokeObjectURL(url);
+  toast(`Exported ${state.entries.length} row${state.entries.length===1?"":"s"} to CSV`);
 }
 function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
