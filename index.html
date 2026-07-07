@@ -117,7 +117,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 [data-sidebar="collapsed"] .sidebar-collapse .sc-label{opacity:0;width:0}
 .nav-section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--n-400);font-weight:600;padding:14px 12px 6px;white-space:nowrap;overflow:hidden;transition:opacity .2s ease}
 [data-sidebar="collapsed"] .nav-section{opacity:0;height:0;padding:0}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--n-600);font-weight:500;font-size:13.5px;transition:all .15s;background:transparent;border:none;width:100%;text-align:left;font-family:inherit;white-space:nowrap;overflow:hidden;position:relative}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:9px;cursor:pointer;color:var(--n-600);font-weight:500;font-size:13.5px;transition:all .15s;background:transparent;border:none;width:100%;text-align:left;font-family:inherit;white-space:nowrap;overflow:hidden;position:relative}
 .nav-item .icon{width:16px;height:16px;padding:5px;border-radius:8px;box-sizing:content-box;color:var(--n-400);flex-shrink:0;transition:background .15s,color .15s}
 .nav-item:hover{background:var(--hover-bg);color:var(--n-900)}
 .nav-item:hover .icon{background:var(--nav-cs,var(--hover-strong));color:var(--nav-c,var(--n-700))}
@@ -130,7 +130,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 [data-sidebar="collapsed"] .nav-item .icon{width:18px;height:18px}
 .nav-item[data-tooltip]{position:relative}
 [data-sidebar="collapsed"] .nav-item[data-tooltip]:hover::after{content:attr(data-tooltip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--n-900);color:var(--n-0);padding:5px 10px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:100;box-shadow:var(--shadow-md);pointer-events:none}
-.user-card{margin-top:auto;padding:12px;background:var(--hover-bg);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;gap:10px;transition:padding .25s ease}
+.user-card{margin-top:auto;padding:12px;background:var(--primary-soft);border-radius:10px;border:1px solid var(--primary-line);display:flex;align-items:center;gap:10px;transition:padding .25s ease}
 [data-sidebar="collapsed"] .user-card{padding:8px;justify-content:center}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--gradient-primary);color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px;flex-shrink:0}
 .user-info{min-width:0;line-height:1.2;transition:opacity .2s ease}
