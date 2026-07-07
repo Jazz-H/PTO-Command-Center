@@ -99,13 +99,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 [data-sidebar="collapsed"] .brand-text{opacity:0;width:0}
 .brand-text .t{font-weight:700;font-size:13.5px;color:var(--n-900);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand-text .s{font-size:11px;color:var(--n-500);font-weight:500}
-.brand-collapse{margin-left:auto;width:28px;height:28px;flex-shrink:0;border:1px solid var(--line);border-radius:8px;background:var(--hover-bg);color:var(--n-500);cursor:pointer;display:grid;place-items:center;padding:0;box-shadow:none;transition:background .15s,color .15s,border-color .15s}
-.brand-collapse:hover{background:var(--hover-strong);color:var(--n-800);border-color:var(--n-300)}
-.brand-collapse:focus-visible{outline:none;border-color:var(--n-500);box-shadow:0 0 0 3px var(--ring)}
-.brand-collapse .chev{width:15px;height:15px;transition:transform .2s ease}
-[data-sidebar="collapsed"] .brand{flex-direction:column;gap:12px;padding:6px 0 16px}
-[data-sidebar="collapsed"] .brand-collapse{margin-left:0}
-[data-sidebar="collapsed"] .brand-collapse .chev{transform:rotate(180deg)}
+[data-sidebar="collapsed"] .brand{justify-content:center;padding:6px 0 16px}
 .sidebar-collapse{display:flex;align-items:center;gap:8px;width:100%;height:34px;margin-top:8px;padding:0 10px;border:1px solid var(--line);border-radius:9px;background:var(--hover-bg);color:var(--n-500);cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;box-shadow:none;transition:background .15s,color .15s,border-color .15s;flex-shrink:0}
 .sidebar-collapse:hover{background:var(--hover-strong);color:var(--n-800);border-color:var(--n-300)}
 .sidebar-collapse:active{background:var(--hover-strong);transform:translateY(.5px)}
@@ -140,7 +134,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .main{overflow:hidden}
 .topbar{height:60px;padding:0 32px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--topbar-bg);position:sticky;top:0;z-index:20;backdrop-filter:blur(8px)}
 .crumbs{display:flex;align-items:center;gap:8px;font-size:13px}
-.nav-hamburger{display:none;width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--n-700);cursor:pointer;place-items:center;flex:0 0 auto;box-shadow:var(--shadow-xs)}
+.nav-hamburger{display:grid;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--n-600);cursor:pointer;place-items:center;flex:0 0 auto;box-shadow:var(--shadow-xs);transition:all .15s}
 .nav-hamburger:hover{color:var(--n-900);border-color:var(--n-400)}
 .nav-hamburger svg{width:18px;height:18px}
 .nav-backdrop{display:none;position:fixed;inset:0;background:rgba(2,6,23,.5);z-index:60;opacity:0;transition:opacity .25s ease}
@@ -264,6 +258,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .g-dash-2>*,.g-dash-3>*{min-width:0}
 .g-dash-2>.card{display:flex;flex-direction:column}
 .g-dash-2>.card .chart-wrap{flex:1;min-height:230px}
+.g-dash-3>.card{display:flex;flex-direction:column}
+.g-dash-3>.card>#upcomingFridays{flex:1;display:flex;flex-direction:column}
 @media(max-width:1200px){.g-dash-2{grid-template-columns:1fr}.g-dash-3{grid-template-columns:1fr}}
 .chart-legend-row{display:flex;gap:16px;margin-bottom:10px}
 .lg-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--n-600);font-weight:500}
@@ -303,14 +299,18 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .insights-row .insight{flex:1 1 260px;min-width:230px;margin-bottom:0;align-items:flex-start}
 .insights-row:empty::after,#insights.insights-row .empty{width:100%}
 /* Upcoming as horizontal cards */
-.up-cards{display:flex;gap:10px;flex-wrap:wrap}
-.up-card{flex:1 1 130px;min-width:120px;border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:var(--card);cursor:pointer;transition:all .15s;position:relative}
+.up-cards{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;height:100%}
+.up-card{flex:1 1 130px;min-width:120px;min-height:150px;border:1px solid var(--line);border-radius:12px;padding:13px 13px;background:var(--card);cursor:pointer;transition:all .15s;display:flex;flex-direction:column}
 .up-card:hover{border-color:var(--n-300);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
-.up-card .uc-date{font-size:13px;font-weight:700;color:var(--n-800)}
+.up-card .uc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.up-card .uc-date{font-size:13px;font-weight:700;color:var(--n-800);line-height:1.25}
 .up-card .uc-dow{font-size:11px;color:var(--n-500);font-weight:500}
-.up-card .uc-meta{margin-top:8px}
-.up-card .uc-time{font-size:11px;color:var(--n-500);margin-top:4px}
-.up-card .uc-flag{position:absolute;top:9px;right:9px;font-size:9px;font-weight:700;padding:1px 6px;border-radius:5px;background:var(--primary-soft);color:var(--primary);text-transform:uppercase;letter-spacing:.02em}
+.up-card .uc-purpose{flex:1;display:flex;align-items:center;font-size:13.5px;font-weight:600;color:var(--n-800);margin-top:12px;word-break:break-word}
+.up-card .uc-purpose.open{color:var(--n-400);font-weight:500}
+.up-card .uc-foot{color:var(--n-300);margin-top:10px}
+.up-card .uc-foot svg{width:16px;height:16px}
+.up-card .uc-flag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--hover-bg);color:var(--n-500);text-transform:uppercase;letter-spacing:.03em;flex-shrink:0;white-space:nowrap}
+.up-card .uc-flag.today{background:var(--primary-soft);color:var(--primary)}
 .up-strip{border-left:3px solid var(--line);border-radius:11px}
 .insight-dismiss{flex-shrink:0;width:22px;height:22px;border:none;background:transparent;color:var(--n-400);border-radius:6px;cursor:pointer;display:grid;place-items:center;align-self:flex-start;box-shadow:none;padding:0;opacity:0;transition:opacity .15s}
 .insight:hover .insight-dismiss{opacity:1}
@@ -669,18 +669,15 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="brand">
     <div class="brand-mark">PT</div>
     <div class="brand-text"><span class="t">PTO Command Center</span><span class="s">Time-off workspace</span></div>
-    <button class="brand-collapse" id="sidebarCollapse" onclick="toggleSidebar()" aria-controls="appSidebar" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar (Ctrl/Cmd+B)">
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
   </div>
   <div class="nav-section">Overview</div>
   <button class="nav-item active" data-tab="dash" data-tooltip="Dashboard" style="--nav-c:var(--data-purple);--nav-cs:var(--data-purple-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-label">Dashboard</span></button>
   <button class="nav-item" data-tab="cal" data-tooltip="Calendar" style="--nav-c:var(--data-cyan);--nav-cs:var(--data-cyan-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-label">Calendar</span></button>
   <button class="nav-item" data-tab="log" data-tooltip="Time Off Log" style="--nav-c:var(--data-blue);--nav-cs:var(--data-blue-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="nav-label">Time Off Log</span></button>
   <div class="nav-section">Planning</div>
-  <button class="nav-item" data-tab="sug" data-tooltip="Smart Suggestions" style="--nav-c:var(--data-magenta);--nav-cs:var(--data-magenta-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Smart Suggestions</span></button>
-  <button class="nav-item" data-tab="fri" data-tooltip="Friday Planner" style="--nav-c:var(--data-teal);--nav-cs:var(--data-teal-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Friday Planner</span></button>
-  <button class="nav-item" data-tab="ann" data-tooltip="Anniversaries" style="--nav-c:var(--data-cyan);--nav-cs:var(--data-cyan-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 .75-4.5 4.5L18 20l-6-3.5L6 20l1.5-6.75L3 8.75 9 8z"/></svg><span class="nav-label">Anniversaries</span></button>
+  <button class="nav-item" data-tab="sug" data-tooltip="Smart Suggestions" style="--nav-c:var(--data-magenta);--nav-cs:var(--data-magenta-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M8.5 14A5 5 0 1 1 15.5 14c-.7.7-1.1 1.4-1.3 2.2H9.8c-.2-.8-.6-1.5-1.3-2.2z"/></svg><span class="nav-label">Smart Suggestions</span></button>
+  <button class="nav-item" data-tab="fri" data-tooltip="Friday Planner" style="--nav-c:var(--data-teal);--nav-cs:var(--data-teal-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg><span class="nav-label">Friday Planner</span></button>
+  <button class="nav-item" data-tab="ann" data-tooltip="Anniversaries" style="--nav-c:var(--data-cyan);--nav-cs:var(--data-cyan-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg><span class="nav-label">Anniversaries</span></button>
   <div class="nav-section">Configuration</div>
   <button class="nav-item" data-tab="cfg" data-tooltip="Settings" style="--nav-c:var(--data-blue);--nav-cs:var(--data-blue-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></button>
   <div class="user-card">
@@ -692,7 +689,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 <main class="main">
   <div class="topbar">
     <div class="topbar-left">
-    <button class="nav-hamburger" onclick="toggleNav()" title="Menu" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <button class="nav-hamburger" id="sidebarCollapse" onclick="toggleSidebarSmart()" title="Toggle sidebar (Ctrl/Cmd+B)" aria-label="Toggle sidebar" aria-controls="appSidebar" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
     <div class="global-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="globalSearch" placeholder="Search anything…" autocomplete="off" onkeydown="if(event.key==='Enter')globalSearchGo(this.value)"/>
@@ -715,7 +712,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 <div class="panel active" id="dash">
   <div class="dash-head">
     <div class="page-head" style="margin-bottom:0"><h1 id="dashGreeting">Welcome back, Jazz</h1><div class="sub" id="dash-sub"></div></div>
-    <button class="btn dash-cta" onclick="requestTimeOff()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Request Time Off</span></button>
+    <button class="btn dash-cta" onclick="requestTimeOff()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Time Off</span></button>
   </div>
   <div class="grid g-kpi" id="kpis"></div>
   <div style="height:20px"></div>
@@ -969,7 +966,11 @@ const ICO = {
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
   chevDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
   chevRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
-  arrowRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
+  arrowRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+  palm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 12a11.05 11.05 0 0 0-22 0z"/><path d="M12 12v10"/><path d="M9 22h6"/></svg>',
+  bulb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M8.5 14A5 5 0 1 1 15.5 14c-.7.7-1.1 1.4-1.3 2.2H9.8c-.2-.8-.6-1.5-1.3-2.2z"/></svg>',
+  coffee:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>',
+  award:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>'
 };
 
 const CCCI_2026_HOLIDAYS = [
@@ -1062,6 +1063,7 @@ function cssVar(name){ return getComputedStyle(document.documentElement).getProp
 function openNav(){ document.documentElement.setAttribute('data-nav','open'); }
 function closeNav(){ document.documentElement.removeAttribute('data-nav'); }
 function toggleNav(){ document.documentElement.getAttribute('data-nav')==='open' ? closeNav() : openNav(); }
+function toggleSidebarSmart(){ if (window.matchMedia('(max-width:860px)').matches) toggleNav(); else toggleSidebar(); }
 function toggleSidebar(){
   const cur = document.documentElement.getAttribute('data-sidebar');
   const newState = cur === 'collapsed' ? '' : 'collapsed';
@@ -1351,7 +1353,7 @@ function renderKPIs(){
 
   document.getElementById("kpis").innerHTML = `
     <div class="kpi kpi-link" ${link("dashDrillLog('Vacation')","View vacation entries")}>
-      <div class="kpi-top"><div class="kpi-icon green">${ICO.vac}</div><span class="kpi-title">Vacation Balance</span></div>
+      <div class="kpi-top"><div class="kpi-icon green">${ICO.palm}</div><span class="kpi-title">Vacation Balance</span></div>
       <div class="kpi-body">
         <div class="kpi-main"><div class="kpi-value v-green">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} days of ${allot.vacation} hrs</div></div>
         ${ringSVG2(usedPct, ringCls)}
@@ -1382,7 +1384,7 @@ function renderKPIs(){
       <div class="kpi-sub">${phSub}</div>${phAction}
     </div>
     <div class="kpi kpi-link" ${link("switchTab('ann')","View anniversaries")}>
-      <div class="kpi-top"><div class="kpi-icon amber">${ICO.celebrate}</div><span class="kpi-title">Next Anniversary</span>${chev}</div>
+      <div class="kpi-top"><div class="kpi-icon amber">${ICO.award}</div><span class="kpi-title">Next Anniversary</span>${chev}</div>
       <div class="kpi-body"><div class="kpi-main"><div class="kpi-value v-amber">${annVal}</div><div class="kpi-sub">${annSub}</div></div></div>
       ${annFoot ? `<div class="kpi-foot">${annFoot}</div>` : ""}
     </div>`;
@@ -1595,7 +1597,7 @@ function renderUpcomingFridays(){
     const flag = i === 0 ? "Today" : i === 1 ? "Next" : `In ${i} wks`;
     const scheduled = item && item.purpose && item.status !== "Cancelled";
     const purpose = scheduled ? esc(item.purpose) : (hol ? esc(hol) : "Open");
-    return `<div class="up-card" title="Open Friday Planner" onclick="drillFriday('${iso}')"><span class="uc-flag ${i===0?'today':''}">${flag}</span><div class="uc-date">${fmt(f,{month:"short",day:"numeric"})}</div><div class="uc-dow">Friday</div><div class="uc-meta"><span class="chip ${scheduled?'c':(hol?'v':'n')}">${purpose}</span></div></div>`;
+    return `<div class="up-card" title="Open Friday Planner" onclick="drillFriday('${iso}')"><div class="uc-top"><div><div class="uc-date">${fmt(f,{weekday:"short",month:"short",day:"numeric"})}</div><div class="uc-dow">WFH Friday</div></div><span class="uc-flag ${i===0?'today':''}">${flag}</span></div><div class="uc-purpose ${scheduled?'':'open'}">${purpose}</div><div class="uc-foot">${ICO.calendar}</div></div>`;
   }).join("") + `</div>`;
 }
 
