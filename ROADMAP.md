@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.13 (production) |
-| Features shipped | 34 |
-| File size | ~131 KB (single HTML) + icon assets |
-| Backlog items | 17 |
+| Version | 1.14 (production) |
+| Features shipped | 35 |
+| File size | ~131 KB (single HTML) + icons + PWA |
+| Backlog items | 16 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -45,18 +45,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
-
-### 🔴 PTO-103: PWA manifest + service worker
-- **Effort:** 4h
-- **Priority:** Critical
-- **Files touched:** `index.html`, new `manifest.json`, new `sw.js`
-- **Acceptance criteria:**
-  - [ ] `manifest.json` with name, icons (192px, 512px), theme_color, start_url
-  - [ ] Service worker caches all app assets
-  - [ ] Works offline after first load
-  - [ ] "Install" prompt appears in Chrome/Edge
-  - [ ] Home-screen icon on iOS/Android
-- **Depends on:** PTO-201
 
 ### 🟢 PTO-202: Print-friendly stylesheet
 - **Effort:** 2h
@@ -172,6 +160,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.14 — PWA (installable + offline) (July 2026)
+- **PTO-103** — Added `manifest.json` (name, standalone display, theme/background colors, 192/512 + 180 icons, start_url) and a `sw.js` service worker: precaches the app shell on install, cleans old caches on activate (bump `pto-cache-v1` to force refresh), network-first for the HTML document, cache-first with runtime caching for assets + CDN libs/fonts. Registered from `index.html` (guarded to http/https). Verified over a real HTTP server in Chromium: SW registers & activates, shell cached, and the app loads **offline** after first visit (title + nav render). Installable in Chrome/Edge; adds a home-screen icon on iOS/Android. **Tier 1 backlog now fully shipped.** (True offline for the charts still wants Chart.js inlined — tracked as DEBT-03.)
 
 ### v1.13 — Custom favicon + icons (July 2026)
 - **PTO-201** — Added a brand favicon: a scalable `favicon.svg` ("PT" mark on the red→slate brand gradient), a 32px PNG fallback, a 180×180 `apple-touch-icon.png`, and a `theme-color` meta of CCCI red (`#DC2626`). Also rendered 192/512 PNG icons to prep the PWA work (PTO-103). Icons show in the browser tab, bookmarks, and iOS/Android home screen.

@@ -16,7 +16,7 @@
 
 - [x] **PTO-101** Search + filter for Time Off Log · 2h · 🔴 Critical — ✅ shipped v1.2
 - [x] **PTO-102** iCal (.ics) export · 3h · 🔴 Critical — ✅ shipped v1.10
-- [ ] **PTO-103** PWA manifest + service worker · 4h · 🔴 Critical
+- [x] **PTO-103** PWA manifest + service worker · 4h · 🔴 Critical — ✅ shipped v1.14
 - [x] **PTO-104** Month-grouped Log view · 3h · 🟡 High — ✅ shipped v1.3
 - [x] **PTO-105** Slash-command search · 2h · 🟢 Medium — ✅ shipped v1.12
 - [x] **PTO-201** Custom favicon + splash · 1h · 🟢 Low — ✅ shipped v1.13
