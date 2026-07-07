@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.9 (production) |
-| Features shipped | 30 |
-| File size | ~128 KB (single HTML) |
-| Backlog items | 21 |
+| Version | 1.10 (production) |
+| Features shipped | 31 |
+| File size | ~130 KB (single HTML) |
+| Backlog items | 20 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -45,18 +45,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
-
-### 🔴 PTO-102: iCal (.ics) export
-- **Effort:** 3h
-- **Priority:** Critical
-- **Acceptance criteria:**
-  - [ ] "Export iCal" button in Settings tab and topbar
-  - [ ] Generates valid `.ics` file per RFC 5545
-  - [ ] Each PTO entry becomes a `VEVENT` with correct dtstart/dtend
-  - [ ] Personal Holidays included with pink category tag
-  - [ ] Company holidays included as separate calendar or filtered out (user choice)
-  - [ ] Filename: `pto_calendar_YYYYMMDD.ics`
-  - [ ] Successfully imports into Outlook, Google Calendar, Apple Calendar
 
 ### 🔴 PTO-103: PWA manifest + service worker
 - **Effort:** 4h
@@ -204,6 +192,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.10 — iCal export (July 2026)
+- **PTO-102** — "Export to calendar (.ics)" button in Settings generates a valid RFC 5545 file (`PRODID:-//Jazz Harris//PTO Command Center//EN`, CRLF, line folding, escaped text). Each entry becomes an all-day `VEVENT` (exclusive `DTEND`), with type emoji in the summary, `CATEGORIES` per type (Vacation/Sick/Personal Holiday/…), status + notes in the description, unique UIDs, and `TRANSP:TRANSPARENT`. A checkbox optionally includes CCCI company holidays as events. Filename `pto_calendar_YYYYMMDD.ics`. Imports into Outlook / Google / Apple Calendar. Verified: structure, all-day dates, counts (16 entries / 25 with holidays), unique UIDs, no errors.
 
 ### v1.9 — Smart Suggestions engine (July 2026)
 - **PTO-504 (strong subset)** — Refactored `buildSuggestions()` into a pluggable `buildAllSuggestions()` engine returning unified `{category, occasion, takeOn, result, hours, roi, reason, bookable}` items. Strategies: company-holiday bridges, **federal long weekends** (future US federal holidays CCCI doesn't observe, with a real long-weekend span), **adjacent-weekend extensions** (one Monday/month, WFH-Friday aware), **personal anchors** (birthday from Settings + work anniversary), and a **balance-plan** row (spread remaining days before Dec 31). Suggestions tab regrouped by category with toggle filter chips (persisted to `state.sugFilters`) and a hover "why" tooltip on every row. Birthday field added to Settings. Calendar "Try PTO" tags stay limited to company bridges to avoid clutter. Remaining categories tracked as **PTO-504b**. Verified end-to-end in Chromium; no overflow; smoke test passes.
