@@ -250,6 +250,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .cal-tag[draggable="true"]:active{cursor:grabbing}
 .cal-tag.dragging{opacity:.4}
 .cal-day.drop-target{outline:2px dashed var(--info);outline-offset:-2px;background:var(--info-soft)!important;transform:none!important}
+.cal-day.drop-invalid{outline:2px dashed var(--accent);outline-offset:-2px;background:var(--accent-soft)!important;transform:none!important;cursor:no-drop}
 .milestone{display:flex;gap:14px;align-items:center;padding:12px 14px;border-radius:10px;margin-bottom:6px;border:1px solid var(--line);background:var(--card);transition:all .15s}
 .milestone:hover{border-color:var(--n-300);transform:translateX(2px)}
 .milestone.past{background:var(--hover-bg);opacity:.75}
@@ -1033,7 +1034,7 @@ function renderCalendar(){
       tags.push(`<span class="cal-tag fri-appt" title="${appt.purpose}">${appt.purpose.length>14?appt.purpose.slice(0,13)+'…':appt.purpose}</span>`);
     }
 
-    return `<div class="${c.join(' ')}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropOnDay(event,'${iso}')"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
+    return `<div class="${c.join(' ')}" ondragover="dragOver(event,'${iso}')" ondragleave="dragLeave(event)" ondrop="dropOnDay(event,'${iso}')"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
   }).join("");
   updateLegendUI();
 }
@@ -1061,20 +1062,38 @@ function dragStart(ev, idx){
   if (ev.dataTransfer){ ev.dataTransfer.effectAllowed = "move"; try{ ev.dataTransfer.setData("text/plain", String(idx)); }catch(_){} }
   if (ev.target && ev.target.classList) ev.target.classList.add("dragging");
 }
-function dragOver(ev){
-  ev.preventDefault();
-  if (ev.dataTransfer) ev.dataTransfer.dropEffect = "move";
-  const cell = ev.currentTarget;
-  if (cell && !cell.classList.contains("empty")) cell.classList.add("drop-target");
+// Returns a reason string if the entry can't be dropped on `iso`, else null (valid)
+function dropBlockReason(idx, iso){
+  const e = state.entries[idx];
+  if (!e) return "No entry";
+  if (iso === e.date) return null; // dropped back on its own day — no-op, allowed
+  const d = parseDate(iso);
+  if (isWeekend(d)) return "Can't reschedule onto a weekend";
+  if (holidayName(d)) return `${holidayName(d)} is a company holiday`;
+  if (state.entries.some((x,i) => i !== idx && x.date === iso)) return "That day already has an entry";
+  return null;
 }
-function dragLeave(ev){ const cell = ev.currentTarget; if (cell) cell.classList.remove("drop-target"); }
+function dragOver(ev, iso){
+  ev.preventDefault();
+  const idx = _dragEntryIdx;
+  const invalid = idx >= 0 && !!dropBlockReason(idx, iso);
+  if (ev.dataTransfer) ev.dataTransfer.dropEffect = invalid ? "none" : "move";
+  const cell = ev.currentTarget;
+  if (cell && !cell.classList.contains("empty")){
+    cell.classList.remove("drop-target","drop-invalid");
+    cell.classList.add(invalid ? "drop-invalid" : "drop-target");
+  }
+}
+function dragLeave(ev){ const cell = ev.currentTarget; if (cell) cell.classList.remove("drop-target","drop-invalid"); }
 function dropOnDay(ev, iso){
   ev.preventDefault();
-  const cell = ev.currentTarget; if (cell) cell.classList.remove("drop-target");
+  const cell = ev.currentTarget; if (cell) cell.classList.remove("drop-target","drop-invalid");
   let idx = _dragEntryIdx;
   if ((idx === null || idx < 0) && ev.dataTransfer){ const s = ev.dataTransfer.getData("text/plain"); if (s !== "") idx = Number(s); }
   _dragEntryIdx = -1;
   if (idx === null || idx < 0 || Number.isNaN(idx)) return;
+  const reason = dropBlockReason(idx, iso);
+  if (reason){ if (state.entries[idx] && iso !== state.entries[idx].date) toast(reason); renderCalendar(); return; }
   rescheduleEntry(idx, iso);
 }
 function rescheduleEntry(idx, newDate){
@@ -1169,7 +1188,7 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('dragend', () => {
   document.querySelectorAll('.cal-tag.dragging').forEach(el => el.classList.remove('dragging'));
-  document.querySelectorAll('.cal-day.drop-target').forEach(el => el.classList.remove('drop-target'));
+  document.querySelectorAll('.cal-day.drop-target,.cal-day.drop-invalid').forEach(el => el.classList.remove('drop-target','drop-invalid'));
   _dragEntryIdx = -1;
 });
 
