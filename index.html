@@ -561,7 +561,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     <div class="log-toolbar">
       <div class="log-search">
         <span class="lsi" id="logSearchIcon"></span>
-        <input type="text" id="logSearch" placeholder="Search date, type, status, notes, day…" autocomplete="off" oninput="onLogSearch(this.value)"/>
+        <input type="text" id="logSearch" placeholder="Search… or /vac /sick /2026 /jul" title="Type to search, or use slash-commands: /vac /sick /personal /holiday, /2026, /jul — they stack with each other and your text" autocomplete="off" oninput="onLogSearch(this.value)"/>
         <button type="button" class="log-search-clear" id="logSearchClear" onclick="clearLogSearch()" title="Clear search" aria-label="Clear search"></button>
       </div>
       <select id="logTypeFilter" onchange="onLogFilter('logType',this.value)" title="Filter by type">
@@ -1231,14 +1231,36 @@ function renderUpcomingFridays(){
 function logIsFiltered(){
   return !!((state.logSearch||"").trim()) || (state.logType||"All")!=="All" || (state.logYear||"All")!=="All";
 }
+// Parse slash-commands out of the search box (e.g. "/vac /2026 /jul dentist")
+function parseLogQuery(raw){
+  const out = { type:null, year:null, month:null, text:[] };
+  (raw||"").split(/\s+/).forEach(tok => {
+    if (!tok) return;
+    if (tok[0] === "/" && tok.length > 1){
+      const c = tok.slice(1).toLowerCase();
+      if (/^\d{4}$/.test(c)){ out.year = c; return; }
+      const typeMap = { vac:"Vacation", vacation:"Vacation", sick:"Sick", holiday:"Personal Holiday", ph:"Personal Holiday", personal:"Personal", bereavement:"Bereavement", jury:"Jury Duty", unpaid:"Unpaid" };
+      if (typeMap[c]){ out.type = typeMap[c]; return; }
+      const mi = MONTHNAMES.findIndex(m => m.toLowerCase() === c || m.toLowerCase().slice(0,3) === c);
+      if (mi >= 0){ out.month = mi; return; }
+      out.text.push(tok); // unknown /command → treat as text
+    } else out.text.push(tok);
+  });
+  out.text = out.text.join(" ");
+  return out;
+}
 function getFilteredEntries(){
-  const q = (state.logSearch||"").trim().toLowerCase();
+  const parsed = parseLogQuery(state.logSearch);
+  const q = parsed.text.trim().toLowerCase();
   const type = state.logType||"All";
   const year = state.logYear||"All";
   return state.entries.filter(e => {
     if (type!=="All" && e.type!==type) return false;
+    if (parsed.type && e.type !== parsed.type) return false;
     const d = parseDate(e.date);
     if (year!=="All" && String(d.getFullYear())!==String(year)) return false;
+    if (parsed.year && String(d.getFullYear()) !== parsed.year) return false;
+    if (parsed.month !== null && d.getMonth() !== parsed.month) return false;
     if (q){
       const hay = [e.date, fmt(d), e.type, e.status||"", e.notes||"", DAYNAMES[d.getDay()], MONTHNAMES[d.getMonth()], MONTHNAMES[d.getMonth()].slice(0,3)].join(" ").toLowerCase();
       if (!hay.includes(q)) return false;

@@ -18,7 +18,7 @@
 - [x] **PTO-102** iCal (.ics) export · 3h · 🔴 Critical — ✅ shipped v1.10
 - [ ] **PTO-103** PWA manifest + service worker · 4h · 🔴 Critical
 - [x] **PTO-104** Month-grouped Log view · 3h · 🟡 High — ✅ shipped v1.3
-- [ ] **PTO-105** Slash-command search · 2h · 🟢 Medium
+- [x] **PTO-105** Slash-command search · 2h · 🟢 Medium — ✅ shipped v1.12
 - [ ] **PTO-201** Custom favicon + splash · 1h · 🟢 Low
 - [ ] **PTO-202** Print-friendly stylesheet · 2h · 🟢 Low
 

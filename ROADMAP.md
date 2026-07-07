@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.11 (production) |
-| Features shipped | 32 |
+| Version | 1.12 (production) |
+| Features shipped | 33 |
 | File size | ~131 KB (single HTML) |
-| Backlog items | 19 |
+| Backlog items | 18 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -57,15 +57,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
   - [ ] "Install" prompt appears in Chrome/Edge
   - [ ] Home-screen icon on iOS/Android
 - **Depends on:** PTO-201
-
-### 🟢 PTO-105: Slash-command search
-- **Effort:** 2h
-- **Priority:** Medium
-- **Acceptance criteria:**
-  - [ ] `/vac`, `/sick`, `/personal`, `/holiday` filter by type
-  - [ ] `/2026` filters by year
-  - [ ] `/jul` or `/july` filters by month
-  - [ ] Stacks with regular search (builds on the PTO-101 search box)
 
 ### 🟢 PTO-201: Custom favicon + splash
 - **Effort:** 1h
@@ -189,6 +180,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.12 — Slash-command search (July 2026)
+- **PTO-105** — The log search box now parses slash-commands that stack with each other and free text: `/vac /sick /personal /holiday /bereavement /jury /unpaid` (type), `/2026` (year), `/jul` or `/july` (month). Later type commands override earlier ones; everything else filters as free text. Verified: each command, month abbrev/full, stacking, and free-text fallthrough.
 
 ### v1.11 — CSV export (July 2026)
 - **PTO-307** — "Export CSV" button in Settings writes `pto_entries_YYYYMMDD.csv` with columns Date, Day, Type, Hours, Status, Notes (sorted by date). Proper CSV quoting/escaping for commas, quotes, and newlines, plus a UTF-8 BOM so Excel opens it cleanly. Verified: header, row count, and escaping of a `Trip: Rome, "gelato"` note.
