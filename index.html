@@ -28,9 +28,9 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --primary:#2563EB;--primary-hover:#1D4ED8;--primary-soft:#EFF4FF;--primary-line:#BFDBFE;--primary-fg:#fff;
   --gradient-primary:linear-gradient(135deg,#2563EB 0%,#06B6D4 100%);
   --gradient-glow:0 4px 14px rgba(37,99,235,.26);
-  --data-cyan:#06B6D4;--data-cyan-soft:#ECFEFF;--data-purple:#2563EB;--data-purple-soft:#EFF4FF;
-  --data-magenta:#0EA5E9;--data-magenta-soft:#F0F9FF;--data-blue:#2563EB;--data-blue-soft:#EFF4FF;
-  --data-teal:#0891B2;--data-teal-soft:#ECFEFF;
+  --data-cyan:#0891B2;--data-cyan-soft:#ECFEFF;--data-purple:#7C3AED;--data-purple-soft:#F5F3FF;
+  --data-magenta:#DB2777;--data-magenta-soft:#FDF2F8;--data-blue:#2563EB;--data-blue-soft:#EFF4FF;
+  --data-teal:#0D9488;--data-teal-soft:#F0FDFA;--data-green:#059669;--data-green-soft:#ECFDF5;--data-amber:#D97706;--data-amber-soft:#FFF7ED;
   --dur-fast:120ms;--dur:200ms;--dur-slow:320ms;--ease:cubic-bezier(.4,0,.2,1);
   --success:#059669;--success-soft:#ECFDF5;--success-line:#A7F3D0;
   --warn:#D97706;--warn-soft:#FFFBEB;--warn-line:#FDE68A;
@@ -45,7 +45,7 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --nav-active-bg:var(--primary);--nav-active-fg:#fff;
   --chart-grid:#F1F5F9;--chart-tick:#94A3B8;--chart-line:#2563EB;
   --chart-fill-1:rgba(37,99,235,.14);--chart-fill-2:rgba(37,99,235,0);
-  --chart-usage:#06B6D4;--chart-usage-fill:rgba(6,182,212,.07);
+  --chart-usage:#DB2777;--chart-usage-fill:rgba(219,39,119,.07);
   --shadow-xs:none;
   --shadow-sm:0 1px 2px rgba(15,23,42,.04);
   --shadow-md:0 4px 10px -3px rgba(15,23,42,.08),0 2px 4px -2px rgba(15,23,42,.04);
@@ -63,9 +63,9 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --primary:#60A5FA;--primary-hover:#93C5FD;--primary-soft:rgba(96,165,250,.16);--primary-line:rgba(96,165,250,.34);--primary-fg:#fff;
   --gradient-primary:linear-gradient(135deg,#3B82F6 0%,#22D3EE 100%);
   --gradient-glow:0 4px 18px rgba(59,130,246,.35);
-  --data-cyan:#22D3EE;--data-cyan-soft:rgba(34,211,238,.14);--data-purple:#60A5FA;--data-purple-soft:rgba(96,165,250,.16);
-  --data-magenta:#38BDF8;--data-magenta-soft:rgba(56,189,248,.16);--data-blue:#60A5FA;--data-blue-soft:rgba(96,165,250,.14);
-  --data-teal:#2DD4BF;--data-teal-soft:rgba(45,212,191,.14);
+  --data-cyan:#22D3EE;--data-cyan-soft:rgba(34,211,238,.14);--data-purple:#A78BFA;--data-purple-soft:rgba(167,139,250,.16);
+  --data-magenta:#F472B6;--data-magenta-soft:rgba(244,114,182,.16);--data-blue:#60A5FA;--data-blue-soft:rgba(96,165,250,.14);
+  --data-teal:#2DD4BF;--data-teal-soft:rgba(45,212,191,.14);--data-green:#34D399;--data-green-soft:rgba(52,211,153,.14);--data-amber:#FBBF24;--data-amber-soft:rgba(251,191,36,.14);
   --success:#34D399;--success-soft:rgba(52,211,153,.1);--success-line:rgba(52,211,153,.25);
   --warn:#FBBF24;--warn-soft:rgba(251,191,36,.12);--warn-line:rgba(251,191,36,.3);
   --info:#60A5FA;--info-soft:rgba(96,165,250,.1);--info-line:rgba(96,165,250,.25);
@@ -79,7 +79,7 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --nav-active-bg:var(--primary);--nav-active-fg:#fff;
   --chart-grid:#141414;--chart-tick:#525252;--chart-line:#60A5FA;
   --chart-fill-1:rgba(96,165,250,.18);--chart-fill-2:rgba(96,165,250,0);
-  --chart-usage:#22D3EE;--chart-usage-fill:rgba(34,211,238,.08);
+  --chart-usage:#F472B6;--chart-usage-fill:rgba(244,114,182,.08);
   --shadow-xs:none;
   --shadow-sm:0 1px 2px rgba(0,0,0,.6);
   --shadow-md:0 6px 16px -6px rgba(0,0,0,.8),0 2px 6px -2px rgba(0,0,0,.7);
@@ -131,7 +131,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .nav-item[data-tooltip]{position:relative}
 [data-sidebar="collapsed"] .nav-item[data-tooltip]:hover::after{content:attr(data-tooltip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--n-900);color:var(--n-0);padding:5px 10px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:100;box-shadow:var(--shadow-md);pointer-events:none}
 .user-card{margin-top:auto;padding:12px;background:var(--primary-soft);border-radius:10px;border:1px solid var(--primary-line);display:flex;align-items:center;gap:10px;transition:padding .25s ease}
-[data-sidebar="collapsed"] .user-card{padding:8px;justify-content:center}
+[data-sidebar="collapsed"] .user-card{padding:0;justify-content:center;background:transparent;border-color:transparent}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--gradient-primary);color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px;flex-shrink:0}
 .user-info{min-width:0;line-height:1.2;transition:opacity .2s ease}
 [data-sidebar="collapsed"] .user-info{opacity:0;width:0}
@@ -200,12 +200,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .kpi-icon.magenta{background:var(--data-magenta-soft);color:var(--data-magenta)}
 .kpi-icon.blue{background:var(--data-blue-soft);color:var(--data-blue)}
 .kpi-icon.teal{background:var(--data-teal-soft);color:var(--data-teal)}
+.kpi-icon.green{background:var(--data-green-soft);color:var(--data-green)}
+.kpi-icon.amber{background:var(--data-amber-soft);color:var(--data-amber)}
 .kpi-spark{margin-top:8px;height:28px;width:100%;display:block}
 .kpi-spark path.fill{fill:var(--data-purple-soft)}
 .kpi-spark path.line{fill:none;stroke:var(--data-purple);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .kpi-value{font-family:'JetBrains Mono','Inter',monospace;font-size:26px;font-weight:600;color:var(--n-900);letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
 .kpi-value .unit{font-size:13px;font-weight:500;color:var(--n-400);letter-spacing:0}
-.kpi-value.v-cyan{color:var(--data-cyan)}.kpi-value.v-purple{color:var(--data-purple)}.kpi-value.v-magenta{color:var(--data-magenta)}.kpi-value.v-blue{color:var(--data-blue)}.kpi-value.v-teal{color:var(--data-teal)}
+.kpi-value.v-cyan{color:var(--data-cyan)}.kpi-value.v-purple{color:var(--data-purple)}.kpi-value.v-magenta{color:var(--data-magenta)}.kpi-value.v-blue{color:var(--data-blue)}.kpi-value.v-teal{color:var(--data-teal)}.kpi-value.v-green{color:var(--data-green)}.kpi-value.v-amber{color:var(--data-amber)}
 .kpi-sub{font-size:12px;color:var(--n-500);margin-top:6px;display:flex;align-items:center;gap:6px}
 .kpi.kpi-link{cursor:pointer;position:relative}
 .kpi.kpi-link:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--n-300)}
@@ -224,6 +226,73 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .kpi-ring.a .rp{stroke:var(--warn)}
 .kpi-ring.r .rp{stroke:var(--accent)}
 .kpi-ring .rl{fill:var(--n-700);font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+/* Dashboard KPI cards (mockup layout) */
+.kpi-top{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.kpi-top .kpi-icon{width:30px;height:30px}
+.kpi-top .kpi-icon svg{width:16px;height:16px}
+.kpi-title{font-size:13px;font-weight:600;color:var(--n-700);letter-spacing:-.01em}
+.kpi-title.pink{color:var(--data-magenta)}
+.kpi-chev{width:16px;height:16px;color:var(--n-400);margin-left:auto;flex-shrink:0;transition:transform .15s,color .15s}
+.kpi-link:hover .kpi-chev{color:var(--n-600);transform:translateX(2px)}
+.kpi-body{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.kpi-main{min-width:0;flex:1}
+.kpi-ring.lg{width:58px;height:58px}
+.kpi-ring .rl2{fill:var(--n-500);font-size:6.5px;font-weight:600;text-anchor:middle;dominant-baseline:central;letter-spacing:.04em}
+.kpi-sparkbox{width:96px;flex-shrink:0}
+.kpi-sparkbox .kpi-spark{margin-top:0;height:40px}
+.kpi-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--n-500);display:flex;align-items:center;gap:6px}
+.kpi-foot svg{width:14px;height:14px;flex-shrink:0;color:var(--n-400)}
+.kpi-foot.pos{color:var(--data-green)}
+.kpi-foot.neg{color:var(--accent)}
+.kpi-qmark{width:52px;height:52px;border:2px dashed var(--line);border-radius:50%;display:grid;place-items:center;color:var(--n-400);font-size:20px;font-weight:600;flex-shrink:0}
+.kpi-ph-line{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600;color:var(--n-800);margin-bottom:4px}
+.kpi-ph-line svg{width:15px;height:15px;color:var(--n-400);flex-shrink:0}
+.btn.pink-cta{position:relative;overflow:hidden;background:var(--data-magenta-soft);color:var(--data-magenta);border:1px solid var(--data-magenta-line,var(--data-magenta));box-shadow:none;width:100%;margin-top:12px;justify-content:center}
+.btn.pink-cta:hover{background:var(--data-magenta);color:#fff}
+[data-theme="dark"] .btn.pink-cta{background:var(--data-magenta-soft);color:var(--data-magenta)}
+[data-theme="dark"] .btn.pink-cta:hover{background:var(--data-magenta);color:#fff}
+.btn.pink-cta input[type=date]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+/* Dashboard mockup layout */
+.dash-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.dash-cta{height:40px;padding:0 18px;background:var(--gradient-primary);border:none;box-shadow:var(--gradient-glow);white-space:nowrap;flex-shrink:0}
+.dash-cta:hover{background:var(--gradient-primary);filter:brightness(1.06);box-shadow:var(--gradient-glow),var(--shadow-md)}
+.dash-cta:focus-visible{outline:none;box-shadow:var(--gradient-glow),0 0 0 3px var(--ring)}
+[data-theme="dark"] .dash-cta{background:var(--gradient-primary)}
+.card-sub{font-size:12px;color:var(--n-500);margin-top:2px}
+.g-dash-2{grid-template-columns:1.7fr 1fr 1fr}
+.g-dash-3{grid-template-columns:1.5fr 1fr}
+.g-dash-2>*,.g-dash-3>*{min-width:0}
+.g-dash-2>.card{display:flex;flex-direction:column}
+.g-dash-2>.card .chart-wrap{flex:1;min-height:230px}
+@media(max-width:1200px){.g-dash-2{grid-template-columns:1fr}.g-dash-3{grid-template-columns:1fr}}
+.chart-legend-row{display:flex;gap:16px;margin-bottom:10px}
+.lg-item{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--n-600);font-weight:500}
+.lg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.lg-dot.dashed{border-radius:0;width:14px;height:0;border-top:2px dashed}
+.insights-col{display:flex;flex-direction:column;gap:10px}
+.insights-col .insight{margin-bottom:0}
+.up-list{display:flex;flex-direction:column}
+.up-row{display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line-soft);cursor:pointer;border-radius:6px}
+.up-row:last-child{border-bottom:none}
+.up-row:hover{background:var(--hover-bg)}
+.up-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.up-dot.green{background:var(--data-green)}.up-dot.red{background:var(--accent)}.up-dot.magenta{background:var(--data-magenta)}.up-dot.blue{background:var(--data-blue)}.up-dot.purple{background:var(--data-purple)}.up-dot.amber{background:var(--data-amber)}
+.up-date{font-size:13px;font-weight:600;color:var(--n-800);white-space:nowrap;min-width:76px}
+.up-label{font-size:13px;color:var(--n-600);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.up-right{margin-left:auto;flex-shrink:0}
+.up-viewall{display:block;text-align:center;margin-top:12px;font-size:12.5px;font-weight:600;color:var(--primary);cursor:pointer}
+.up-viewall:hover{text-decoration:underline}
+.usage-wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.usage-donut{width:170px;height:170px;flex-shrink:0;position:relative}
+.usage-donut canvas{max-width:100%;max-height:100%}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.donut-center .dc-val{font-family:'JetBrains Mono','Inter',monospace;font-size:22px;font-weight:600;color:var(--n-900);line-height:1}
+.donut-center .dc-lbl{font-size:11px;color:var(--n-500);margin-top:3px}
+.usage-legend{flex:1;min-width:150px;display:flex;flex-direction:column;gap:9px}
+.ul-row{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.ul-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.ul-name{color:var(--n-700);font-weight:500}
+.ul-val{margin-left:auto;color:var(--n-500);font-variant-numeric:tabular-nums}
 /* Segmented toggle (chart range) */
 .seg-toggle{display:inline-flex;background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
 .seg-toggle button{width:auto;border:none;background:transparent;color:var(--n-500);font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;box-shadow:none;font-family:inherit}
@@ -373,8 +442,9 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .insight.critical{border-color:var(--accent-line);background:var(--accent-soft)}
 .insight.critical .insight-icon{background:var(--accent);color:#fff}
 .chart-wrap{position:relative;height:280px;width:100%}
-.chart-summary{display:flex;gap:14px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line-soft)}
+.chart-summary{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;padding-top:14px;margin-top:14px;border-top:1px solid var(--line-soft)}
 .chart-stat{display:flex;flex-direction:column;gap:2px}
+.chart-stat.until .lbl::before{background:var(--n-400)}
 .chart-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--n-500);font-weight:600;display:flex;align-items:center;gap:5px}
 .chart-stat .lbl::before{content:'';width:8px;height:8px;border-radius:50%;display:inline-block}
 .chart-stat.balance .lbl::before{background:var(--chart-line)}
@@ -636,7 +706,6 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
         <button class="theme-btn" data-set-theme="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
         <button class="theme-btn" data-set-theme="system" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
       </div>
-      <button class="btn topbar-cta" onclick="requestTimeOff()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Request Time Off</span></button>
       <button class="user-chip" onclick="switchTab('cfg')" title="Account settings"><span class="uc-avatar">JH</span><span class="uc-name">Jazz Harris</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
     </div>
   </div>
@@ -644,23 +713,15 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 <div class="print-header"><strong>PTO Summary</strong> — <span id="printName">Jazz Harris</span> — <span id="printDate"></span></div>
 
 <div class="panel active" id="dash">
-  <div class="page-head"><h1 id="dashGreeting">Welcome back, Jazz</h1><div class="sub" id="dash-sub"></div></div>
+  <div class="dash-head">
+    <div class="page-head" style="margin-bottom:0"><h1 id="dashGreeting">Welcome back, Jazz</h1><div class="sub" id="dash-sub"></div></div>
+    <button class="btn dash-cta" onclick="requestTimeOff()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Request Time Off</span></button>
+  </div>
   <div class="grid g-kpi" id="kpis"></div>
   <div style="height:20px"></div>
-  <div class="card">
-    <div class="card-title"><h3>Insights</h3>
-      <div style="display:flex;align-items:center;gap:10px">
-        <button class="link-btn" id="showDismissedBtn" onclick="toggleShowDismissed()" style="display:none"></button>
-        <button class="link-btn" id="dismissAllBtn" onclick="dismissAllInsights()" style="display:none">Dismiss all</button>
-        <span class="chip n"><span id="insightCount">0</span> items</span>
-      </div>
-    </div>
-    <div id="insights" class="insights-row"></div>
-  </div>
-  <div style="height:20px"></div>
-  <div class="grid g-2">
+  <div class="grid g-dash-2">
     <div class="card">
-      <div class="card-title"><h3>Vacation balance projection</h3>
+      <div class="card-title"><div><h3>Vacation Balance Projection</h3><div class="card-sub">Next 12 months</div></div>
         <div class="seg-toggle" id="rangeToggle">
           <button type="button" data-range="3" onclick="setChartRange(3)">3M</button>
           <button type="button" data-range="6" onclick="setChartRange(6)">6M</button>
@@ -668,15 +729,26 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
           <button type="button" data-range="0" onclick="setChartRange(0)">All</button>
         </div>
       </div>
-      <div class="chart-summary" id="chartSummary"></div>
+      <div class="chart-legend-row"><span class="lg-item"><span class="lg-dot" style="background:var(--chart-line)"></span>Balance (hrs)</span><span class="lg-item"><span class="lg-dot dashed" style="border-color:var(--chart-usage)"></span>Used YTD (hrs)</span></div>
       <div class="chart-wrap"><canvas id="balChart"></canvas></div>
+      <div class="chart-summary" id="chartSummary"></div>
     </div>
-    <div class="card"><div class="card-title"><h3>Usage breakdown</h3><span class="meta">Year to date</span></div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
+    <div class="card"><div class="card-title"><h3>Upcoming Time Off</h3><button class="link-btn" onclick="switchTab('cal')">View Calendar →</button></div><div id="upcoming"></div></div>
+    <div class="card">
+      <div class="card-title"><h3>Insights</h3>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="link-btn" id="showDismissedBtn" onclick="toggleShowDismissed()" style="display:none"></button>
+          <button class="link-btn" id="dismissAllBtn" onclick="dismissAllInsights()" style="display:none">Dismiss all</button>
+          <span id="insightCount" style="display:none"></span>
+        </div>
+      </div>
+      <div id="insights" class="insights-col"></div>
+    </div>
   </div>
   <div style="height:20px"></div>
-  <div class="grid g-2-eq">
-    <div class="card"><div class="card-title"><h3>Upcoming time off</h3><button class="link-btn" onclick="switchTab('cal')">View calendar →</button></div><div id="upcoming"></div></div>
-    <div class="card"><div class="card-title"><h3>Upcoming Fridays</h3><button class="link-btn" onclick="switchTab('fri')">View all →</button></div><div id="upcomingFridays"></div></div>
+  <div class="grid g-dash-3">
+    <div class="card"><div class="card-title"><h3>Upcoming Fridays (WFH)</h3><button class="link-btn" onclick="switchTab('fri')">View all Fridays →</button></div><div id="upcomingFridays"></div></div>
+    <div class="card"><div class="card-title"><h3>Usage Breakdown (YTD)</h3></div><div class="usage-wrap"><div class="usage-donut"><canvas id="pieChart"></canvas></div><div id="usageLegend" class="usage-legend"></div></div></div>
   </div>
 </div>
 
@@ -1212,6 +1284,10 @@ function ringSVG(pct, cls){
   const r = 17, c = 2*Math.PI*r, p = Math.min(100, Math.max(0, pct)), off = c*(1 - p/100);
   return `<svg class="kpi-ring ${cls}" viewBox="0 0 44 44"><circle class="rt" cx="22" cy="22" r="${r}"/><circle class="rp" cx="22" cy="22" r="${r}" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/><text class="rl" x="22" y="22">${Math.round(p)}%</text></svg>`;
 }
+function ringSVG2(pct, cls){
+  const r = 20, c = 2*Math.PI*r, p = Math.min(100, Math.max(0, pct)), off = c*(1 - p/100);
+  return `<svg class="kpi-ring lg ${cls}" viewBox="0 0 48 48"><circle class="rt" cx="24" cy="24" r="${r}"/><circle class="rp" cx="24" cy="24" r="${r}" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/><text class="rl" x="24" y="21">${Math.round(p)}%</text><text class="rl2" x="24" y="31">used</text></svg>`;
+}
 function usageThisVsLast(){
   const t = today(), y = t.getFullYear(), m = t.getMonth();
   const inMonth = (yy,mm) => state.entries.filter(e => e.type==="Vacation" && parseDate(e.date).getFullYear()===yy && parseDate(e.date).getMonth()===mm).reduce((s,e)=>s+Number(e.hours||0),0);
@@ -1246,50 +1322,69 @@ function renderKPIs(){
   const sickIsNA = allot.sick === null; const sickBal = sickIsNA ? null : allot.sick - us;
   const usedPct = allot.vacation ? Math.round(uv/allot.vacation*100) : 0;
   const tr = usageThisVsLast();
-  const trendHtml = tr.diff !== 0 ? `<span class="kpi-trend ${tr.diff>0?'up':'down'}">${tr.diff>0?'▲':'▼'} ${Math.abs(tr.diff).toFixed(1)} hrs vs last month</span>` : `<span class="kpi-trend flat">No change vs last month</span>`;
   const link = (fn, title) => `role="button" tabindex="0" title="${title}" onclick="${fn}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}}"`;
+  const chev = `<svg class="kpi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+  const calICO = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  const ringCls = usedPct>=100?'r':usedPct>=70?'a':'g';
+  const refillDate = addDays(today(), daysToRefill);
+  // Card 2 footer (delta vs last month; down = good)
+  let k2foot;
+  if (tr.diff > 0) k2foot = `<div class="kpi-foot neg"><span>▲</span> ${tr.diff.toFixed(1)} hrs vs last month</div>`;
+  else if (tr.diff < 0) k2foot = `<div class="kpi-foot pos"><span>▼</span> ${Math.abs(tr.diff).toFixed(1)} hrs vs last month</div>`;
+  else k2foot = `<div class="kpi-foot">No change vs last month</div>`;
   // Personal holiday
   const y = cfg.year, ph = getPersonalHoliday(y), elig = isEligibleForPH();
-  let phVal, phSub, phAction = "";
-  if (!elig.eligible){ phVal = "Not eligible"; phSub = `Eligible ${fmt(elig.eligibleOn,{month:"short",day:"numeric"})}`; }
+  let phLine, phSub, phAction = "";
+  if (!elig.eligible){ phLine = `${calICO} Not eligible`; phSub = `Eligible ${fmt(elig.eligibleOn,{month:"short",day:"numeric"})}`; }
   else if (ph.status==="Scheduled" || ph.status==="Taken"){
-    const d = parseDate(ph.date); phVal = fmt(d,{month:"short",day:"numeric"}); phSub = ph.status==="Taken" ? "Taken ✓" : fmt(d,{weekday:"long"});
-    const view = `<button class="btn subtle sm" style="margin-top:8px;width:100%" onclick="viewInCalendar('${ph.date}')">View in calendar</button>`;
+    const d = parseDate(ph.date); phLine = `${calICO} ${fmt(d,{month:"short",day:"numeric"})}`; phSub = ph.status==="Taken" ? "Taken ✓" : fmt(d,{weekday:"long"});
+    const view = `<button class="btn subtle sm" style="margin-top:12px;width:100%" onclick="viewInCalendar('${ph.date}')">View in calendar</button>`;
     phAction = ph.status==="Taken"
       ? view + `<button class="btn ghost sm" style="margin-top:6px;width:100%;color:var(--accent)" onclick="unschedulePersonalHoliday(${y})">Reset</button>`
       : view + `<div style="display:flex;gap:6px;margin-top:6px"><button class="btn ghost sm" style="flex:1" onclick="markPersonalHolidayTaken(${y})">Mark taken</button><button class="btn ghost sm" style="flex:1;color:var(--accent)" onclick="unschedulePersonalHoliday(${y})">Unschedule</button></div>`;
   }
-  else { phVal = "Not scheduled"; phSub = "1 day available"; phAction = `<input type="date" id="ph_date_${y}" min="${isoDate(today())}" max="${y}-12-31" style="width:100%;margin-top:8px"/><button class="btn sm" style="margin-top:6px;width:100%" onclick="schedulePersonalHoliday(${y})">Schedule</button>`; }
+  else { phLine = `${calICO} Not scheduled`; phSub = "1 day available"; phAction = `<label class="btn pink-cta">${calICO} Pick a date<input type="date" id="ph_date_${y}" min="${isoDate(today())}" max="${y}-12-31" onchange="schedulePersonalHoliday(${y})"/></label>`; }
   // Next anniversary
-  const nxt = nextMilestone(); let annVal, annSub;
-  if (nxt){ const du = nxt.daysUntil, yy = Math.floor(du/365), dd = du - yy*365; annVal = `${yy>0?yy+'y ':''}${dd}d`; annSub = `${nxt.label} · ${fmt(nxt.date,{month:"short",day:"numeric",year:"numeric"})}`; }
-  else { annVal = "Max"; annSub = "Top tier reached"; }
+  const nxt = nextMilestone(); let annVal, annSub, annFoot;
+  if (nxt){ const du = nxt.daysUntil, yy = Math.floor(du/365), dd = du - yy*365; annVal = `${yy>0?yy+'y ':''}${dd}d`; annSub = nxt.label; annFoot = `${fmt(nxt.date,{month:"short",day:"numeric",year:"numeric"})} (${fmt(nxt.date,{weekday:"long"})})`; }
+  else { annVal = "Max"; annSub = "Top tier reached"; annFoot = ""; }
 
   document.getElementById("kpis").innerHTML = `
     <div class="kpi kpi-link" ${link("dashDrillLog('Vacation')","View vacation entries")}>
-      <div class="kpi-head"><span class="kpi-label">Vacation balance</span>${ringSVG(usedPct, usedPct>=100?'r':usedPct>=70?'a':'g')}</div>
-      <div class="kpi-value">${bal.toFixed(1)}<span class="unit">hrs</span></div>
-      <div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days left · refill in ${daysToRefill}d</div>
+      <div class="kpi-top"><div class="kpi-icon green">${ICO.vac}</div><span class="kpi-title">Vacation Balance</span></div>
+      <div class="kpi-body">
+        <div class="kpi-main"><div class="kpi-value v-green">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} days of ${allot.vacation} hrs</div></div>
+        ${ringSVG2(usedPct, ringCls)}
+      </div>
+      <div class="kpi-foot">${calICO} Next refill: ${fmt(refillDate,{month:"short",day:"numeric",year:"numeric"})} (${daysToRefill} days)</div>
     </div>
     <div class="kpi kpi-link" ${link("dashDrillLogYear("+cfg.year+")","View this year's entries")}>
-      <div class="kpi-head"><span class="kpi-label">Vacation used YTD</span><div class="kpi-icon purple">${ICO.used}</div></div>
-      <div class="kpi-value v-purple">${uv.toFixed(1)}<span class="unit">hrs</span></div>
-      <div class="kpi-sub">${(uv/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days · ${usedPct}%</div>
-      ${sparklineSVG(vacCumulativeByMonth(cfg.year))}
-      ${trendHtml}
+      <div class="kpi-top"><div class="kpi-icon purple">${ICO.used}</div><span class="kpi-title">Vacation Used YTD</span></div>
+      <div class="kpi-body">
+        <div class="kpi-main"><div class="kpi-value v-purple">${uv.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(uv/cfg.workday).toFixed(1)} days of ${allot.vacation} hrs</div></div>
+        <div class="kpi-sparkbox">${sparklineSVG(vacCumulativeByMonth(cfg.year))}</div>
+      </div>
+      ${k2foot}
     </div>
     ${sickIsNA
-      ? `<div class="kpi kpi-link" ${link("dashDrillLog('Sick')","View sick entries")}><div class="kpi-head"><span class="kpi-label">Sick balance</span><span class="na-badge">N/A</span></div><div class="kpi-value na">Not set</div><div class="kpi-sub">Confirm accrual with HR</div></div>`
-      : `<div class="kpi kpi-link" ${link("dashDrillLog('Sick')","View sick entries")}><div class="kpi-head"><span class="kpi-label">Sick balance</span><div class="kpi-icon teal">${ICO.sick}</div></div><div class="kpi-value v-teal">${sickBal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(sickBal/cfg.workday).toFixed(1)} of ${allot.sick/cfg.workday} days remaining</div></div>`}
+      ? `<div class="kpi kpi-link" ${link("dashDrillLog('Sick')","View sick entries")}>
+          <div class="kpi-top"><div class="kpi-icon blue">${ICO.sick}</div><span class="kpi-title">Sick Balance</span></div>
+          <div class="kpi-body"><div class="kpi-main"><div class="kpi-value v-blue" style="color:var(--data-blue)">N/A</div><div class="kpi-sub">Not set</div></div><div class="kpi-qmark">?</div></div>
+          <div class="kpi-foot">Confirm accrual with HR</div>
+        </div>`
+      : `<div class="kpi kpi-link" ${link("dashDrillLog('Sick')","View sick entries")}>
+          <div class="kpi-top"><div class="kpi-icon blue">${ICO.sick}</div><span class="kpi-title">Sick Balance</span></div>
+          <div class="kpi-body"><div class="kpi-main"><div class="kpi-value v-blue">${sickBal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(sickBal/cfg.workday).toFixed(1)} days of ${allot.sick} hrs</div></div></div>
+        </div>`}
     <div class="kpi">
-      <div class="kpi-head"><span class="kpi-label">Personal holiday</span><div class="kpi-icon magenta">${ICO.gift}</div></div>
-      <div class="kpi-value v-magenta" style="font-size:19px">${phVal}</div>
+      <div class="kpi-top"><div class="kpi-icon magenta">${ICO.gift}</div><span class="kpi-title pink">Personal Holiday</span></div>
+      <div class="kpi-ph-line">${phLine}</div>
       <div class="kpi-sub">${phSub}</div>${phAction}
     </div>
     <div class="kpi kpi-link" ${link("switchTab('ann')","View anniversaries")}>
-      <div class="kpi-head"><span class="kpi-label">Next anniversary</span><div class="kpi-icon blue">${ICO.celebrate}</div></div>
-      <div class="kpi-value v-blue">${annVal}</div>
-      <div class="kpi-sub">${annSub}</div>
+      <div class="kpi-top"><div class="kpi-icon amber">${ICO.celebrate}</div><span class="kpi-title">Next Anniversary</span>${chev}</div>
+      <div class="kpi-body"><div class="kpi-main"><div class="kpi-value v-amber">${annVal}</div><div class="kpi-sub">${annSub}</div></div></div>
+      ${annFoot ? `<div class="kpi-foot">${annFoot}</div>` : ""}
     </div>`;
 }
 function dashDrillLog(type){ state.logType = type||"All"; state.logYear = "All"; state.logSearch = ""; save(); switchTab("log"); renderLog(); }
@@ -1364,7 +1459,8 @@ function renderCharts(){
   document.getElementById("chartSummary").innerHTML = `
     <div class="chart-stat balance"><span class="lbl">Current balance</span><span class="val">${bal.toFixed(0)}<span class="unit">hrs</span></span></div>
     <div class="chart-stat usage"><span class="lbl">Used YTD</span><span class="val">${usedYTDCurrent.toFixed(0)}<span class="unit">hrs</span></span></div>
-    <div class="chart-stat refill"><span class="lbl">Next refill</span><span class="val">+${nextAllot.vacation}<span class="unit">hrs · Jan 1</span></span></div>`;
+    <div class="chart-stat refill"><span class="lbl">Next refill</span><span class="val">+${nextAllot.vacation}<span class="unit">hrs · Jan 1</span></span></div>
+    <div class="chart-stat until"><span class="lbl">Until refill</span><span class="val">${daysToRefill}<span class="unit">days</span></span></div>`;
   const annotations = {};
   yearBoundaries.forEach((yb, i) => {
     annotations['year_' + i] = { type: 'line', xMin: yb.index, xMax: yb.index, borderColor: dark ? 'rgba(115,115,115,.4)' : 'rgba(100,116,139,.35)', borderWidth: 1, borderDash: [4, 4], label: { display: true, content: `Jan 1 ${yb.year}`, position: 'start', backgroundColor: dark ? '#1a1a1a' : '#F8FAFC', color: dark ? '#e5e5e5' : '#334155', font: {size: 10, weight: 600}, padding: {x:6,y:3}, borderRadius: 4, yAdjust: -6 } };
@@ -1391,13 +1487,28 @@ function renderCharts(){
   const allot = getAllotment(cfg.year); const rem = Math.max(0, allot.vacation - uv);
   const donutColors = dark ? ['#34D399','#F87171','#F472B6','#FBBF24','#2a2a2a'] : ['#059669','#DC2626','#DB2777','#D97706','#E2E8F0'];
   const donutBorder = dark ? '#0a0a0a' : '#FFFFFF';
-  const legendColor = dark ? '#a3a3a3' : '#475569';
+  const totalUsed = uv + us + uph + up;
   if (pieChart) pieChart.destroy();
   pieChart = new Chart(document.getElementById("pieChart"), {
     type:"doughnut",
     data:{labels:["Vacation used","Sick used","Personal Holiday","Personal used","Vacation remaining"], datasets:[{data:[uv,us,uph,up,rem], backgroundColor:donutColors, borderWidth:2, borderColor:donutBorder}]},
-    options:{responsive:true, maintainAspectRatio:false, cutout:"65%", plugins:{legend:{position:"bottom", labels:{boxWidth:10, boxHeight:10, font:{size:11}, padding:12, usePointStyle:true, pointStyle:"circle", color:legendColor}}, tooltip:{backgroundColor:tooltipBg, titleColor:tooltipText, bodyColor:tooltipText, padding:10, cornerRadius:8}}}
+    options:{responsive:true, maintainAspectRatio:false, cutout:"70%", plugins:{legend:{display:false}, tooltip:{backgroundColor:tooltipBg, titleColor:tooltipText, bodyColor:tooltipText, padding:10, cornerRadius:8}}}
   });
+  // Center label + custom legend
+  const donutWrap = document.querySelector(".usage-donut");
+  if (donutWrap){ let ctr = donutWrap.querySelector(".donut-center"); if (!ctr){ ctr = document.createElement("div"); ctr.className = "donut-center"; donutWrap.appendChild(ctr); } ctr.innerHTML = `<span class="dc-val">${totalUsed.toFixed(1)}</span><span class="dc-lbl">hrs used</span>`; }
+  const legEl = document.getElementById("usageLegend");
+  if (legEl){
+    const denom = allot.vacation || (totalUsed + rem) || 1;
+    const rows = [
+      {n:"Vacation", v:uv, c:donutColors[0]},
+      {n:"Personal Holiday", v:uph, c:donutColors[2]},
+      {n:"Sick", v:us, c:donutColors[1]},
+      {n:"Personal", v:up, c:donutColors[3]},
+      {n:"Remaining", v:rem, c:donutColors[4]}
+    ].filter(r => r.v > 0 || r.n === "Vacation" || r.n === "Remaining");
+    legEl.innerHTML = rows.map(r => `<div class="ul-row"><span class="ul-dot" style="background:${r.c}"></span><span class="ul-name">${r.n}</span><span class="ul-val">${r.v.toFixed(1)} hrs (${Math.round(r.v/denom*100)}%)</span></div>`).join("");
+  }
 }
 
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
@@ -1453,15 +1564,22 @@ function dismissAllInsights(){
 }
 
 function renderUpcoming(){
-  const t = today();
-  const up = state.entries.map(e=>({...e,d:parseDate(e.date)})).filter(e=>e.d>=t).sort((a,b)=>a.d-b.d).slice(0,6);
+  const t = today(); const items = [];
+  const dotFor = ty => ty==='Vacation'?'green':ty==='Sick'?'red':ty==='Personal Holiday'?'magenta':ty==='Personal'?'amber':'blue';
+  // Time-off entries
+  state.entries.forEach(e => { const d = parseDate(e.date); if (d >= t) items.push({d, date:e.date, dot:dotFor(e.type), label:e.type, right:`<span class="chip b">${Number(e.hours).toFixed(1)} hrs</span>`}); });
+  // Friday appointments
+  const sf = state.fridays || {};
+  Object.keys(sf).forEach(iso => { const it = sf[iso]; if (it && it.purpose && it.status !== "Cancelled"){ const d = parseDate(iso); if (d >= t) items.push({d, date:iso, dot:'blue', label:esc(it.purpose), right:`<span class="chip c">Friday Appt</span>`, fri:true}); } });
+  // Company holidays
+  (state.holidays || []).forEach(h => { const d = parseDate(h.date); if (d >= t) items.push({d, date:h.date, dot:'purple', label:esc(h.name), right:`<span class="chip v">Holiday</span>`}); });
+  items.sort((a,b) => a.d - b.d);
+  const up = items.slice(0, 6);
   if (!up.length){ document.getElementById("upcoming").innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>Nothing scheduled</h4><p>A good week to plan a trip.</p></div>`; return; }
-  document.getElementById("upcoming").innerHTML = `<div class="up-cards">` + up.map(e => {
-    let cls = 'a';
-    if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
-    const soon = daysBetween(t, e.d) <= 6;
-    return `<div class="up-card" title="Open in calendar" onclick="viewInCalendar('${e.date}')">${soon?'<span class="uc-flag">Soon</span>':''}<div class="uc-date">${fmt(e.d,{month:"short",day:"numeric"})}</div><div class="uc-dow">${DAYNAMES[e.d.getDay()]}</div><div class="uc-meta"><span class="chip ${cls}">${e.type}</span></div><div class="uc-time">${e.hours}h</div></div>`;
-  }).join("") + `</div>`;
+  document.getElementById("upcoming").innerHTML = `<div class="up-list">` + up.map(e => {
+    const onclick = e.fri ? `drillFriday('${e.date}')` : `viewInCalendar('${e.date}')`;
+    return `<div class="up-row" onclick="${onclick}"><span class="up-dot ${e.dot}"></span><span class="up-date">${fmt(e.d,{weekday:"short",month:"short",day:"numeric"})}</span><span class="up-label">${e.label}</span><span class="up-right">${e.right}</span></div>`;
+  }).join("") + `</div><a class="up-viewall" onclick="switchTab('cal')">View all →</a>`;
 }
 function renderUpcomingFridays(){
   const el = document.getElementById("upcomingFridays"); if (!el) return;
@@ -1471,17 +1589,13 @@ function renderUpcomingFridays(){
   const sf = state.fridays || {};
   const fris = [];
   while (d <= endOfYear && fris.length < 4){ fris.push(new Date(d)); d = addDays(d, 7); }
-  const anyAppt = fris.some(f => { const it = sf[isoDate(f)]; return it && it.purpose && it.status !== "Cancelled"; });
-  if (!anyAppt){
-    el.innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No Friday appointments scheduled</h4><p>Plan errands on WFH Fridays in the <a href="#" onclick="switchTab('fri');return false;" style="color:var(--primary);font-weight:600">Friday Planner</a>.</p></div>`;
-    return;
-  }
+  if (!fris.length){ el.innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No more Fridays this year</h4><p>Check back in January.</p></div>`; return; }
   el.innerHTML = `<div class="up-cards">` + fris.map((f, i) => {
     const iso = isoDate(f); const item = sf[iso]; const hol = holidayName(f);
     const flag = i === 0 ? "Today" : i === 1 ? "Next" : `In ${i} wks`;
-    const purpose = item && item.purpose && item.status !== "Cancelled" ? esc(item.purpose) : (hol ? esc(hol) : "Open");
-    const isOpen = !(item && item.purpose && item.status !== "Cancelled");
-    return `<div class="up-card" title="Open Friday Planner" onclick="drillFriday('${iso}')"><span class="uc-flag">${flag}</span><div class="uc-date">${fmt(f,{month:"short",day:"numeric"})}</div><div class="uc-dow">Friday</div><div class="uc-meta"><span class="chip ${isOpen?'n':'c'}">${purpose}</span></div></div>`;
+    const scheduled = item && item.purpose && item.status !== "Cancelled";
+    const purpose = scheduled ? esc(item.purpose) : (hol ? esc(hol) : "Open");
+    return `<div class="up-card" title="Open Friday Planner" onclick="drillFriday('${iso}')"><span class="uc-flag ${i===0?'today':''}">${flag}</span><div class="uc-date">${fmt(f,{month:"short",day:"numeric"})}</div><div class="uc-dow">Friday</div><div class="uc-meta"><span class="chip ${scheduled?'c':(hol?'v':'n')}">${purpose}</span></div></div>`;
   }).join("") + `</div>`;
 }
 
