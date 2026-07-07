@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PTO Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script>
+(function(){const s=localStorage.getItem('pto_theme');const p=s||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',p);
+const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.documentElement.setAttribute('data-sidebar','collapsed');})();
+</script>
+<style>
+:root{
+  --n-0:#fff;--n-50:#f8fafc;--n-100:#f1f5f9;--n-150:#e9eef5;--n-200:#e2e8f0;
+  --n-300:#cbd5e1;--n-400:#94a3b8;--n-500:#64748b;--n-600:#475569;
+  --n-700:#334155;--n-800:#1e293b;--n-900:#0f172a;--n-950:#020617;
+  --accent:#DC2626;--accent-soft:#FEF2F2;--accent-line:#FECACA;
+  --success:#059669;--success-soft:#ECFDF5;--success-line:#A7F3D0;
+  --warn:#D97706;--warn-soft:#FFFBEB;--warn-line:#FDE68A;
+  --info:#0369A1;--info-soft:#F0F9FF;--info-line:#BAE6FD;
+  --violet:#7C3AED;--violet-soft:#F5F3FF;--violet-line:#DDD6FE;
+  --pink:#DB2777;--pink-soft:#FDF2F8;--pink-line:#FBCFE8;
+  --cyan:#0891B2;--cyan-soft:#ECFEFF;--cyan-line:#A5F3FC;
+  --bg:#F8FAFC;--card:#fff;--line:var(--n-200);--line-soft:var(--n-150);
+  --sidebar-bg:var(--n-0);--topbar-bg:var(--n-0);
+  --input-bg:var(--n-0);--input-disabled:var(--n-50);
+  --hover-bg:var(--n-50);--hover-strong:var(--n-100);
+  --nav-active-bg:var(--n-900);--nav-active-fg:var(--n-0);
+  --chart-grid:#F1F5F9;--chart-tick:#94A3B8;--chart-line:#0F172A;
+  --chart-fill-1:rgba(15,23,42,.15);--chart-fill-2:rgba(15,23,42,0);
+  --chart-usage:#DC2626;--chart-usage-fill:rgba(220,38,38,.08);
+  --shadow-xs:0 1px 2px rgba(15,23,42,.04);
+  --shadow-sm:0 1px 3px rgba(15,23,42,.05),0 1px 2px rgba(15,23,42,.03);
+  --shadow-md:0 4px 6px -1px rgba(15,23,42,.06),0 2px 4px -2px rgba(15,23,42,.04);
+  --shadow-lg:0 10px 15px -3px rgba(15,23,42,.08),0 4px 6px -4px rgba(15,23,42,.05);
+  --ring:rgba(15,23,42,.08);
+  --sidebar-w:240px;--sidebar-w-collapsed:60px;
+}
+/* TRUE BLACK dark mode */
+[data-theme="dark"]{
+  --n-0:#000;--n-50:#050505;--n-100:#0f0f0f;--n-150:#141414;--n-200:#1c1c1c;
+  --n-300:#2a2a2a;--n-400:#525252;--n-500:#737373;--n-600:#a3a3a3;
+  --n-700:#d4d4d4;--n-800:#e5e5e5;--n-900:#fafafa;--n-950:#fff;
+  --accent:#F87171;
+  --accent-soft:rgba(248,113,113,.12);--accent-line:rgba(248,113,113,.28);
+  --success:#34D399;--success-soft:rgba(52,211,153,.1);--success-line:rgba(52,211,153,.25);
+  --warn:#FBBF24;--warn-soft:rgba(251,191,36,.12);--warn-line:rgba(251,191,36,.3);
+  --info:#60A5FA;--info-soft:rgba(96,165,250,.1);--info-line:rgba(96,165,250,.25);
+  --violet:#A78BFA;--violet-soft:rgba(167,139,250,.1);--violet-line:rgba(167,139,250,.25);
+  --pink:#F472B6;--pink-soft:rgba(244,114,182,.12);--pink-line:rgba(244,114,182,.28);
+  --cyan:#22D3EE;--cyan-soft:rgba(34,211,238,.1);--cyan-line:rgba(34,211,238,.25);
+  --bg:#000;--card:#0a0a0a;--line:#1a1a1a;--line-soft:#141414;
+  --sidebar-bg:#050505;--topbar-bg:rgba(0,0,0,.9);
+  --input-bg:#0f0f0f;--input-disabled:#050505;
+  --hover-bg:#111;--hover-strong:#1a1a1a;
+  --nav-active-bg:#DC2626;--nav-active-fg:#fff;
+  --chart-grid:#141414;--chart-tick:#525252;--chart-line:#F87171;
+  --chart-fill-1:rgba(248,113,113,.2);--chart-fill-2:rgba(248,113,113,0);
+  --chart-usage:#FBBF24;--chart-usage-fill:rgba(251,191,36,.08);
+  --shadow-xs:0 1px 2px rgba(0,0,0,.6);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.6);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.7),0 2px 4px -2px rgba(0,0,0,.6);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.8),0 4px 6px -4px rgba(0,0,0,.7);
+  --ring:rgba(96,165,250,.3);
+}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--n-800);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:'cv02','cv03','cv04','cv11';transition:background-color .3s ease,color .3s ease}
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100vh;transition:grid-template-columns .25s ease}
+[data-sidebar="collapsed"] .app{grid-template-columns:var(--sidebar-w-collapsed) 1fr}
+.sidebar{background:var(--sidebar-bg);border-right:1px solid var(--line);padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2px;overflow:hidden;transition:padding .25s ease}
+[data-sidebar="collapsed"] .sidebar{padding:20px 6px}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 20px;border-bottom:1px solid var(--line);margin-bottom:14px;position:relative}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--n-900) 0%,var(--n-700) 100%);display:grid;place-items:center;color:var(--n-0);font-weight:800;font-size:14px;box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.1);flex-shrink:0}
+[data-theme="dark"] .brand-mark{background:linear-gradient(135deg,#DC2626 0%,#7F1D1D 100%);color:#fff}
+.brand-mark::after{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;position:relative;top:-8px;right:-8px;box-shadow:0 0 0 2px var(--sidebar-bg)}
+.brand-text{display:flex;flex-direction:column;line-height:1.15;white-space:nowrap;overflow:hidden;transition:opacity .2s ease}
+[data-sidebar="collapsed"] .brand-text{opacity:0;width:0}
+.brand-text .t{font-weight:700;font-size:14px;color:var(--n-900);letter-spacing:-.01em}
+.brand-text .s{font-size:11px;color:var(--n-500);font-weight:500}
+.sidebar-toggle{position:absolute;top:16px;right:-14px;width:24px;height:24px;background:var(--card);border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--n-500);z-index:5;box-shadow:var(--shadow-sm);transition:all .15s}
+.sidebar-toggle:hover{color:var(--n-900);border-color:var(--n-400);box-shadow:var(--shadow-md)}
+.sidebar-toggle svg{width:12px;height:12px;transition:transform .25s ease}
+[data-sidebar="collapsed"] .sidebar-toggle svg{transform:rotate(180deg)}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--n-400);font-weight:600;padding:14px 12px 6px;white-space:nowrap;overflow:hidden;transition:opacity .2s ease}
+[data-sidebar="collapsed"] .nav-section{opacity:0;height:0;padding:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--n-600);font-weight:500;font-size:13.5px;transition:all .15s;background:transparent;border:none;width:100%;text-align:left;font-family:inherit;white-space:nowrap;overflow:hidden;position:relative}
+.nav-item:hover{background:var(--hover-bg);color:var(--n-900)}
+.nav-item.active{background:var(--nav-active-bg);color:var(--nav-active-fg);box-shadow:var(--shadow-sm)}
+.nav-item.active .icon{color:var(--nav-active-fg)}
+.nav-item .icon{width:16px;height:16px;color:var(--n-400);flex-shrink:0}
+.nav-label{transition:opacity .2s ease}
+[data-sidebar="collapsed"] .nav-label{opacity:0}
+[data-sidebar="collapsed"] .nav-item{justify-content:center;padding:8px}
+.nav-item[data-tooltip]{position:relative}
+[data-sidebar="collapsed"] .nav-item[data-tooltip]:hover::after{content:attr(data-tooltip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--n-900);color:var(--n-0);padding:5px 10px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:100;box-shadow:var(--shadow-md);pointer-events:none}
+.user-card{margin-top:auto;padding:12px;background:var(--hover-bg);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;gap:10px;transition:padding .25s ease}
+[data-sidebar="collapsed"] .user-card{padding:8px;justify-content:center}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#DC2626,#0F172A);color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px;flex-shrink:0}
+.user-info{min-width:0;line-height:1.2;transition:opacity .2s ease}
+[data-sidebar="collapsed"] .user-info{opacity:0;width:0}
+.user-info .n{font-size:13px;font-weight:600;color:var(--n-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-info .r{font-size:11px;color:var(--n-500)}
+.main{overflow:hidden}
+.topbar{height:60px;padding:0 32px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:var(--topbar-bg);position:sticky;top:0;z-index:20;backdrop-filter:blur(8px)}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:13px}
+.crumbs .home{color:var(--n-400)}.crumbs .sep{color:var(--n-300)}.crumbs .current{color:var(--n-900);font-weight:600}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.theme-toggle{display:inline-flex;align-items:center;gap:2px;background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:3px;box-shadow:var(--shadow-xs)}
+.theme-btn{background:transparent;border:none;padding:6px 8px;color:var(--n-500);cursor:pointer;border-radius:6px;display:grid;place-items:center;transition:all .15s}
+.theme-btn:hover{color:var(--n-800)}.theme-btn.active{background:var(--card);color:var(--n-900);box-shadow:var(--shadow-xs)}
+.theme-btn svg{width:14px;height:14px}
+.content{padding:28px 32px 40px;max-width:1400px}
+.page-head{margin-bottom:24px}
+.page-head h1{margin:0 0 4px;font-size:24px;font-weight:700;color:var(--n-900);letter-spacing:-.02em}
+.page-head .sub{color:var(--n-500);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow-xs)}
+.card-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap}
+.card-title h3{margin:0;font-size:14px;font-weight:600;color:var(--n-900);letter-spacing:-.005em}
+.card-title .meta{font-size:12px;color:var(--n-500);font-weight:500}
+.grid{display:grid;gap:20px}
+.g-kpi{grid-template-columns:repeat(4,1fr)}
+.g-2{grid-template-columns:1.4fr 1fr}.g-2-eq{grid-template-columns:1fr 1fr}
+@media(max-width:1100px){.g-kpi{grid-template-columns:repeat(2,1fr)}.g-2,.g-2-eq{grid-template-columns:1fr}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;transition:all .2s}
+.kpi:hover{border-color:var(--n-300);box-shadow:var(--shadow-md)}
+.kpi-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kpi-label{font-size:11px;font-weight:600;color:var(--n-500);text-transform:uppercase;letter-spacing:.06em}
+.kpi-icon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--hover-bg);color:var(--n-600)}
+.kpi-icon.g{background:var(--success-soft);color:var(--success)}
+.kpi-icon.r{background:var(--accent-soft);color:var(--accent)}
+.kpi-icon.a{background:var(--warn-soft);color:var(--warn)}
+.kpi-icon.b{background:var(--info-soft);color:var(--info)}
+.kpi-icon.p{background:var(--pink-soft);color:var(--pink)}
+.kpi-value{font-size:28px;font-weight:700;color:var(--n-900);letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
+.kpi-value .unit{font-size:13px;font-weight:500;color:var(--n-400);letter-spacing:0}
+.kpi-sub{font-size:12px;color:var(--n-500);margin-top:6px;display:flex;align-items:center;gap:6px}
+.kpi-sub .dot{width:4px;height:4px;border-radius:50%;background:var(--n-400)}
+.kpi.na .kpi-value{color:var(--n-400);font-weight:600;font-size:22px}
+.na-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--hover-bg);color:var(--n-500);border:1px solid var(--line);border-radius:999px;font-size:10px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid transparent;font-variant-numeric:tabular-nums}
+.chip.g{background:var(--success-soft);color:var(--success);border-color:var(--success-line)}
+.chip.r{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+.chip.a{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line)}
+.chip.b{background:var(--info-soft);color:var(--info);border-color:var(--info-line)}
+.chip.v{background:var(--violet-soft);color:var(--violet);border-color:var(--violet-line)}
+.chip.p{background:var(--pink-soft);color:var(--pink);border-color:var(--pink-line)}
+.chip.c{background:var(--cyan-soft);color:var(--cyan);border-color:var(--cyan-line)}
+.chip.n{background:var(--hover-bg);color:var(--n-700);border-color:var(--line)}
+.chip.star{background:linear-gradient(135deg,#FEF3C7,#FDE68A);color:#78350F;border-color:#F59E0B}
+[data-theme="dark"] .chip.star{background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(251,191,36,.35));color:#FDE68A;border-color:rgba(251,191,36,.5)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;background:var(--n-900);color:var(--card);box-shadow:var(--shadow-sm)}
+.btn:hover{background:var(--n-800);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+[data-theme="dark"] .btn{background:var(--n-900);color:var(--bg)}[data-theme="dark"] .btn:hover{background:var(--n-800)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:var(--card);color:var(--n-800);border-color:var(--line);box-shadow:var(--shadow-xs)}
+.btn.ghost:hover{background:var(--hover-bg);border-color:var(--n-300)}
+.btn.subtle{background:var(--hover-bg);color:var(--n-700);box-shadow:none}
+.btn.subtle:hover{background:var(--hover-strong)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn svg{width:14px;height:14px}
+input,select,textarea{font-family:inherit;font-size:13px;color:var(--n-900);padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);width:100%;transition:all .15s;box-shadow:var(--shadow-xs)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--n-500);box-shadow:0 0 0 3px var(--ring)}
+input:disabled,select:disabled{background:var(--input-disabled);color:var(--n-400);cursor:not-allowed}
+label.field{display:block;font-size:11px;font-weight:600;color:var(--n-600);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.table-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:10px 14px;background:var(--hover-bg);font-size:11px;font-weight:600;color:var(--n-600);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--line);position:sticky;top:0}
+td{padding:10px 14px;border-bottom:1px solid var(--line-soft);color:var(--n-700);font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--hover-bg)}
+td.num{text-align:right;font-weight:600}
+td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+.insight{display:flex;gap:10px;padding:11px 14px;border-radius:10px;margin-bottom:8px;border:1px solid;font-size:13px;line-height:1.5;background:var(--card)}
+.insight-icon{flex-shrink:0;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;margin-top:1px}
+.insight-icon svg{width:12px;height:12px}
+.insight-body{flex:1}
+.insight strong{display:block;color:var(--n-900);font-size:13px;font-weight:600;margin-bottom:2px}
+.insight.good{border-color:var(--success-line);background:var(--success-soft)}
+.insight.good .insight-icon{background:var(--success);color:#fff}
+.insight.warn{border-color:var(--warn-line);background:var(--warn-soft)}
+.insight.warn .insight-icon{background:var(--warn);color:#fff}
+.insight.info{border-color:var(--info-line);background:var(--info-soft)}
+.insight.info .insight-icon{background:var(--info);color:#fff}
+.insight.critical{border-color:var(--accent-line);background:var(--accent-soft)}
+.insight.critical .insight-icon{background:var(--accent);color:#fff}
+.chart-wrap{position:relative;height:280px;width:100%}
+.chart-summary{display:flex;gap:14px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line-soft)}
+.chart-stat{display:flex;flex-direction:column;gap:2px}
+.chart-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--n-500);font-weight:600;display:flex;align-items:center;gap:5px}
+.chart-stat .lbl::before{content:'';width:8px;height:8px;border-radius:50%;display:inline-block}
+.chart-stat.balance .lbl::before{background:var(--chart-line)}
+.chart-stat.usage .lbl::before{background:var(--chart-usage)}
+.chart-stat.refill .lbl::before{background:var(--info)}
+.chart-stat .val{font-size:16px;font-weight:700;color:var(--n-900);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.chart-stat .val .unit{font-size:11px;font-weight:500;color:var(--n-400);margin-left:2px}
+/* REDESIGNED CALENDAR */
+.cal-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.cal-nav-group{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.cal-title{margin:0;font-size:20px;font-weight:700;color:var(--n-900);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.cal-legend-top{display:flex;gap:6px;flex-wrap:wrap;flex:1;justify-content:flex-end}
+.legend-item{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--n-600);font-weight:500;padding:4px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-family:inherit;transition:all .15s;user-select:none}
+.legend-item:hover{background:var(--hover-bg);border-color:var(--n-300);color:var(--n-800)}
+.legend-item.off{opacity:.35}
+.legend-item.off .legend-swatch{opacity:.3}
+.legend-item.off span:not(.legend-swatch){text-decoration:line-through}
+.legend-swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-dow{text-align:center;font-size:10px;font-weight:700;color:var(--n-500);text-transform:uppercase;letter-spacing:.08em;padding:8px 0}
+.cal-day{min-height:88px;border-radius:10px;padding:8px;font-size:11px;background:var(--card);border:1px solid var(--line-soft);position:relative;transition:all .15s;overflow:hidden;display:flex;flex-direction:column;cursor:default}
+.cal-day:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);z-index:2;border-color:var(--n-300)}
+.cal-day.empty{background:transparent;border:none;box-shadow:none;pointer-events:none}
+.cal-day .dnum{font-weight:700;color:var(--n-800);font-size:13px;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.cal-day.wknd{background:var(--hover-bg);border-color:var(--line-soft)}
+.cal-day.wknd .dnum{color:var(--n-400)}
+.cal-day.fri{background:linear-gradient(180deg,var(--info-soft) 0%,var(--card) 60%);border-color:var(--info-line);border-top:2px solid var(--info)}
+.cal-day.hol{background:var(--violet-soft);border-color:var(--violet-line)}
+.cal-day.hol .dnum{color:var(--violet)}
+.cal-day.vac{background:var(--success-soft);border-color:var(--success-line)}
+.cal-day.vac .dnum{color:var(--success)}
+.cal-day.sick{background:var(--accent-soft);border-color:var(--accent-line)}
+.cal-day.sick .dnum{color:var(--accent)}
+.cal-day.personal{background:var(--pink-soft);border-color:var(--pink-line)}
+.cal-day.personal .dnum{color:var(--pink)}
+.cal-day.sug{background:var(--warn-soft);border:1.5px dashed var(--warn)}
+.cal-day.anniv{background:var(--warn-soft);border-color:var(--warn)}
+.cal-day.anniv .dnum{color:var(--warn)}
+.cal-day.today{border:2px solid var(--n-900);box-shadow:0 0 0 3px var(--ring)}
+[data-theme="dark"] .cal-day.today{border-color:var(--info)}
+.cal-tags{display:flex;flex-direction:column;gap:3px;overflow:hidden;flex:1}
+.cal-tag{font-size:9.5px;font-weight:600;line-height:1.25;padding:2px 5px;border-radius:4px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;display:inline-block;max-width:100%}
+.cal-tag.hol{background:var(--violet);color:#fff}
+[data-theme="dark"] .cal-tag.hol{background:var(--violet);color:var(--bg)}
+.cal-tag.vac{background:var(--success);color:#fff}
+[data-theme="dark"] .cal-tag.vac{background:var(--success);color:var(--bg)}
+.cal-tag.sick{background:var(--accent);color:#fff}
+.cal-tag.personal{background:var(--pink);color:#fff}
+[data-theme="dark"] .cal-tag.personal{background:var(--pink);color:var(--bg)}
+.cal-tag.sug{background:transparent;color:var(--warn);border:1px dashed var(--warn)}
+.cal-tag.anniv{background:var(--warn);color:#fff}
+[data-theme="dark"] .cal-tag.anniv{background:var(--warn);color:var(--bg)}
+.cal-tag.fri-appt{background:var(--cyan);color:#fff}
+[data-theme="dark"] .cal-tag.fri-appt{background:var(--cyan);color:var(--bg)}
+.milestone{display:flex;gap:14px;align-items:center;padding:12px 14px;border-radius:10px;margin-bottom:6px;border:1px solid var(--line);background:var(--card);transition:all .15s}
+.milestone:hover{border-color:var(--n-300);transform:translateX(2px)}
+.milestone.past{background:var(--hover-bg);opacity:.75}
+.milestone.current{border-color:var(--success);background:var(--success-soft)}
+.milestone.next{border-color:var(--accent);background:var(--accent-soft);box-shadow:var(--shadow-sm)}
+.mile-circle{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;background:var(--n-800);box-shadow:var(--shadow-sm)}
+[data-theme="dark"] .mile-circle{background:var(--n-300);color:var(--bg)}
+.milestone.past .mile-circle{background:var(--n-400)}
+.milestone.next .mile-circle{background:var(--accent);color:#fff}
+.milestone.current .mile-circle{background:var(--success);color:#fff}
+.mile-body{flex:1;min-width:0}
+.mile-title{font-weight:600;color:var(--n-900);font-size:14px;display:flex;align-items:center;gap:8px}
+.mile-sub{font-size:12px;color:var(--n-500);margin-top:2px}
+.mile-days{text-align:right}
+.mile-days .num{font-size:20px;font-weight:700;color:var(--n-900);letter-spacing:-.02em}
+.mile-days .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--n-500);font-weight:600}
+.banner{display:flex;gap:12px;padding:14px 16px;border-radius:10px;border:1px solid;margin-bottom:20px;font-size:13px;line-height:1.5}
+.banner-icon{width:20px;height:20px;flex-shrink:0;margin-top:1px}
+.banner.info{background:var(--info-soft);border-color:var(--info-line);color:var(--info)}
+.banner.info strong{color:var(--n-900)}
+.empty{text-align:center;padding:32px 20px;color:var(--n-500)}
+.empty-icon{width:44px;height:44px;border-radius:12px;background:var(--hover-bg);color:var(--n-400);display:inline-grid;place-items:center;margin-bottom:10px}
+.empty-icon svg{width:20px;height:20px}
+.empty h4{margin:0 0 4px;color:var(--n-700);font-size:14px;font-weight:600}
+.empty p{margin:0;font-size:13px}
+.row{display:grid;gap:12px}.row-2{grid-template-columns:1fr 1fr}
+.form-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr .9fr 2fr auto;gap:10px;align-items:end}
+@media(max-width:900px){.form-grid{grid-template-columns:1fr 1fr}}
+.panel{display:none;animation:fade .25s ease}.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--n-900);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);z-index:100;transform:translateY(20px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px}
+.toast.show{transform:none;opacity:1}
+.toast svg{width:14px;height:14px}
+.year-row{display:grid;grid-template-columns:70px 1fr 1fr 1.2fr;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:13px}
+.year-row:last-child{border-bottom:none}
+.year-row.header{padding:0 0 8px;border-bottom:1px solid var(--line);color:var(--n-500);text-transform:uppercase;font-size:10px;letter-spacing:.05em;font-weight:600}
+.year-label{font-weight:700;color:var(--n-900);font-variant-numeric:tabular-nums}
+.sick-input-wrap{display:flex;gap:6px;align-items:center}
+.sick-input-wrap input{flex:1}
+.na-toggle{display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;font-size:11px;color:var(--n-500);font-weight:500;white-space:nowrap;padding:3px 8px;border:1px solid var(--line);border-radius:6px;background:var(--hover-bg)}
+.na-toggle input{width:14px;height:14px;margin:0;accent-color:var(--n-500)}
+.compact-table{width:100%;font-size:13px}
+.compact-table td{padding:8px 0;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+.compact-table td:last-child{text-align:right}
+.compact-table tr:last-child td{border-bottom:none}
+.compact-table .day{color:var(--n-500);font-size:12px}
+.ph-strip{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--pink);border-radius:12px;box-shadow:var(--shadow-xs);flex-wrap:wrap}
+.ph-strip .ph-icon{width:34px;height:34px;border-radius:9px;background:var(--pink-soft);color:var(--pink);display:grid;place-items:center;flex-shrink:0}
+.ph-strip .ph-icon svg{width:16px;height:16px}
+.ph-strip .ph-content{flex:1;min-width:200px;display:flex;flex-direction:column;gap:2px}
+.ph-strip .ph-title{font-size:11px;font-weight:600;color:var(--n-500);text-transform:uppercase;letter-spacing:.06em}
+.ph-strip .ph-primary{font-size:14px;font-weight:600;color:var(--n-900);letter-spacing:-.01em}
+.ph-strip .ph-primary.muted{color:var(--n-500);font-weight:500}
+.ph-strip .ph-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+/* Modal for editing */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
+.modal-backdrop.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:520px;width:100%;box-shadow:var(--shadow-lg);animation:slideUp .25s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-header h3{margin:0;font-size:16px;font-weight:600;color:var(--n-900)}
+.modal-close{background:transparent;border:none;color:var(--n-500);cursor:pointer;padding:6px;border-radius:6px;display:grid;place-items:center}
+.modal-close:hover{background:var(--hover-bg);color:var(--n-800)}
+.modal-close svg{width:16px;height:16px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.modal-grid .full{grid-column:1/-1}
+.modal-actions{display:flex;justify-content:space-between;gap:10px;padding-top:16px;border-top:1px solid var(--line-soft)}
+</style>
+</head><body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">PT</div>
+    <div class="brand-text"><span class="t">PTO Command</span><span class="s">Personal workspace</span></div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Toggle sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+  </div>
+  <div class="nav-section">Workspace</div>
+  <button class="nav-item active" data-tab="dash" data-tooltip="Dashboard"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-label">Dashboard</span></button>
+  <button class="nav-item" data-tab="cal" data-tooltip="Calendar"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-label">Calendar</span></button>
+  <button class="nav-item" data-tab="log" data-tooltip="Time Off Log"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="nav-label">Time Off Log</span></button>
+  <div class="nav-section">Planning</div>
+  <button class="nav-item" data-tab="sug" data-tooltip="Smart Suggestions"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Smart Suggestions</span></button>
+  <button class="nav-item" data-tab="fri" data-tooltip="Friday Planner"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Friday Planner</span></button>
+  <button class="nav-item" data-tab="ann" data-tooltip="Anniversaries"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 .75-4.5 4.5L18 20l-6-3.5L6 20l1.5-6.75L3 8.75 9 8z"/></svg><span class="nav-label">Anniversaries</span></button>
+  <div class="nav-section">System</div>
+  <button class="nav-item" data-tab="cfg" data-tooltip="Settings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></button>
+  <div class="user-card">
+    <div class="avatar">JH</div>
+    <div class="user-info"><div class="n">Jazz Harris</div><div class="r">Business Analyst II</div></div>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <div class="crumbs">
+      <span class="home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+      <span class="sep">/</span><span class="current" id="crumb">Dashboard</span>
+    </div>
+    <div class="topbar-actions">
+      <div class="theme-toggle">
+        <button class="theme-btn" data-set-theme="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+        <button class="theme-btn" data-set-theme="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      </div>
+      <button class="btn ghost sm" onclick="exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+    </div>
+  </div>
+  <div class="content">
+
+<div class="panel active" id="dash">
+  <div class="page-head"><h1>Welcome back, Jazz</h1><div class="sub" id="dash-sub">Here's your PTO snapshot</div></div>
+  <div class="grid g-kpi" id="kpis"></div>
+  <div style="height:20px"></div>
+  <div class="grid g-2">
+    <div class="card">
+      <div class="card-title"><h3>Balance projection</h3><span class="meta">Next 12 months</span></div>
+      <div class="chart-summary" id="chartSummary"></div>
+      <div class="chart-wrap"><canvas id="balChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><h3>Insights</h3><span class="chip n"><span id="insightCount">0</span> items</span></div>
+      <div id="insights"></div>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="grid g-2">
+    <div class="card"><div class="card-title"><h3>Upcoming time off</h3><span class="meta">Next 4 weeks</span></div><div id="upcoming"></div></div>
+    <div class="card"><div class="card-title"><h3>Usage breakdown</h3><span class="meta">Year to date</span></div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
+  </div>
+  <div style="height:20px"></div>
+  <div id="phStrip"></div>
+</div>
+
+<div class="panel" id="log">
+  <div class="page-head"><h1>Time off log</h1><div class="sub">Record, edit, and manage every vacation, sick, personal, and holiday day</div></div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title"><h3>Add entry</h3></div>
+    <div class="form-grid">
+      <div><label class="field">Date</label><input type="date" id="e_date"/></div>
+      <div><label class="field">Type</label><select id="e_type"><option>Vacation</option><option>Sick</option><option>Personal Holiday</option><option>Personal</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
+      <div><label class="field">Hours</label><input type="number" id="e_hours" value="8" step="0.5" min="0"/></div>
+      <div><label class="field">Status</label><select id="e_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
+      <div><label class="field">Notes</label><input type="text" id="e_notes" placeholder="Optional"/></div>
+      <button class="btn" onclick="addEntry()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><h3>All entries</h3><span class="meta" id="logCount">0 entries</span></div>
+    <div class="table-wrap"><table id="logTable"><thead><tr><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<div class="panel" id="cal">
+  <div class="page-head"><h1>Calendar</h1><div class="sub">Visual view of holidays, time off, anniversaries, Friday appointments, and suggestions</div></div>
+  <div class="card">
+    <div class="cal-toolbar">
+      <div class="cal-nav-group">
+        <button class="btn ghost sm" onclick="navMonth(-1)" title="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <button class="btn ghost sm" onclick="goToToday()">Today</button>
+        <button class="btn ghost sm" onclick="navMonth(1)" title="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+      <h4 class="cal-title" id="monthLabel"></h4>
+      <div class="cal-legend-top" id="calLegend">
+        <button class="legend-item" data-filter="vac"><span class="legend-swatch" style="background:var(--success)"></span><span>Vacation</span></button>
+        <button class="legend-item" data-filter="sick"><span class="legend-swatch" style="background:var(--accent)"></span><span>Sick</span></button>
+        <button class="legend-item" data-filter="personal"><span class="legend-swatch" style="background:var(--pink)"></span><span>Personal Hol.</span></button>
+        <button class="legend-item" data-filter="hol"><span class="legend-swatch" style="background:var(--violet)"></span><span>Company Hol.</span></button>
+        <button class="legend-item" data-filter="friAppt"><span class="legend-swatch" style="background:var(--cyan)"></span><span>Friday Appt.</span></button>
+        <button class="legend-item" data-filter="sug"><span class="legend-swatch" style="background:var(--warn-soft); border:1px dashed var(--warn)"></span><span>Suggested</span></button>
+        <button class="legend-item" data-filter="anniv"><span class="legend-swatch" style="background:var(--warn)"></span><span>Anniversary</span></button>
+        <button class="legend-item" data-filter="fri"><span class="legend-swatch" style="background:var(--info-soft); border-top:2px solid var(--info)"></span><span>WFH Fri</span></button>
+      </div>
+    </div>
+    <div class="cal-grid" id="calHead"></div>
+    <div style="height:6px"></div>
+    <div class="cal-grid" id="calBody"></div>
+  </div>
+</div>
+
+<div class="panel" id="sug">
+  <div class="page-head"><h1>Smart suggestions</h1><div class="sub">Maximize time off with strategic PTO placement — WFH Fridays give you an edge</div></div>
+  <div class="banner info">
+    <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <div><strong>How this works.</strong> Every CCCI holiday is analyzed against your WFH-Friday schedule to find the highest-ROI PTO day. Rows marked <span class="chip star">★ Best</span> give you 5 consecutive days off for just 1 PTO day.</div>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table id="sugTable"><thead><tr><th>Holiday</th><th>Date</th><th>Day</th><th>Take PTO on</th><th>Result</th><th style="text-align:right">Hours</th><th>ROI</th><th style="width:100px"></th></tr></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<div class="panel" id="fri">
+  <div class="page-head"><h1>Friday planner</h1><div class="sub">Schedule appointments on WFH Fridays — save PTO for actual trips. Scheduled items show on your calendar.</div></div>
+  <div class="card"><div class="table-wrap"><table id="friTable"><thead><tr><th>Friday</th><th>Week</th><th>Holiday?</th><th>Purpose</th><th style="width:150px">Status</th></tr></thead><tbody></tbody></table></div></div>
+</div>
+
+<div class="panel" id="ann">
+  <div class="page-head"><h1>Service anniversaries</h1><div class="sub">Career milestones and vacation tier progression at CCCI</div></div>
+  <div class="grid g-kpi" id="annKpis"></div>
+  <div style="height:20px"></div>
+  <div class="grid g-2">
+    <div class="card"><div class="card-title"><h3>Milestone timeline</h3><span class="meta">All tiers</span></div><div id="milestoneList"></div></div>
+    <div class="card"><div class="card-title"><h3>Insights</h3></div><div id="annInsights"></div></div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="card">
+    <div class="card-title"><h3>Vacation tier reference</h3><span class="meta">Edit to match HR policy</span></div>
+    <div class="table-wrap"><table id="tierTable"><thead><tr><th>Milestone</th><th>Anniversary date</th><th>Year</th><th style="width:110px">Vacation days</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<div class="panel" id="cfg">
+  <div class="page-head"><h1>Settings</h1><div class="sub">Configure your policy, allotments, holidays, and preferences</div></div>
+  <div class="banner info">
+    <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div><strong>CCCI policy.</strong> Vacation is awarded Jan 1 based on service date (10 days year 1 → 15 days at 2-yr mark). 2026 offers <b>9 paid holidays</b>: 8 scheduled + 1 personal holiday (teammate-scheduled after 90 days of service). Unused holidays are forfeited Dec 31.</div>
+  </div>
+  <div class="grid g-2-eq">
+    <div class="card">
+      <div class="card-title"><h3>Employee info</h3></div>
+      <div class="row">
+        <div><label class="field">Name</label><input id="c_name"/></div>
+        <div class="row row-2"><div><label class="field">Hire date</label><input type="date" id="c_hire"/></div><div><label class="field">Plan year</label><input type="number" id="c_year"/></div></div>
+        <div><label class="field">Standard workday (hrs)</label><input type="number" id="c_workday" step="0.5"/></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><h3>Annual allotments</h3><span class="meta">Front-loaded Jan 1</span></div>
+      <div style="background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--n-600);line-height:1.5"><b style="color:var(--n-800)">Sick allotment:</b> Set to N/A until confirmed with HR. Uncheck N/A and enter the number of hours once you know your annual sick benefit.</div>
+      <div class="year-row header"><div>Year</div><div>Vacation (hrs)</div><div>Sick (hrs)</div><div>Notes</div></div>
+      <div id="allotList"></div>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="card">
+    <div class="card-title"><h3>Company holidays</h3><span class="meta">CCCI 2026 official · 8 scheduled + 1 personal</span></div>
+    <div id="holList"></div>
+    <div class="row" style="grid-template-columns:180px 1fr auto; margin-top:12px">
+      <input type="date" id="new_hol_date"/>
+      <input type="text" id="new_hol_name" placeholder="Holiday name"/>
+      <button class="btn ghost" onclick="addHoliday()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add holiday</button>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+  <div style="display:flex; gap:10px; flex-wrap:wrap">
+    <button class="btn" onclick="saveConfig()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save settings</button>
+    <button class="btn ghost" onclick="exportData()">Export backup</button>
+    <button class="btn ghost" onclick="document.getElementById('importFile').click()">Import backup</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)"/>
+    <button class="btn ghost" onclick="resetAll()" style="color:var(--accent); border-color:var(--accent-line)">Reset all data</button>
+  </div>
+</div>
+
+  </div>
+</main>
+</div>
+
+<!-- Edit Entry Modal -->
+<div class="modal-backdrop" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit time-off entry</h3>
+      <button class="modal-close" onclick="closeEditModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-grid">
+      <div><label class="field">Date</label><input type="date" id="edit_date"/></div>
+      <div><label class="field">Type</label><select id="edit_type"><option>Vacation</option><option>Sick</option><option>Personal Holiday</option><option>Personal</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
+      <div><label class="field">Hours</label><input type="number" id="edit_hours" step="0.5" min="0"/></div>
+      <div><label class="field">Status</label><select id="edit_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
+      <div class="full"><label class="field">Notes</label><input type="text" id="edit_notes"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn subtle sm" onclick="closeEditModal()">Cancel</button>
+      <button class="btn" onclick="saveEditEntry()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const ICO = {
+  vac:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.66 8L12 2.35 6.34 8A8 8 0 1 0 17.66 8z"/></svg>',
+  used:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+  sick:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  refill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+  minus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  celebrate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="M22 2L11 13"/></svg>',
+  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
+};
+
+const CCCI_2026_HOLIDAYS = [
+  {date:"2026-01-01", name:"New Year's Day"},{date:"2026-01-19", name:"Martin Luther King Day"},
+  {date:"2026-04-03", name:"Good Friday"},{date:"2026-05-25", name:"Memorial Day"},
+  {date:"2026-07-03", name:"Independence Day"},{date:"2026-09-07", name:"Labor Day"},
+  {date:"2026-11-26", name:"Thanksgiving Day"},{date:"2026-12-25", name:"Christmas Day"}
+];
+
+const DEFAULTS = {
+  config: { name:"Jazz Harris", hire:"2025-07-28", year:2026, workday:8 },
+  allotments: [
+    {year:2025, vacation:32, sick:null, notes:"Partial — hired 7/28/2025"},
+    {year:2026, vacation:80, sick:null, notes:"10 days vacation"},
+    {year:2027, vacation:120, sick:null, notes:"2-year mark — 15 days"},
+    {year:2028, vacation:120, sick:null, notes:"15 days"},
+    {year:2029, vacation:120, sick:null, notes:"15 days"},
+    {year:2030, vacation:160, sick:null, notes:"5-year mark — 20 days"}
+  ],
+  personalHolidays: [{year:2026, date:null, status:"Unscheduled", notes:""},{year:2027, date:null, status:"Unscheduled", notes:""}],
+  tiers: [
+    {years:1, vacDays:10, label:"1 Year", notes:"First anniversary at CCCI"},
+    {years:2, vacDays:15, label:"2 Years", notes:"+5 days bump (Brie confirmed)"},
+    {years:5, vacDays:20, label:"5 Years", notes:"Half-decade milestone"},
+    {years:10, vacDays:25, label:"10 Years", notes:"Decade of service"},
+    {years:15, vacDays:25, label:"15 Years", notes:"Long-term recognition"},
+    {years:20, vacDays:25, label:"20 Years", notes:"Two decades!"},
+    {years:25, vacDays:30, label:"25 Years", notes:"Quarter century"}
+  ],
+  holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
+  entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {}
+};
+
+let state = load();
+let calCursor = new Date();
+let editingIdx = -1;
+
+function load(){
+  try{
+    const r = localStorage.getItem("pto_state");
+    if (r){
+      const s = JSON.parse(r);
+      if (s.allotments){
+        if (!s.tiers) s.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers));
+        s.allotments.forEach(a => { if (a.sickTBC === true || a.sick === undefined) a.sick = null; delete a.sickTBC; });
+        if (s.holidaysV !== "ccci-2026-v1"){
+          const hasWrongOnes = s.holidays && s.holidays.some(h => h.date === "2026-06-19" || h.date === "2026-11-27" || h.date === "2026-12-24");
+          const has2026Count = s.holidays ? s.holidays.filter(h => h.date.startsWith("2026")).length : 0;
+          if (hasWrongOnes && has2026Count <= 10){
+            s.holidays = s.holidays.filter(h => !h.date.startsWith("2026"));
+            s.holidays = [...s.holidays, ...CCCI_2026_HOLIDAYS];
+          }
+          s.holidaysV = "ccci-2026-v1";
+        }
+        if (!s.personalHolidays) s.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays));
+        if (!s.calFilters) s.calFilters = {};
+        if (!s.fridays) s.fridays = {};
+        return s;
+      }
+    }
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULTS));
+}
+function save(){ localStorage.setItem("pto_state", JSON.stringify(state)); }
+function toast(msg){ const t = document.getElementById("toast"); t.innerHTML = ICO.check + '<span>'+msg+'</span>'; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2400); }
+
+function getTheme(){ return document.documentElement.getAttribute('data-theme') || 'light'; }
+function setTheme(t){ document.documentElement.setAttribute('data-theme', t); localStorage.setItem('pto_theme', t); updateThemeToggle(); renderCharts(); }
+function updateThemeToggle(){ const cur = getTheme(); document.querySelectorAll('.theme-btn').forEach(b => { b.classList.toggle('active', b.dataset.setTheme === cur); }); }
+function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+// SIDEBAR TOGGLE
+function toggleSidebar(){
+  const cur = document.documentElement.getAttribute('data-sidebar');
+  const newState = cur === 'collapsed' ? '' : 'collapsed';
+  if (newState) document.documentElement.setAttribute('data-sidebar', newState);
+  else document.documentElement.removeAttribute('data-sidebar');
+  localStorage.setItem('pto_sidebar', newState || 'expanded');
+  // Chart may need resize after transition
+  setTimeout(() => { if (balChart) balChart.resize(); if (pieChart) pieChart.resize(); }, 300);
+}
+
+const DAYNAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DOWABBR = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONTHNAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function parseDate(s){ if(!s) return null; const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fmt(d, opts){ return d.toLocaleDateString("en-US", opts||{month:"short",day:"numeric",year:"numeric"}); }
+function isoDate(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${dd}`; }
+function today(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+function isHoliday(d){ return state.holidays.some(h => h.date === isoDate(d)); }
+function holidayName(d){ const h = state.holidays.find(h => h.date === isoDate(d)); return h ? h.name : null; }
+function isWeekend(d){ const w = d.getDay(); return w===0||w===6; }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function daysBetween(a,b){ return Math.round((b-a)/86400000); }
+function weekNum(d){ const j=new Date(d.getFullYear(),0,1); return Math.ceil((((d-j)/86400000)+j.getDay()+1)/7); }
+
+function getAllotment(year){ const a = state.allotments.find(a => a.year === year); return a || {vacation:0, sick:null}; }
+function ytdUsage(type, year){ return state.entries.filter(e => e.type===type && parseDate(e.date).getFullYear()===year).reduce((s,e) => s+Number(e.hours||0), 0); }
+function currentBalance(asOf){
+  asOf = asOf || today(); const y = asOf.getFullYear(); const allot = getAllotment(y);
+  const used = state.entries.filter(e => e.type==="Vacation" && parseDate(e.date).getFullYear()===y && parseDate(e.date)<=asOf).reduce((s,e) => s+Number(e.hours||0), 0);
+  return allot.vacation - used;
+}
+function daysUntilNextRefill(){ const t = today(); return daysBetween(t, new Date(t.getFullYear()+1, 0, 1)); }
+
+function getPersonalHoliday(year){
+  let ph = state.personalHolidays.find(p => p.year === year);
+  if (!ph){ ph = {year, date:null, status:"Unscheduled", notes:""}; state.personalHolidays.push(ph); save(); }
+  return ph;
+}
+function isEligibleForPH(){ const hire = parseDate(state.config.hire); const days = daysBetween(hire, today()); return {eligible: days >= 90, hireDate:hire, daysServed:days, eligibleOn: addDays(hire, 90)}; }
+function personalHolidayDates(){ return new Set(state.personalHolidays.filter(p => p.date).map(p => p.date)); }
+
+// FRIDAY APPOINTMENTS — get scheduled/done ones for calendar overlay
+function scheduledFridayAppts(){
+  const out = {};
+  const fs = state.fridays || {};
+  Object.keys(fs).forEach(iso => {
+    const item = fs[iso];
+    if (item && item.purpose && (item.status === "Scheduled" || item.status === "Done")){
+      out[iso] = item;
+    }
+  });
+  return out;
+}
+
+function buildChartData(){
+  const t = today();
+  const startYear = t.getFullYear(); const startMonth = t.getMonth();
+  const points = [];
+  for (let i = 0; i < 15; i++){
+    const monthDate = new Date(startYear, startMonth + i, 1);
+    const yr = monthDate.getFullYear(); const mo = monthDate.getMonth();
+    const monthEnd = new Date(yr, mo + 1, 0);
+    const monthStart = new Date(yr, mo, 1);
+    const allot = getAllotment(yr);
+    const usedThisMonth = state.entries.filter(e => e.type === "Vacation" && parseDate(e.date) >= monthStart && parseDate(e.date) <= monthEnd).reduce((s,e) => s + Number(e.hours||0), 0);
+    const usedToDate = state.entries.filter(e => e.type === "Vacation" && parseDate(e.date).getFullYear() === yr && parseDate(e.date) <= monthEnd).reduce((s,e) => s + Number(e.hours||0), 0);
+    points.push({label: `${MONTHNAMES[mo].slice(0,3)} '${String(yr).slice(2)}`, shortLabel: MONTHNAMES[mo].slice(0,3), balance: Math.max(0, allot.vacation - usedToDate), usedYTD: usedToDate, usedThisMonth, monthDate, year: yr, month: mo, allotment: allot.vacation});
+  }
+  return points;
+}
+
+function buildSuggestions(year){
+  const workday = state.config.workday || 8; const out = [];
+  state.holidays.forEach(h => {
+    const d = parseDate(h.date); if (d.getFullYear() !== year) return;
+    const w = d.getDay(); let take=[], desc="", roi=0;
+    if (w===1){ take=[addDays(d,1)]; desc="Sat–Tue off (4-day weekend)"; roi=4; }
+    else if (w===2){ take=[addDays(d,-1)]; desc="Sat–Tue off (4-day weekend)"; roi=4; }
+    else if (w===3){ take=[addDays(d,1)]; desc="Thu PTO + Fri WFH = 5 days off"; roi=5; }
+    else if (w===4){ take=[addDays(d,-1)]; desc="Wed PTO + Fri WFH = 5 days off"; roi=5; }
+    else if (w===5){ take=[addDays(d,-1)]; desc="Thu–Sun off (4-day weekend)"; roi=4; }
+    else return;
+    if (take.some(t => isWeekend(t) || isHoliday(t))) return;
+    out.push({holiday:h.name, hDate:d, hDay:DAYNAMES[w], takeOn:take, result:desc, hours:workday*take.length, roi});
+  });
+  out.sort((a,b) => b.roi - a.roi || a.hDate - b.hDate);
+  return out;
+}
+function suggestedDates(){ return new Set(buildSuggestions(state.config.year).flatMap(s => s.takeOn.map(d => isoDate(d)))); }
+
+function anniversaryFor(years){ const h = parseDate(state.config.hire); return new Date(h.getFullYear()+years, h.getMonth(), h.getDate()); }
+function yearsOfService(asOf){ asOf = asOf || today(); const h = parseDate(state.config.hire); return (asOf - h) / (365.25 * 86400000); }
+function nextMilestone(asOf){
+  asOf = asOf || today(); const yos = yearsOfService(asOf);
+  const upcoming = state.tiers.filter(t => t.years > yos);
+  if (!upcoming.length) return null;
+  const next = upcoming[0];
+  return {...next, date: anniversaryFor(next.years), daysUntil: daysBetween(asOf, anniversaryFor(next.years))};
+}
+function currentMilestone(asOf){ asOf = asOf || today(); const yos = yearsOfService(asOf); const past = state.tiers.filter(t => t.years <= yos); return past.length ? past[past.length-1] : null; }
+function anniversaryDates(){ return new Set(state.tiers.map(t => isoDate(anniversaryFor(t.years)))); }
+
+function buildInsights(){
+  const cfg = state.config; const bal = currentBalance();
+  const allot = getAllotment(cfg.year); const nextAllot = getAllotment(cfg.year+1);
+  const daysToRefill = daysUntilNextRefill(); const ins = [];
+  if (allot.sick === null){ ins.push({t:"info", icon:ICO.info, h:"Sick allotment: N/A", b:"Set to <b>N/A</b> until you confirm the accrual amount with HR. Enter it in Settings when ready."}); }
+  const ph = getPersonalHoliday(cfg.year); const elig = isEligibleForPH();
+  if (ph.status === "Unscheduled" && daysToRefill < 120 && elig.eligible){ ins.push({t:"warn", icon:ICO.gift, h:"Personal holiday unscheduled", b:`Your <b>1 personal holiday</b> for ${cfg.year} isn't scheduled — <b>${daysToRefill} days</b> until it forfeits.`}); }
+  if (ph.status === "Scheduled" && ph.date){ ins.push({t:"good", icon:ICO.gift, h:"Personal holiday scheduled", b:`Your ${cfg.year} personal holiday is set for <b>${fmt(parseDate(ph.date),{weekday:"long",month:"long",day:"numeric"})}</b>.`}); }
+  if (daysToRefill < 120 && bal > allot.vacation*0.6){ ins.push({t:"warn", icon:ICO.warn, h:"You're under-using vacation", b:`<b>${(bal/cfg.workday).toFixed(1)} days</b> remaining with only ${Math.round(daysToRefill/30)} months until Jan 1. Vacation doesn't roll over.`}); }
+  if (daysToRefill < 60 && bal > 0){ ins.push({t:"critical", icon:ICO.warn, h:"Use-it-or-lose-it alert", b:`<b>${(bal/cfg.workday).toFixed(1)} days</b> expire Dec 31. Only <b>${daysToRefill} days</b> to burn them.`}); }
+  if (nextAllot.vacation > allot.vacation){ const bump = nextAllot.vacation - allot.vacation; ins.push({t:"good", icon:ICO.celebrate, h:"Vacation bump coming", b:`On Jan 1, ${cfg.year+1} you'll receive <b>${nextAllot.vacation} hrs (${nextAllot.vacation/cfg.workday} days)</b> — an extra ${bump/cfg.workday} days.`}); }
+  ins.push({t:"info", icon:ICO.refill, h:"Next vacation refill", b:`January 1, ${cfg.year+1} · <b>${daysToRefill} days</b> away · +${nextAllot.vacation} hrs incoming`});
+  const sug = buildSuggestions(cfg.year); const booked = new Set(state.entries.map(e => e.date));
+  const openSug = sug.filter(s => !s.takeOn.every(d => booked.has(isoDate(d))));
+  if (openSug.length){ const best = openSug[0]; ins.push({t:"good", icon:ICO.star, h:"Top recommendation", b:`Take <b>${fmt(best.takeOn[0],{weekday:"long",month:"short",day:"numeric"})}</b> off around ${best.holiday}. ${best.result}.`}); }
+  const nxt = nextMilestone();
+  if (nxt && nxt.daysUntil <= 120){ ins.push({t:"good", icon:ICO.celebrate, h:`${nxt.label} milestone approaching`, b:`<b>${nxt.daysUntil} days</b> until ${fmt(nxt.date)}. See Anniversaries tab.`}); }
+  return ins;
+}
+
+let balChart, pieChart;
+
+function renderKPIs(){
+  const cfg = state.config; const bal = currentBalance();
+  const uv = ytdUsage("Vacation", cfg.year); const us = ytdUsage("Sick", cfg.year);
+  const allot = getAllotment(cfg.year); const daysToRefill = daysUntilNextRefill();
+  const sickIsNA = allot.sick === null; const sickBal = sickIsNA ? null : allot.sick - us;
+  document.getElementById("kpis").innerHTML = `
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Vacation balance</span><div class="kpi-icon g">${ICO.vac}</div></div><div class="kpi-value">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days remaining</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Used year to date</span><div class="kpi-icon r">${ICO.used}</div></div><div class="kpi-value">${uv.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(uv/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days used <span class="dot"></span> ${Math.round(uv/allot.vacation*100)}%</div></div>
+    ${sickIsNA ? `<div class="kpi na"><div class="kpi-head"><span class="kpi-label">Sick balance</span><span class="na-badge">N/A</span></div><div class="kpi-value">Not set</div><div class="kpi-sub">Confirm accrual with HR</div></div>` : `<div class="kpi"><div class="kpi-head"><span class="kpi-label">Sick balance</span><div class="kpi-icon a">${ICO.sick}</div></div><div class="kpi-value">${sickBal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(sickBal/cfg.workday).toFixed(1)} of ${allot.sick/cfg.workday} days remaining</div></div>`}
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next refill</span><div class="kpi-icon b">${ICO.refill}</div></div><div class="kpi-value">${daysToRefill}<span class="unit">days</span></div><div class="kpi-sub">Jan 1 · +${getAllotment(cfg.year+1).vacation} hrs incoming</div></div>`;
+}
+
+function renderPersonalHolidayStrip(){
+  const y = state.config.year; const ph = getPersonalHoliday(y); const elig = isEligibleForPH();
+  const el = document.getElementById("phStrip");
+  let primary = "", actions = "";
+  if (!elig.eligible){ const daysToEligible = daysBetween(today(), elig.eligibleOn); primary = `<span class="ph-primary muted">Eligible in ${daysToEligible} days · ${fmt(elig.eligibleOn,{month:"short",day:"numeric",year:"numeric"})}</span>`; }
+  else if (ph.status === "Unscheduled"){ primary = `<span class="ph-primary muted">Not scheduled · ${y}</span>`; actions = `<input type="date" id="ph_date_${y}" style="width:170px" min="${isoDate(today())}" max="${y}-12-31"/><button class="btn sm" onclick="schedulePersonalHoliday(${y})">Schedule</button>`; }
+  else if (ph.status === "Scheduled" || ph.status === "Taken"){
+    const d = parseDate(ph.date); const isPast = d < today();
+    const takenBadge = ph.status === "Taken" ? '<span class="chip g" style="margin-left:8px">✓ Taken</span>' : '';
+    primary = `<span class="ph-primary">${fmt(d,{weekday:"long",month:"long",day:"numeric",year:"numeric"})}${takenBadge}</span>`;
+    actions = `${!isPast && ph.status==="Scheduled" ? `<button class="btn subtle sm" onclick="markPersonalHolidayTaken(${y})" title="Mark as taken">${ICO.check}</button>` : ''}<button class="btn subtle sm" onclick="viewInCalendar('${ph.date}')" title="View in calendar">${ICO.calendar}</button><button class="btn subtle sm" onclick="unschedulePersonalHoliday(${y})" title="Unschedule">${ICO.minus}</button>`;
+  } else if (ph.status === "Forfeited"){ primary = `<span class="ph-primary muted">Forfeited · ${y}</span>`; }
+  el.innerHTML = `<div class="ph-strip"><div class="ph-icon">${ICO.gift}</div><div class="ph-content"><span class="ph-title">Personal Holiday · ${y}</span>${primary}</div><div class="ph-actions">${actions}</div></div>`;
+}
+
+function schedulePersonalHoliday(year){
+  const input = document.getElementById(`ph_date_${year}`);
+  if (!input || !input.value){ toast("Pick a date first"); return; }
+  const d = input.value; const parsed = parseDate(d);
+  if (parsed.getFullYear() !== year){ toast("Date must be in " + year); return; }
+  if (isWeekend(parsed)){ toast("Pick a weekday"); return; }
+  if (isHoliday(parsed)){ toast("That's already a company holiday"); return; }
+  const ph = getPersonalHoliday(year);
+  ph.date = d; ph.status = "Scheduled"; ph.notes = "Personal holiday (CCCI benefit)";
+  if (!state.entries.find(e => e.date === d && e.type === "Personal Holiday")){
+    state.entries.push({date:d, type:"Personal Holiday", hours:state.config.workday, status:"Approved", notes:"CCCI personal holiday"});
+  }
+  save(); calCursor = new Date(parsed.getFullYear(), parsed.getMonth(), 1); refresh();
+  toast(`Personal holiday scheduled — ${fmt(parsed,{weekday:"short",month:"short",day:"numeric"})}`);
+  switchTab("cal");
+}
+function unschedulePersonalHoliday(year){
+  if (!confirm("Remove the scheduled personal holiday? This will also delete the log entry.")) return;
+  const ph = getPersonalHoliday(year); const dateToRemove = ph.date;
+  ph.date = null; ph.status = "Unscheduled"; ph.notes = "";
+  if (dateToRemove) state.entries = state.entries.filter(e => !(e.date === dateToRemove && e.type === "Personal Holiday"));
+  save(); refresh(); toast("Personal holiday unscheduled");
+}
+function markPersonalHolidayTaken(year){
+  const ph = getPersonalHoliday(year); ph.status = "Taken";
+  const entry = state.entries.find(e => e.date === ph.date && e.type === "Personal Holiday");
+  if (entry) entry.status = "Taken";
+  save(); refresh(); toast("Marked as taken");
+}
+
+function renderCharts(){
+  const points = buildChartData(); const cfg = state.config; const dark = getTheme()==='dark';
+  const gridColor = cssVar('--chart-grid'); const tickColor = cssVar('--chart-tick');
+  const lineColor = cssVar('--chart-line'); const fill1 = cssVar('--chart-fill-1'); const fill2 = cssVar('--chart-fill-2');
+  const usageColor = cssVar('--chart-usage'); const usageFill = cssVar('--chart-usage-fill');
+  const tooltipBg = dark ? '#fff' : '#0F172A'; const tooltipText = dark ? '#000' : '#FFFFFF';
+  const displayPoints = points.slice(0, 13);
+  const labels = displayPoints.map(p => p.shortLabel);
+  const balances = displayPoints.map(p => p.balance); const usedYTD = displayPoints.map(p => p.usedYTD);
+  const yearBoundaries = [];
+  for (let i = 1; i < displayPoints.length; i++){
+    if (displayPoints[i].year !== displayPoints[i-1].year){
+      yearBoundaries.push({index: i - 0.5, year: displayPoints[i].year, allotment: displayPoints[i].allotment});
+    }
+  }
+  const bal = currentBalance(); const usedYTDCurrent = ytdUsage("Vacation", cfg.year);
+  const nextAllot = getAllotment(cfg.year+1); const daysToRefill = daysUntilNextRefill();
+  document.getElementById("chartSummary").innerHTML = `
+    <div class="chart-stat balance"><span class="lbl">Current balance</span><span class="val">${bal.toFixed(0)}<span class="unit">hrs</span></span></div>
+    <div class="chart-stat usage"><span class="lbl">Used YTD</span><span class="val">${usedYTDCurrent.toFixed(0)}<span class="unit">hrs</span></span></div>
+    <div class="chart-stat refill"><span class="lbl">Next refill</span><span class="val">+${nextAllot.vacation}<span class="unit">hrs · Jan 1</span></span></div>`;
+  const annotations = {};
+  yearBoundaries.forEach((yb, i) => {
+    annotations['year_' + i] = { type: 'line', xMin: yb.index, xMax: yb.index, borderColor: dark ? 'rgba(115,115,115,.4)' : 'rgba(100,116,139,.35)', borderWidth: 1, borderDash: [4, 4], label: { display: true, content: `Jan 1 ${yb.year}`, position: 'start', backgroundColor: dark ? '#1a1a1a' : '#F8FAFC', color: dark ? '#e5e5e5' : '#334155', font: {size: 10, weight: 600}, padding: {x:6,y:3}, borderRadius: 4, yAdjust: -6 } };
+  });
+  if (balChart) balChart.destroy();
+  balChart = new Chart(document.getElementById("balChart"), {
+    type:"line",
+    data:{labels, datasets:[
+      {label:"Balance", data:balances, borderColor: lineColor, backgroundColor:(ctx)=>{const c=ctx.chart.ctx; const g=c.createLinearGradient(0,0,0,280); g.addColorStop(0,fill1); g.addColorStop(1,fill2); return g;}, tension:.35, fill:true, pointRadius:0, pointHoverRadius:6, borderWidth:2.5, pointBackgroundColor:lineColor, pointBorderColor:'#fff', pointBorderWidth:2, order: 2},
+      {label:"Used YTD", data:usedYTD, borderColor: usageColor, backgroundColor: usageFill, tension:.3, fill:false, pointRadius:0, pointHoverRadius:5, borderWidth:2, borderDash:[6,4], pointBackgroundColor: usageColor, pointBorderColor:'#fff', pointBorderWidth:2, order: 1}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false, interaction: {mode:'index', intersect:false},
+      plugins:{legend:{display:false}, annotation: {annotations}, tooltip:{backgroundColor:tooltipBg, titleColor:tooltipText, bodyColor:tooltipText, titleFont:{size:12,weight:600}, bodyFont:{size:12}, padding:12, cornerRadius:8, displayColors:true, boxWidth:8, boxHeight:8, boxPadding:6,
+        callbacks: {
+          title: (items) => { if (!items.length) return ''; const p = displayPoints[items[0].dataIndex]; return `${MONTHNAMES[p.month]} ${p.year}`; },
+          label: (ctx) => { const p = displayPoints[ctx.dataIndex]; if (ctx.dataset.label === 'Balance'){ return `  Balance: ${ctx.parsed.y.toFixed(1)} hrs (${(ctx.parsed.y/cfg.workday).toFixed(1)} days)`; } return `  Used YTD: ${ctx.parsed.y.toFixed(1)} hrs`; },
+          afterBody: (items) => { if (!items.length) return ''; const p = displayPoints[items[0].dataIndex]; if (p.usedThisMonth > 0) return [`  This month: ${p.usedThisMonth.toFixed(1)} hrs used`]; return ''; }
+        }
+      }},
+      scales:{y:{beginAtZero:true, grid:{color:gridColor, drawTicks:false}, ticks:{font:{size:10}, color:tickColor, padding:8, callback: (v) => v+' hrs'}, border:{display:false}}, x:{grid:{display:false}, ticks:{font:{size:10}, color:tickColor, maxRotation:0, autoSkip:false, padding:6}, border:{display:false}}}
+    }
+  });
+  const uv = ytdUsage("Vacation",cfg.year), us = ytdUsage("Sick",cfg.year), up = ytdUsage("Personal",cfg.year), uph = ytdUsage("Personal Holiday",cfg.year);
+  const allot = getAllotment(cfg.year); const rem = Math.max(0, allot.vacation - uv);
+  const donutColors = dark ? ['#34D399','#F87171','#F472B6','#FBBF24','#2a2a2a'] : ['#059669','#DC2626','#DB2777','#D97706','#E2E8F0'];
+  const donutBorder = dark ? '#0a0a0a' : '#FFFFFF';
+  const legendColor = dark ? '#a3a3a3' : '#475569';
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(document.getElementById("pieChart"), {
+    type:"doughnut",
+    data:{labels:["Vacation used","Sick used","Personal Holiday","Personal used","Vacation remaining"], datasets:[{data:[uv,us,uph,up,rem], backgroundColor:donutColors, borderWidth:2, borderColor:donutBorder}]},
+    options:{responsive:true, maintainAspectRatio:false, cutout:"65%", plugins:{legend:{position:"bottom", labels:{boxWidth:10, boxHeight:10, font:{size:11}, padding:12, usePointStyle:true, pointStyle:"circle", color:legendColor}}, tooltip:{backgroundColor:tooltipBg, titleColor:tooltipText, bodyColor:tooltipText, padding:10, cornerRadius:8}}}
+  });
+}
+
+function renderInsights(){
+  const list = buildInsights();
+  document.getElementById("insightCount").textContent = list.length;
+  document.getElementById("insights").innerHTML = list.length ? list.map(i => `<div class="insight ${i.t}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}</div></div>`).join("") : `<div class="empty"><div class="empty-icon">${ICO.info}</div><h4>No insights yet</h4><p>Add some time-off entries to see recommendations.</p></div>`;
+}
+
+function renderUpcoming(){
+  const t = today();
+  const up = state.entries.map(e=>({...e,d:parseDate(e.date)})).filter(e=>e.d>=t).sort((a,b)=>a.d-b.d).slice(0,6);
+  if (!up.length){ document.getElementById("upcoming").innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>Nothing scheduled</h4><p>A good week to plan a trip.</p></div>`; return; }
+  document.getElementById("upcoming").innerHTML = `<table class="compact-table"><tbody>`+
+    up.map(e => {
+      let cls = 'a';
+      if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
+      return `<tr><td><b>${fmt(e.d,{month:"short",day:"numeric"})}</b> <span class="day">${DOWABBR[e.d.getDay()]}</span></td><td><span class="chip ${cls}">${e.type}</span></td><td><b>${e.hours}h</b></td></tr>`;
+    }).join("")+`</tbody></table>`;
+}
+
+// ============ EDITABLE LOG ============
+function renderLog(){
+  const tb = document.querySelector("#logTable tbody");
+  const sorted = [...state.entries].sort((a,b) => parseDate(b.date) - parseDate(a.date));
+  document.getElementById("logCount").textContent = `${sorted.length} entries`;
+  tb.innerHTML = sorted.length ? sorted.map(e => {
+    const idx = state.entries.indexOf(e); const d = parseDate(e.date);
+    let cls = 'a';
+    if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
+    return `<tr><td><b>${fmt(d)}</b></td><td style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td><span class="chip ${cls}">${e.type}</span></td><td class="num">${e.hours}</td><td><span class="chip n">${e.status||"-"}</span></td><td style="color:var(--n-500)">${e.notes||"—"}</td><td><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
+  }).join("") : `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No entries yet</h4><p>Add your first entry using the form above.</p></div></td></tr>`;
+}
+
+function openEditModal(idx){
+  editingIdx = idx;
+  const e = state.entries[idx]; if (!e) return;
+  document.getElementById("edit_date").value = e.date;
+  document.getElementById("edit_type").value = e.type;
+  document.getElementById("edit_hours").value = e.hours;
+  document.getElementById("edit_status").value = e.status || "Approved";
+  document.getElementById("edit_notes").value = e.notes || "";
+  document.getElementById("editModal").classList.add("open");
+}
+function closeEditModal(){ document.getElementById("editModal").classList.remove("open"); editingIdx = -1; }
+function saveEditEntry(){
+  if (editingIdx < 0) return;
+  const e = state.entries[editingIdx];
+  const oldDate = e.date; const oldType = e.type;
+  const newDate = document.getElementById("edit_date").value;
+  const newType = document.getElementById("edit_type").value;
+  if (!newDate){ toast("Date is required"); return; }
+  e.date = newDate;
+  e.type = newType;
+  e.hours = Number(document.getElementById("edit_hours").value) || 8;
+  e.status = document.getElementById("edit_status").value;
+  e.notes = document.getElementById("edit_notes").value;
+  // Sync personal holiday tracking if type/date changed
+  if (oldType === "Personal Holiday" && (oldDate !== newDate || newType !== "Personal Holiday")){
+    const ph = state.personalHolidays.find(p => p.date === oldDate);
+    if (ph){ ph.date = null; ph.status = "Unscheduled"; ph.notes = ""; }
+  }
+  if (newType === "Personal Holiday"){
+    const year = parseDate(newDate).getFullYear();
+    const ph = getPersonalHoliday(year);
+    ph.date = newDate; ph.status = e.status === "Taken" ? "Taken" : "Scheduled";
+  }
+  save(); closeEditModal(); refresh(); toast("Entry updated");
+}
+
+function renderSuggestions(){
+  const list = buildSuggestions(state.config.year); const eds = new Set(state.entries.map(e => e.date));
+  const tb = document.querySelector("#sugTable tbody");
+  tb.innerHTML = list.length ? list.map(s => {
+    const takeStr = s.takeOn.map(d => fmt(d,{weekday:"short",month:"short",day:"numeric"})).join(", ");
+    const roiB = s.roi>=5 ? `<span class="chip star">★ Best</span>` : `<span class="chip v">${s.roi}-day</span>`;
+    const booked = s.takeOn.every(d => eds.has(isoDate(d)));
+    const firstIso = isoDate(s.takeOn[0]);
+    const btn = booked ? `<button class="btn subtle sm" onclick="viewInCalendar('${firstIso}')" title="View in calendar"><span class="chip g" style="margin:0">${ICO.check} Booked</span></button>` : `<button class="btn sm" onclick='bookSuggestion(${JSON.stringify(s.takeOn.map(isoDate))})'>Book</button>`;
+    return `<tr><td><b>${s.holiday}</b></td><td>${fmt(s.hDate)}</td><td style="color:var(--n-500)">${s.hDay}</td><td><b>${takeStr}</b></td><td>${s.result}</td><td class="num">${s.hours}</td><td>${roiB}</td><td>${btn}</td></tr>`;
+  }).join("") : `<tr><td colspan="8"><div class="empty"><div class="empty-icon">${ICO.star}</div><h4>No suggestions</h4><p>Add holidays in Settings to see recommendations.</p></div></td></tr>`;
+}
+
+function renderFridays(){
+  const t = today();
+  const endOfYear = new Date(t.getFullYear(), 11, 31);
+  let d = new Date(t);
+  while (d.getDay() !== 5) d = addDays(d, 1);
+  const fri = [];
+  while (d <= endOfYear){ fri.push(new Date(d)); d = addDays(d, 7); }
+  const sf = state.fridays || {};
+  const tb = document.querySelector("#friTable tbody");
+  if (!fri.length){ tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No more Fridays this year</h4><p>Come back after Jan 1 for the next year's schedule.</p></div></td></tr>`; return; }
+  tb.innerHTML = fri.map(f => {
+    const iso = isoDate(f); const hol = holidayName(f);
+    const st = sf[iso] || {purpose:"", status:"Open"};
+    const isThisWeek = daysBetween(t, f) <= 6;
+    return `<tr><td>${isThisWeek?'<span class="chip r" style="margin-right:6px">This week</span>':''}<b>${fmt(f,{month:"short",day:"numeric"})}</b> <span class="day" style="color:var(--n-500)">${fmt(f,{year:"numeric"})}</span></td><td class="mono">W${weekNum(f)}</td><td>${hol?`<span class="chip v">${hol}</span>`:'<span style="color:var(--n-400)">—</span>'}</td><td><input type="text" value="${st.purpose.replace(/"/g,'&quot;')}" placeholder="e.g. Dentist" onchange="updateFri('${iso}','purpose',this.value)"/></td><td><select onchange="updateFri('${iso}','status',this.value)">${["Open","Scheduled","Done","Cancelled"].map(s=>`<option ${s===st.status?'selected':''}>${s}</option>`).join("")}</select></td></tr>`;
+  }).join("");
+}
+
+function renderAnniversaries(){
+  const t = today(); const hire = parseDate(state.config.hire);
+  const yos = yearsOfService(t); const yosYears = Math.floor(yos); const yosMonths = Math.floor((yos-yosYears)*12);
+  const cur = currentMilestone(t); const nxt = nextMilestone(t);
+  document.getElementById("annKpis").innerHTML = `
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Hire date</span><div class="kpi-icon b">${ICO.calendar}</div></div><div class="kpi-value" style="font-size:20px">${fmt(hire,{month:"short",day:"numeric",year:"numeric"})}</div><div class="kpi-sub">${DAYNAMES[hire.getDay()]} · CCCI</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Service tenure</span><div class="kpi-icon g">${ICO.clock}</div></div><div class="kpi-value">${yosYears}<span class="unit">yrs ${yosMonths} mo</span></div><div class="kpi-sub">${cur ? "Current tier: "+cur.label : "Pre-1yr"}</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next milestone</span><div class="kpi-icon r">${ICO.star}</div></div><div class="kpi-value" style="font-size:20px">${nxt ? nxt.label : "Max"}</div><div class="kpi-sub">${nxt ? fmt(nxt.date,{month:"short",day:"numeric"})+" · "+nxt.daysUntil+" days" : "Top tier reached"}</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next bump</span><div class="kpi-icon a">${ICO.celebrate}</div></div><div class="kpi-value">+${nxt ? (nxt.vacDays-(cur?cur.vacDays:0)) : 0}<span class="unit">days</span></div><div class="kpi-sub">${nxt ? nxt.vacDays+" days total at "+nxt.label : "N/A"}</div></div>`;
+  document.getElementById("milestoneList").innerHTML = state.tiers.map(tier => {
+    const date = anniversaryFor(tier.years); const passed = date <= t;
+    const isCurrent = cur && tier.years === cur.years; const isNext = nxt && tier.years === nxt.years;
+    const daysAway = daysBetween(t, date); const yearsAway = (daysAway/365.25).toFixed(1);
+    const cls = isNext ? "next" : isCurrent ? "current" : passed ? "past" : "";
+    const tag = isNext ? '<span class="chip r">Next</span>' : isCurrent ? '<span class="chip g">You are here</span>' : '';
+    return `<div class="milestone ${cls}"><div class="mile-circle">${tier.years}yr</div><div class="mile-body"><div class="mile-title">${tier.label} ${tag}</div><div class="mile-sub">${fmt(date,{weekday:"short",month:"short",day:"numeric",year:"numeric"})} · ${passed ? Math.abs(daysAway)+" days ago" : "in "+daysAway+" days ("+yearsAway+" yrs)"}</div></div><div class="mile-days"><div class="num">${tier.vacDays}</div><div class="lbl">days</div></div></div>`;
+  }).join("");
+  const ins = [];
+  if (nxt && nxt.daysUntil <= 90){ ins.push({t:"warn", icon:ICO.clock, h:`${nxt.label} approaching`, b:`<b>${nxt.daysUntil} days</b> until ${fmt(nxt.date)}. Vacation increases to <b>${nxt.vacDays} days/year</b>.`}); }
+  if (nxt){ const bump = nxt.vacDays - (cur?cur.vacDays:0); if (bump > 0){ ins.push({t:"good", icon:ICO.celebrate, h:`Upcoming bump: +${bump} days/year`, b:`At ${nxt.label} you'll receive <b>${nxt.vacDays} days (${nxt.vacDays*8} hrs)</b> annually — up from ${cur?cur.vacDays:0}.`}); } }
+  if (yosYears >= 5){ ins.push({t:"good", icon:ICO.star, h:"Milestone employee", b:`${yosYears} years at CCCI — that's a real career investment.`}); }
+  else if (yosYears >= 1){ ins.push({t:"info", icon:ICO.clock, h:"Building your career", b:`${yosYears} ${yosYears===1?"year":"years"} in — on your way to the next milestone.`}); }
+  else { ins.push({t:"info", icon:ICO.calendar, h:"First year at CCCI", b:`1-year anniversary on <b>${fmt(anniversaryFor(1))}</b> (${daysBetween(t, anniversaryFor(1))} days away).`}); }
+  if (nxt && nxt.daysUntil > 90 && nxt.daysUntil <= 180){ ins.push({t:"info", icon:ICO.calendar, h:"Halfway to next milestone", b:`Under 6 months until ${nxt.label}. Start planning any milestone celebrations!`}); }
+  if (cur && cur.years === 1 && nxt && nxt.years === 2){ ins.push({t:"good", icon:ICO.star, h:"Biggest bump ahead", b:"The 2-year milestone brings the largest single vacation increase you'll see (+5 days)."}); }
+  document.getElementById("annInsights").innerHTML = ins.length ? ins.map(i => `<div class="insight ${i.t}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}</div></div>`).join("") : `<div class="empty"><div class="empty-icon">${ICO.info}</div><h4>No alerts</h4><p>You're on track.</p></div>`;
+  const tb = document.querySelector("#tierTable tbody");
+  tb.innerHTML = state.tiers.map((tier, idx) => { const date = anniversaryFor(tier.years);
+    return `<tr><td><b>${tier.label}</b></td><td>${fmt(date,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}</td><td class="mono">Year ${tier.years}</td><td><input type="number" value="${tier.vacDays}" step="1" min="0" onchange="updateTier(${idx},'vacDays',this.value)"/></td><td><input type="text" value="${(tier.notes||'').replace(/"/g,'&quot;')}" onchange="updateTier(${idx},'notes',this.value)"/></td></tr>`;
+  }).join("");
+}
+function updateTier(i, field, val){ state.tiers[i][field] = field==="notes" ? val : Number(val); save(); }
+
+// REDESIGNED CALENDAR with Friday appointments
+function renderCalendar(){
+  const y = calCursor.getFullYear(), m = calCursor.getMonth();
+  document.getElementById("monthLabel").textContent = `${MONTHNAMES[m]} ${y}`;
+  document.getElementById("calHead").innerHTML = DOWABBR.map(d => `<div class="cal-dow">${d}</div>`).join("");
+  const first = new Date(y,m,1); const pad = first.getDay(); const dim = new Date(y,m+1,0).getDate();
+  const cells = []; for (let i=0;i<pad;i++) cells.push(null); for (let d=1;d<=dim;d++) cells.push(new Date(y,m,d));
+  const em = {}; state.entries.forEach(e => { em[e.date]=e; });
+  const sug = suggestedDates(); const annivs = anniversaryDates(); const phDates = personalHolidayDates(); const friAppts = scheduledFridayAppts(); const t = today();
+  const f = state.calFilters || {};
+  document.getElementById("calBody").innerHTML = cells.map(d => {
+    if (!d) return `<div class="cal-day empty"></div>`;
+    const iso = isoDate(d); const c = ["cal-day"];
+    if (isWeekend(d)) c.push("wknd");
+    if (d.getDay()===5 && f.fri!==false) c.push("fri");
+    const hn = holidayName(d);
+    if (hn && f.hol!==false) c.push("hol");
+    const e = em[iso];
+    if (e && e.type==="Vacation" && f.vac!==false) c.push("vac");
+    if (e && e.type==="Sick" && f.sick!==false) c.push("sick");
+    if (e && e.type==="Personal Holiday" && f.personal!==false) c.push("personal");
+    if (!e && phDates.has(iso) && f.personal!==false) c.push("personal");
+    if (!e && sug.has(iso) && f.sug!==false) c.push("sug");
+    const isAnniv = annivs.has(iso);
+    if (isAnniv && f.anniv!==false) c.push("anniv");
+    if (d.getTime()===t.getTime()) c.push("today");
+
+    // Build tag stack (multiple tags per day possible)
+    const tags = [];
+    if (isAnniv && f.anniv!==false){ const tier = state.tiers.find(tr => isoDate(anniversaryFor(tr.years))===iso); if (tier) tags.push(`<span class="cal-tag anniv">${tier.label}</span>`); }
+    if (hn && f.hol!==false){ tags.push(`<span class="cal-tag hol" title="${hn}">${hn.length>14?hn.slice(0,13)+'…':hn}</span>`); }
+    if (e){
+      if (e.type==="Vacation" && f.vac!==false) tags.push(`<span class="cal-tag vac">Vacation · ${e.hours}h</span>`);
+      else if (e.type==="Sick" && f.sick!==false) tags.push(`<span class="cal-tag sick">Sick · ${e.hours}h</span>`);
+      else if (e.type==="Personal Holiday" && f.personal!==false) tags.push(`<span class="cal-tag personal">Personal Hol.</span>`);
+    }
+    if (!e && sug.has(iso) && f.sug!==false){ tags.push(`<span class="cal-tag sug">💡 Try PTO</span>`); }
+    // Friday appointment overlay
+    if (friAppts[iso] && f.friAppt!==false){
+      const appt = friAppts[iso];
+      tags.push(`<span class="cal-tag fri-appt" title="${appt.purpose}">${appt.purpose.length>14?appt.purpose.slice(0,13)+'…':appt.purpose}</span>`);
+    }
+
+    return `<div class="${c.join(' ')}"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
+  }).join("");
+  updateLegendUI();
+}
+
+function updateLegendUI(){
+  const f = state.calFilters || {};
+  document.querySelectorAll("#calLegend .legend-item").forEach(btn => { btn.classList.toggle("off", f[btn.dataset.filter] === false); });
+}
+function toggleLegendFilter(key){
+  if (!state.calFilters) state.calFilters = {};
+  state.calFilters[key] = state.calFilters[key] === false ? true : false;
+  save(); renderCalendar();
+}
+function goToToday(){
+  const t = today();
+  calCursor = new Date(t.getFullYear(), t.getMonth(), 1);
+  renderCalendar();
+  toast(`Jumped to ${MONTHNAMES[t.getMonth()]} ${t.getFullYear()}`);
+}
+
+function renderSettings(){
+  const c = state.config;
+  document.getElementById("c_name").value = c.name;
+  document.getElementById("c_hire").value = c.hire;
+  document.getElementById("c_year").value = c.year;
+  document.getElementById("c_workday").value = c.workday;
+  document.getElementById("allotList").innerHTML = state.allotments.sort((a,b) => a.year-b.year).map((a,i) => {
+    const isNA = a.sick === null;
+    return `<div class="year-row"><div class="year-label">${a.year}</div><div><input type="number" value="${a.vacation}" step="0.5" onchange="updateAllot(${i},'vacation',this.value)"/></div><div class="sick-input-wrap"><input type="number" value="${isNA?'':a.sick}" step="0.5" placeholder="${isNA?'N/A':''}" ${isNA?'disabled':''} onchange="updateAllot(${i},'sick',this.value)"/><label class="na-toggle"><input type="checkbox" ${isNA?'checked':''} onchange="toggleNA(${i},this.checked)"/>N/A</label></div><div><input type="text" value="${(a.notes||'').replace(/"/g,'&quot;')}" onchange="updateAllot(${i},'notes',this.value)"/></div></div>`;
+  }).join("");
+  document.getElementById("holList").innerHTML = state.holidays.sort((a,b) => a.date.localeCompare(b.date)).map((h,i) => `<div style="display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft)"><span style="width:140px;color:var(--n-500);font-size:13px;font-variant-numeric:tabular-nums">${fmt(parseDate(h.date))}</span><span style="flex:1;font-size:13px;color:var(--n-800);font-weight:500">${h.name}</span><button class="btn subtle sm" onclick="delHoliday(${i})">${ICO.trash}</button></div>`).join("");
+}
+
+function addEntry(){
+  const date = document.getElementById("e_date").value;
+  if (!date){ toast("Pick a date first"); return; }
+  state.entries.push({date, type:document.getElementById("e_type").value, hours:Number(document.getElementById("e_hours").value)||8, status:document.getElementById("e_status").value, notes:document.getElementById("e_notes").value});
+  save(); document.getElementById("e_notes").value=""; refresh(); toast("Entry added");
+}
+function deleteEntry(i){
+  const entry = state.entries[i];
+  if (entry && entry.type === "Personal Holiday"){
+    const ph = state.personalHolidays.find(p => p.date === entry.date);
+    if (ph){ ph.date = null; ph.status = "Unscheduled"; ph.notes = ""; }
+  }
+  state.entries.splice(i,1); save(); refresh(); toast("Entry removed");
+}
+function bookSuggestion(dates){
+  let added = 0; const firstDate = parseDate(dates[0]);
+  dates.forEach(d => { if (!state.entries.find(e => e.date === d)){ state.entries.push({date:d, type:"Vacation", hours:state.config.workday, status:"Pending", notes:"From smart suggestion"}); added++; } });
+  save(); calCursor = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1); refresh();
+  toast(`Booked ${added} day${added===1?"":"s"} — ${fmt(firstDate,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}`);
+  switchTab("cal");
+}
+function switchTab(id){
+  document.querySelectorAll(".nav-item").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+  const btn = document.querySelector(`.nav-item[data-tab="${id}"]`);
+  const panel = document.getElementById(id);
+  if (btn) btn.classList.add("active");
+  if (panel) panel.classList.add("active");
+  document.getElementById("crumb").textContent = TAB_TITLES[id] || "";
+  window.scrollTo(0,0);
+}
+function viewInCalendar(iso){ const d = parseDate(iso); calCursor = new Date(d.getFullYear(), d.getMonth(), 1); renderCalendar(); switchTab("cal"); }
+function navMonth(n){ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+n, 1); renderCalendar(); }
+function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); }
+function updateAllot(i, field, val){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx][field] = field==="notes" ? val : Number(val); save(); }
+function toggleNA(i, checked){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx].sick = checked ? null : 0; save(); refresh(); toast(checked?"Marked as N/A":"N/A removed"); }
+function saveConfig(){ const c = state.config; c.name = document.getElementById("c_name").value; c.hire = document.getElementById("c_hire").value; c.year = Number(document.getElementById("c_year").value); c.workday = Number(document.getElementById("c_workday").value); save(); refresh(); toast("Settings saved"); }
+function addHoliday(){ const d = document.getElementById("new_hol_date").value; const n = document.getElementById("new_hol_name").value; if (!d||!n){ toast("Enter date and name"); return; } state.holidays.push({date:d, name:n}); save(); document.getElementById("new_hol_date").value=""; document.getElementById("new_hol_name").value=""; renderSettings(); refresh(); toast("Holiday added"); }
+function delHoliday(i){ const sorted = [...state.holidays].sort((a,b) => a.date.localeCompare(b.date)); const target = sorted[i]; state.holidays = state.holidays.filter(h => h!==target); save(); renderSettings(); refresh(); toast("Holiday removed"); }
+function exportData(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_backup_${isoDate(today())}.json`; a.click(); URL.revokeObjectURL(url); toast("Backup exported"); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
+
+function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); }
+
+const TAB_TITLES = {dash:"Dashboard", log:"Time Off Log", cal:"Calendar", sug:"Smart Suggestions", fri:"Friday Planner", ann:"Anniversaries", cfg:"Settings"};
+document.querySelectorAll(".nav-item").forEach(t => { t.addEventListener("click", () => switchTab(t.dataset.tab)); });
+document.querySelectorAll('.theme-btn').forEach(b => { b.addEventListener('click', () => setTheme(b.dataset.setTheme)); });
+document.addEventListener('click', e => {
+  const legendBtn = e.target.closest('#calLegend .legend-item');
+  if (legendBtn) toggleLegendFilter(legendBtn.dataset.filter);
+  // Close modal on backdrop click
+  if (e.target.id === 'editModal') closeEditModal();
+});
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'j'){ e.preventDefault(); setTheme(getTheme()==='dark' ? 'light' : 'dark'); }
+  if (e.key === 'Escape' && document.getElementById('editModal').classList.contains('open')) closeEditModal();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'b'){ e.preventDefault(); toggleSidebar(); }
+});
+
+document.getElementById("e_date").value = isoDate(today());
+calCursor = new Date(state.config.year, today().getMonth(), 1);
+document.getElementById("dash-sub").textContent = `${fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"})}`;
+updateThemeToggle();
+refresh();
+</script>
+</body>
+</html>

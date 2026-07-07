@@ -1,0 +1,108 @@
+# PTO Command Center
+
+A personal PTO/vacation/sick-time tracker with smart suggestions, service anniversary tracking, and a Friday appointment planner. Fully client-side, no backend required — data saves to browser localStorage.
+
+Built for CCCI (Coca-Cola Consolidated) with the official 2026 holiday schedule baked in.
+
+## ✨ Features
+
+- **📊 Dashboard** — KPIs for vacation balance, YTD usage, sick balance, and next refill countdown
+- **📅 Calendar** — Month view with vacation, sick, personal holidays, company holidays, anniversaries, and Friday appointments. Toggleable legend chips.
+- **📝 Time Off Log** — Add, edit, and delete entries. Personal holidays auto-sync bidirectionally.
+- **⭐ Smart Suggestions** — Analyzes every company holiday against your WFH-Friday schedule to find highest-ROI PTO days (5 days off for 1 PTO day!)
+- **🏠 Friday Planner** — Schedule non-PTO appointments on your WFH Fridays. Scheduled items overlay on the calendar.
+- **🎂 Anniversaries** — Career milestone timeline with vacation-tier progression at CCCI
+- **🎁 Personal Holiday Tracker** — 1 floating day per year, with 90-day eligibility check
+- **🌗 Dark Mode** — True black theme with keyboard shortcut (Ctrl/Cmd + J)
+- **↔️ Collapsible Sidebar** — Toggle with the arrow button or Ctrl/Cmd + B
+- **📈 Balance Projection Chart** — Rolling 12-month view with year-boundary markers and hover details
+- **📧 Weekly Digest Companion** — Optional standalone HTML for generating email summaries
+
+## 🚀 Deployment (GitHub Pages)
+
+### Option 1: Standalone repository (fastest)
+
+1. Create a new GitHub repository (public, or private with GitHub Pro)
+2. Upload `index.html` to the root
+3. Go to **Settings → Pages**
+4. Under **Source**, select `Deploy from a branch`
+5. Choose `main` branch, `/ (root)` folder → Save
+6. Wait 1–2 minutes → your site will be live at `https://<username>.github.io/<repo-name>/`
+
+### Option 2: Inside an existing project
+
+1. Create a `docs/` folder in your repo
+2. Copy `index.html` into `docs/`
+3. **Settings → Pages** → Source: `main` branch, `/docs` folder → Save
+4. Live at `https://<username>.github.io/<repo-name>/`
+
+### Option 3: Subfolder in existing GitHub Pages site
+
+1. Create a folder like `/pto-tracker/` in your existing Pages repo
+2. Drop `index.html` inside
+3. It'll be live at `https://<username>.github.io/<repo-name>/pto-tracker/`
+
+## 💾 Your Data
+
+- **Everything stays in your browser** — nothing is sent to any server
+- Data is saved to `localStorage` under the key `pto_state`
+- Theme preference under `pto_theme`
+- Sidebar preference under `pto_sidebar`
+- **Backup regularly** using the Export button (JSON file)
+- **Restore** using Import backup in Settings
+
+⚠️ **Important:** localStorage is per-browser and per-device. If you access from multiple devices, use the Export/Import feature to sync manually. Clearing browser data will delete your entries — always export first.
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl/Cmd + J` | Toggle dark/light theme |
+| `Ctrl/Cmd + B` | Toggle sidebar collapse |
+| `Escape` | Close edit modal |
+
+## 🛠️ Customization
+
+Open `index.html` in a text editor. Key sections:
+
+- **`DEFAULTS.allotments`** — Set your annual vacation/sick hours per year
+- **`DEFAULTS.tiers`** — Career milestone thresholds and days awarded
+- **`DEFAULTS.holidays`** — Company holiday calendar
+- **`DEFAULTS.config.hire`** — Your hire date (drives anniversary math)
+- **`DEFAULTS.config.workday`** — Standard workday hours (default 8)
+
+All of these can also be edited live in the **Settings** tab.
+
+## 📋 CCCI 2026 Holidays (baked in)
+
+Per Christine Motherwell memo (10/14/2025):
+
+- New Year's Day (Thu 1/1)
+- Martin Luther King Day (Mon 1/19)
+- Good Friday (Fri 4/3)
+- Memorial Day (Mon 5/25)
+- Independence Day (Fri 7/3)
+- Labor Day (Mon 9/7)
+- Thanksgiving Day (Thu 11/26)
+- Christmas Day (Fri 12/25)
+- **+ 1 Personal Holiday** (teammate-scheduled, after 90 days of service)
+
+## 🎨 Design
+
+- **Typeface:** Inter (via Google Fonts) with `cv02/cv03` stylistic variants for a polished Linear/Notion feel
+- **Numbers:** JetBrains Mono for tabular data
+- **Charts:** Chart.js 4.4.1 + annotation plugin for year-boundary markers
+- **Icons:** Custom Feather-style SVGs
+- **Color:** Slate neutral scale with restrained CCCI red accent; true-black dark mode
+
+## 📄 License
+
+MIT — do whatever you want with this.
+
+## 🙋 Support
+
+This is a personal-use tool. If you're a fellow CCCI teammate and want your own copy, fork this repo and edit `DEFAULTS.config` in `index.html` with your hire date and name.
+
+---
+
+Built with ❤️ for tracking time off strategically.
