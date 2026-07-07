@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.5 (production) |
-| Features shipped | 26 |
-| File size | ~115 KB (single HTML) |
-| Backlog items | 24 |
+| Version | 1.6 (production) |
+| Features shipped | 27 |
+| File size | ~116 KB (single HTML) |
+| Backlog items | 23 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -45,35 +45,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
-
-### 🔴 PTO-502: Expand drag-to-reschedule to all non-fixed events
-- **Effort:** 3h
-- **Priority:** 🔥 Critical (user requested)
-- **Files touched:** `index.html` (calendar render + drag handlers + new drop-target logic)
-- **Acceptance criteria:**
-  - [ ] **Draggable event types:**
-    - ✅ Vacation entries (already draggable in PTO-302)
-    - ✅ Sick entries (already draggable)
-    - ✅ Personal Holiday entries (already draggable)
-    - 🆕 **Friday appointments** — draggable to other Fridays only (validated)
-    - 🆕 **Suggested PTO days** — dragging one "books" it at the target date
-  - [ ] **NOT draggable (per user):**
-    - Company Holidays (immutable per CCCI policy)
-    - Service Anniversaries (immutable per hire date)
-  - [ ] **Drag-source visual:** cursor changes to grab/grabbing
-  - [ ] **Drop-target visual:**
-    - Valid target: blue dashed border with glow
-    - Invalid target: red dashed border with "not-allowed" cursor
-    - Invalid conditions: weekend (for PTO), non-Friday (for Friday appts), existing conflict
-  - [ ] **Personal Holiday sync:** if PH moves, `state.personalHolidays[i].date` updates too
-  - [ ] **Friday appointment sync:** if appointment drags, `state.fridays[oldIso]` deletes and new key created
-  - [ ] **Suggestion drag:** creates a new vacation entry at drop target, no source deletion
-  - [ ] Toast confirms every move with new date
-- **Technical notes:**
-  - Extend `renderCalendar()` to add `draggable="true"` and `data-drag-type="fri-appt|suggestion"` to those tag classes
-  - Update the drop handler to switch on drag type
-  - Friday appointment drag can only target other `.cal-day.fri` cells
-- **Depends on:** PTO-302 (base drag foundation — ✅ shipped v1.1)
 
 ### 🔴 PTO-503: Time Off Log — Hours / Days / Range input toggle + polished picker
 - **Effort:** 4h
@@ -301,6 +272,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.6 — Extended calendar drag (July 2026)
+- **PTO-502** — Generalized the drag system to three payload types. Friday appointments drag to other Fridays only (non-Friday and already-booked Fridays blocked in red; `state.fridays` key moves). Suggestion chips are draggable and book a Vacation entry on whatever valid weekday they're dropped on (weekend/holiday/occupied blocked). Company holidays and anniversaries stay non-draggable. Existing PTO/Personal-Holiday drag (PTO-302) unchanged.
 
 ### v1.5 — Dashboard enhancements (July 2026)
 - **PTO-501** — New "Upcoming Fridays" card beside "Upcoming time off" (next WFH Fridays with scheduled appointments, cyan chips, "This Friday" marker, empty-state link to the Friday Planner). Dismissable insights with an "×" per card, dismissed IDs persisted (`state.dismissedInsights`, stable type+heading hash), a "Show dismissed (N)" header toggle, and critical use-it-or-lose-it alerts locked from dismissal. Drill-downs: KPI cards jump to the filtered Log (Vacation/Sick/year) or Anniversaries; upcoming-time-off rows open the Calendar at that date; Friday rows jump to the Planner and flash the row — each with a hover arrow affordance.

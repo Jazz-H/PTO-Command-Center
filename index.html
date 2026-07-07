@@ -1280,17 +1280,17 @@ function renderCalendar(){
     if (hn && f.hol!==false){ tags.push(`<span class="cal-tag hol" title="${hn}">${hn.length>14?hn.slice(0,13)+'…':hn}</span>`); }
     if (e){
       const eIdx = state.entries.indexOf(e);
-      const drag = `draggable="true" ondragstart="dragStart(event,${eIdx})" title="Drag to reschedule"`;
+      const drag = `draggable="true" ondragstart="dragStart(event,'entry',${eIdx})" title="Drag to reschedule"`;
       if (e.type==="Vacation" && f.vac!==false) tags.push(`<span class="cal-tag vac" ${drag}>Vacation · ${e.hours}h</span>`);
       else if (e.type==="Sick" && f.sick!==false) tags.push(`<span class="cal-tag sick" ${drag}>Sick · ${e.hours}h</span>`);
       else if (e.type==="Personal Holiday" && f.personal!==false) tags.push(`<span class="cal-tag personal" ${drag}>Personal Hol.</span>`);
       else if (!["Vacation","Sick","Personal Holiday"].includes(e.type)) tags.push(`<span class="cal-tag other" ${drag}>${e.type} · ${e.hours}h</span>`);
     }
-    if (!e && sug.has(iso) && f.sug!==false){ tags.push(`<span class="cal-tag sug">💡 Try PTO</span>`); }
+    if (!e && sug.has(iso) && f.sug!==false){ tags.push(`<span class="cal-tag sug" draggable="true" ondragstart="dragStart(event,'sug','${iso}')" title="Drag to a day to book PTO">💡 Try PTO</span>`); }
     // Friday appointment overlay
     if (friAppts[iso] && f.friAppt!==false){
       const appt = friAppts[iso];
-      tags.push(`<span class="cal-tag fri-appt" title="${appt.purpose}">${appt.purpose.length>14?appt.purpose.slice(0,13)+'…':appt.purpose}</span>`);
+      tags.push(`<span class="cal-tag fri-appt" draggable="true" ondragstart="dragStart(event,'fri','${iso}')" title="${esc(appt.purpose)} · drag to another Friday">${appt.purpose.length>14?esc(appt.purpose.slice(0,13))+'…':esc(appt.purpose)}</span>`);
     }
 
     return `<div class="${c.join(' ')}" ondragover="dragOver(event,'${iso}')" ondragleave="dragLeave(event)" ondrop="dropOnDay(event,'${iso}')"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
@@ -1315,27 +1315,44 @@ function goToToday(){
 }
 
 // --- Drag entries between days to reschedule ---
-let _dragEntryIdx = -1;
-function dragStart(ev, idx){
-  _dragEntryIdx = idx;
-  if (ev.dataTransfer){ ev.dataTransfer.effectAllowed = "move"; try{ ev.dataTransfer.setData("text/plain", String(idx)); }catch(_){} }
+// Drag payload: {type:'entry'|'fri'|'sug', key}. entry.key=index, fri/sug.key=iso date.
+let _drag = null;
+function dragStart(ev, type, key){
+  _drag = {type, key};
+  if (ev.dataTransfer){ ev.dataTransfer.effectAllowed = "move"; try{ ev.dataTransfer.setData("text/plain", type+":"+key); }catch(_){} }
   if (ev.target && ev.target.classList) ev.target.classList.add("dragging");
 }
-// Returns a reason string if the entry can't be dropped on `iso`, else null (valid)
-function dropBlockReason(idx, iso){
-  const e = state.entries[idx];
-  if (!e) return "No entry";
-  if (iso === e.date) return null; // dropped back on its own day — no-op, allowed
+// Returns a reason string if `drag` can't be dropped on `iso`, else null (valid)
+function dropBlockReasonFor(drag, iso){
+  if (!drag) return "Nothing to drop";
   const d = parseDate(iso);
-  if (isWeekend(d)) return "Can't reschedule onto a weekend";
-  if (holidayName(d)) return `${holidayName(d)} is a company holiday`;
-  if (state.entries.some((x,i) => i !== idx && x.date === iso)) return "That day already has an entry";
+  if (drag.type === "entry"){
+    const idx = drag.key; const e = state.entries[idx];
+    if (!e) return "No entry";
+    if (iso === e.date) return null; // dropped back on its own day — no-op
+    if (isWeekend(d)) return "Can't reschedule onto a weekend";
+    if (holidayName(d)) return `${holidayName(d)} is a company holiday`;
+    if (state.entries.some((x,i) => i !== idx && x.date === iso)) return "That day already has an entry";
+    return null;
+  }
+  if (drag.type === "fri"){
+    if (iso === drag.key) return null; // same Friday — no-op
+    if (d.getDay() !== 5) return "Friday appointments can only move to a Friday";
+    const sf = state.fridays || {};
+    if (sf[iso] && sf[iso].purpose) return "That Friday already has an appointment";
+    return null;
+  }
+  if (drag.type === "sug"){
+    if (isWeekend(d)) return "Can't book PTO on a weekend";
+    if (holidayName(d)) return `${holidayName(d)} is a company holiday`;
+    if (state.entries.some(x => x.date === iso)) return "That day already has an entry";
+    return null;
+  }
   return null;
 }
 function dragOver(ev, iso){
   ev.preventDefault();
-  const idx = _dragEntryIdx;
-  const invalid = idx >= 0 && !!dropBlockReason(idx, iso);
+  const invalid = _drag && !!dropBlockReasonFor(_drag, iso);
   if (ev.dataTransfer) ev.dataTransfer.dropEffect = invalid ? "none" : "move";
   const cell = ev.currentTarget;
   if (cell && !cell.classList.contains("empty")){
@@ -1347,13 +1364,32 @@ function dragLeave(ev){ const cell = ev.currentTarget; if (cell) cell.classList.
 function dropOnDay(ev, iso){
   ev.preventDefault();
   const cell = ev.currentTarget; if (cell) cell.classList.remove("drop-target","drop-invalid");
-  let idx = _dragEntryIdx;
-  if ((idx === null || idx < 0) && ev.dataTransfer){ const s = ev.dataTransfer.getData("text/plain"); if (s !== "") idx = Number(s); }
-  _dragEntryIdx = -1;
-  if (idx === null || idx < 0 || Number.isNaN(idx)) return;
-  const reason = dropBlockReason(idx, iso);
-  if (reason){ if (state.entries[idx] && iso !== state.entries[idx].date) toast(reason); renderCalendar(); return; }
-  rescheduleEntry(idx, iso);
+  let drag = _drag;
+  if (!drag && ev.dataTransfer){ const s = ev.dataTransfer.getData("text/plain"); if (s){ const i = s.indexOf(":"); drag = {type:s.slice(0,i), key:s.slice(i+1)}; if (drag.type === "entry") drag.key = Number(drag.key); } }
+  _drag = null;
+  if (!drag) return;
+  const reason = dropBlockReasonFor(drag, iso);
+  if (reason){
+    const noop = (drag.type === "entry" && state.entries[drag.key] && iso === state.entries[drag.key].date) || (drag.type === "fri" && iso === drag.key);
+    if (!noop) toast(reason);
+    renderCalendar(); return;
+  }
+  if (drag.type === "entry") rescheduleEntry(drag.key, iso);
+  else if (drag.type === "fri") moveFridayAppt(drag.key, iso);
+  else if (drag.type === "sug") bookSuggestionAt(iso);
+}
+function moveFridayAppt(oldIso, newIso){
+  const sf = state.fridays || {}; const item = sf[oldIso];
+  if (!item || oldIso === newIso){ renderCalendar(); return; }
+  delete sf[oldIso]; sf[newIso] = item; state.fridays = sf;
+  save(); refresh();
+  toast(`Moved "${item.purpose}" → Fri ${fmt(parseDate(newIso),{month:"short",day:"numeric"})}`);
+}
+function bookSuggestionAt(iso){
+  if (state.entries.some(e => e.date === iso)){ toast("That day already has an entry"); renderCalendar(); return; }
+  state.entries.push({date:iso, type:"Vacation", hours:state.config.workday, status:"Pending", notes:"From smart suggestion"});
+  save(); refresh();
+  toast(`Booked Vacation → ${fmt(parseDate(iso),{weekday:"short",month:"short",day:"numeric"})}`);
 }
 function rescheduleEntry(idx, newDate){
   const e = state.entries[idx];
@@ -1453,7 +1489,7 @@ document.addEventListener('keydown', e => {
 document.addEventListener('dragend', () => {
   document.querySelectorAll('.cal-tag.dragging').forEach(el => el.classList.remove('dragging'));
   document.querySelectorAll('.cal-day.drop-target,.cal-day.drop-invalid').forEach(el => el.classList.remove('drop-target','drop-invalid'));
-  _dragEntryIdx = -1;
+  _drag = null;
 });
 
 document.getElementById("e_date").value = isoDate(today());
