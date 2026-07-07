@@ -163,6 +163,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .compact-table tr.clickable:hover td{background:var(--hover-bg)}
 .compact-table td.arrow-cell{width:18px;text-align:right;color:var(--n-300)}
 .compact-table tr.clickable:hover td.arrow-cell{color:var(--n-500)}
+.range-preview{margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--info-soft);border:1px solid var(--info-line);color:var(--n-600);font-size:12.5px;line-height:1.5}
+.range-preview b{color:var(--n-800)}
+.range-preview.warn{background:var(--warn-soft);border-color:var(--warn-line)}
 tr.row-flash td{animation:rowFlash 1.2s ease}
 @keyframes rowFlash{0%,100%{background:transparent}25%{background:var(--info-soft)}}
 .kpi-sub .dot{width:4px;height:4px;border-radius:50%;background:var(--n-400)}
@@ -487,15 +490,24 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 <div class="panel" id="log">
   <div class="page-head"><h1>Time off log</h1><div class="sub">Record, edit, and manage every vacation, sick, personal, and holiday day</div></div>
   <div class="card" style="margin-bottom:20px">
-    <div class="card-title"><h3>Add entry</h3></div>
+    <div class="card-title"><h3>Add entry</h3>
+      <div class="log-view-toggle" id="entryModeToggle">
+        <button type="button" data-mode="hours" onclick="setEntryMode('hours')">Hours</button>
+        <button type="button" data-mode="days" onclick="setEntryMode('days')">Days</button>
+        <button type="button" data-mode="range" onclick="setEntryMode('range')">Range</button>
+      </div>
+    </div>
     <div class="form-grid">
-      <div><label class="field">Date</label><input type="date" id="e_date"/></div>
+      <div id="f_date"><label class="field" id="e_date_label">Date</label><input type="date" id="e_date" oninput="updateRangePreview()"/></div>
+      <div id="f_end" style="display:none"><label class="field">End date</label><input type="date" id="e_end" oninput="updateRangePreview()"/></div>
       <div><label class="field">Type</label><select id="e_type"><option>Vacation</option><option>Sick</option><option>Personal Holiday</option><option>Personal</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
-      <div><label class="field">Hours</label><input type="number" id="e_hours" value="8" step="0.5" min="0"/></div>
+      <div id="f_hours"><label class="field">Hours</label><input type="number" id="e_hours" value="8" step="0.5" min="0"/></div>
+      <div id="f_days" style="display:none"><label class="field">Days</label><input type="number" id="e_days" value="1" step="0.5" min="0"/></div>
       <div><label class="field">Status</label><select id="e_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
       <div><label class="field">Notes</label><input type="text" id="e_notes" placeholder="Optional"/></div>
       <button class="btn" onclick="addEntry()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
     </div>
+    <div id="rangePreview" class="range-preview" style="display:none"></div>
   </div>
   <div class="card">
     <div class="card-title"><h3>All entries</h3><span class="meta" id="logCount">0 entries</span></div>
@@ -705,7 +717,7 @@ const DEFAULTS = {
   holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
   entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {},
   logSearch: "", logType: "All", logYear: "All", logView: "list", collapsedMonths: {},
-  dismissedInsights: [], showDismissed: false
+  dismissedInsights: [], showDismissed: false, entryMode: "hours"
 };
 
 let state = load();
@@ -739,6 +751,7 @@ function load(){
         if (!s.collapsedMonths) s.collapsedMonths = {};
         if (!s.dismissedInsights) s.dismissedInsights = [];
         if (s.showDismissed === undefined) s.showDismissed = false;
+        if (!s.entryMode) s.entryMode = "hours";
         return s;
       }
     }
@@ -1180,6 +1193,13 @@ function saveEditEntry(){
     const ph = getPersonalHoliday(year);
     ph.date = newDate; ph.status = e.status === "Taken" ? "Taken" : "Scheduled";
   }
+  // Batch edit: offer to apply type/status/notes to the rest of the batch
+  if (e.batchId){
+    const siblings = state.entries.filter(x => x.batchId === e.batchId && x !== e);
+    if (siblings.length && confirm(`Apply this entry's type, status, and notes to all ${siblings.length + 1} entries in its batch? (Dates and hours stay per-day.)`)){
+      siblings.forEach(x => { x.type = e.type; x.status = e.status; x.notes = e.notes; });
+    }
+  }
   save(); closeEditModal(); refresh(); toast("Entry updated");
 }
 
@@ -1422,19 +1442,85 @@ function renderSettings(){
   document.getElementById("holList").innerHTML = state.holidays.sort((a,b) => a.date.localeCompare(b.date)).map((h,i) => `<div style="display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft)"><span style="width:140px;color:var(--n-500);font-size:13px;font-variant-numeric:tabular-nums">${fmt(parseDate(h.date))}</span><span style="flex:1;font-size:13px;color:var(--n-800);font-weight:500">${h.name}</span><button class="btn subtle sm" onclick="delHoliday(${i})">${ICO.trash}</button></div>`).join("");
 }
 
+function uid(){ return "b" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function businessDaysInRange(startIso, endIso){
+  const out = []; if (!startIso || !endIso) return out;
+  let s = parseDate(startIso), e = parseDate(endIso);
+  if (e < s){ const t = s; s = e; e = t; }
+  const booked = new Set(state.entries.map(x => x.date));
+  for (let d = new Date(s); d <= e; d = addDays(d, 1)){
+    if (isWeekend(d)) continue;
+    const iso = isoDate(d);
+    if (holidayName(d) || booked.has(iso)) continue;
+    out.push(iso);
+  }
+  return out;
+}
+function setEntryMode(m){ state.entryMode = m; save(); updateEntryModeUI(); }
+function updateEntryModeUI(){
+  const m = state.entryMode || "hours";
+  document.querySelectorAll("#entryModeToggle button").forEach(b => b.classList.toggle("active", b.dataset.mode === m));
+  const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? "" : "none"; };
+  show("f_end", m === "range");
+  show("f_hours", m === "hours");
+  show("f_days", m === "days");
+  const lbl = document.getElementById("e_date_label"); if (lbl) lbl.textContent = m === "range" ? "Start date" : "Date";
+  const rp = document.getElementById("rangePreview"); if (rp) rp.style.display = m === "range" ? "" : "none";
+  if (m === "range") updateRangePreview();
+}
+function updateRangePreview(){
+  if ((state.entryMode || "hours") !== "range") return;
+  const rp = document.getElementById("rangePreview"); if (!rp) return;
+  const s = document.getElementById("e_date").value, e = document.getElementById("e_end").value;
+  if (!s || !e){ rp.className = "range-preview"; rp.textContent = "Pick a start and end date — weekends, company holidays, and days that already have an entry are skipped."; return; }
+  const days = businessDaysInRange(s, e); const wd = state.config.workday || 8;
+  if (!days.length){ rp.className = "range-preview warn"; rp.textContent = "No business days to add in that range (all weekends, holidays, or already booked)."; return; }
+  const span = days.length === 1 ? fmt(parseDate(days[0]),{month:"short",day:"numeric"}) : `${fmt(parseDate(days[0]),{month:"short",day:"numeric"})} – ${fmt(parseDate(days[days.length-1]),{month:"short",day:"numeric"})}`;
+  rp.className = "range-preview";
+  rp.innerHTML = `This will create <b>${days.length} ${days.length===1?"entry":"entries"}</b> totaling <b>${days.length*wd} hours</b> across ${span}. Weekends &amp; company holidays skipped.`;
+}
 function addEntry(){
+  const mode = state.entryMode || "hours";
+  const type = document.getElementById("e_type").value;
+  const status = document.getElementById("e_status").value;
+  const notes = document.getElementById("e_notes").value;
+  const wd = state.config.workday || 8;
+  if (mode === "range"){
+    const s = document.getElementById("e_date").value, e = document.getElementById("e_end").value;
+    if (!s || !e){ toast("Pick a start and end date"); return; }
+    const days = businessDaysInRange(s, e);
+    if (!days.length){ toast("No business days to add in that range"); return; }
+    const batchId = uid();
+    days.forEach(iso => state.entries.push({date:iso, type, hours:wd, status, notes, batchId}));
+    save(); document.getElementById("e_notes").value=""; refresh(); toast(`Added ${days.length} ${days.length===1?"entry":"entries"}`);
+    return;
+  }
   const date = document.getElementById("e_date").value;
   if (!date){ toast("Pick a date first"); return; }
-  state.entries.push({date, type:document.getElementById("e_type").value, hours:Number(document.getElementById("e_hours").value)||8, status:document.getElementById("e_status").value, notes:document.getElementById("e_notes").value});
+  let hours;
+  if (mode === "days"){ const dn = Number(document.getElementById("e_days").value) || 0; if (dn <= 0){ toast("Enter a number of days"); return; } hours = dn * wd; }
+  else { hours = Number(document.getElementById("e_hours").value) || wd; }
+  state.entries.push({date, type, hours, status, notes});
   save(); document.getElementById("e_notes").value=""; refresh(); toast("Entry added");
 }
-function deleteEntry(i){
-  const entry = state.entries[i];
+function detachPH(entry){
   if (entry && entry.type === "Personal Holiday"){
     const ph = state.personalHolidays.find(p => p.date === entry.date);
     if (ph){ ph.date = null; ph.status = "Unscheduled"; ph.notes = ""; }
   }
-  state.entries.splice(i,1); save(); refresh(); toast("Entry removed");
+}
+function deleteEntry(i){
+  const entry = state.entries[i]; if (!entry) return;
+  if (entry.batchId){
+    const batch = state.entries.filter(e => e.batchId === entry.batchId);
+    if (batch.length > 1 && confirm(`This entry is part of a batch of ${batch.length}. OK to delete all ${batch.length} in the batch — Cancel to delete just this one.`)){
+      batch.forEach(detachPH);
+      state.entries = state.entries.filter(e => e.batchId !== entry.batchId);
+      save(); refresh(); toast(`Deleted ${batch.length} entries`); return;
+    }
+  }
+  detachPH(entry);
+  state.entries.splice(i, 1); save(); refresh(); toast("Entry removed");
 }
 function bookSuggestion(dates){
   let added = 0; const firstDate = parseDate(dates[0]);
@@ -1462,10 +1548,10 @@ function saveConfig(){ const c = state.config; c.name = document.getElementById(
 function addHoliday(){ const d = document.getElementById("new_hol_date").value; const n = document.getElementById("new_hol_name").value; if (!d||!n){ toast("Enter date and name"); return; } state.holidays.push({date:d, name:n}); save(); document.getElementById("new_hol_date").value=""; document.getElementById("new_hol_name").value=""; renderSettings(); refresh(); toast("Holiday added"); }
 function delHoliday(i){ const sorted = [...state.holidays].sort((a,b) => a.date.localeCompare(b.date)); const target = sorted[i]; state.holidays = state.holidays.filter(h => h!==target); save(); renderSettings(); refresh(); toast("Holiday removed"); }
 function exportData(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_backup_${isoDate(today())}.json`; a.click(); URL.revokeObjectURL(url); toast("Backup exported"); }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
 
-function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); }
+function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
 
 const TAB_TITLES = {dash:"Dashboard", log:"Time Off Log", cal:"Calendar", sug:"Smart Suggestions", fri:"Friday Planner", ann:"Anniversaries", cfg:"Settings"};
 document.querySelectorAll(".nav-item").forEach(t => { t.addEventListener("click", () => { switchTab(t.dataset.tab); closeNav(); }); });
@@ -1497,6 +1583,7 @@ calCursor = new Date(state.config.year, today().getMonth(), 1);
 document.getElementById("dash-sub").textContent = `${fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"})}`;
 updateThemeToggle();
 refresh();
+updateEntryModeUI();
 </script>
 </body>
 </html>
