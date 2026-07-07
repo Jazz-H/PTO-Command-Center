@@ -8,7 +8,7 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.3 (production) |
+| Version | 1.4 (production) |
 | Features shipped | 24 |
 | File size | ~98 KB (single HTML) |
 | Backlog items | 20 |
@@ -293,6 +293,9 @@
 ---
 
 ## ✅ Shipped
+
+### v1.4 — Responsive / mobile layout (July 2026)
+- **Mobile & tablet responsiveness** — Added breakpoints at 820px and 560px. The sidebar becomes an off-canvas drawer (hamburger in the topbar + dimmed backdrop, closes on nav tap or Esc); layout collapses to a single column with reduced padding; KPI grids stack; the calendar shrinks to fit the full 7-day grid; and all data tables scroll horizontally (`overflow-x:auto` + min-width) instead of clipping. Desktop is unchanged. Verified across 1440/390/360px in Chromium — no horizontal overflow or clipped content on any tab.
 
 ### v1.3 — Month-grouped log view (July 2026)
 - **PTO-104** — "List | By month" toggle in the log toolbar. Month view groups entries under collapsible month headers (e.g. "July 2026"), each showing entry count, total hours, and distinct-day count; groups sorted newest-first; per-month collapse state persists to `state.collapsedMonths` and the view choice to `state.logView`. Respects the active search/type/year filters. Verified end-to-end in Chromium.
