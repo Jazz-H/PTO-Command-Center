@@ -129,6 +129,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .grid{display:grid;gap:20px}
 .g-kpi{grid-template-columns:repeat(4,1fr)}
 .g-2{grid-template-columns:1.4fr 1fr}.g-2-eq{grid-template-columns:1fr 1fr}
+.g-kpi>*,.g-2>*,.g-2-eq>*,.row>*{min-width:0}
+.chart-wrap canvas{max-width:100%}
 @media(max-width:1100px){.g-kpi{grid-template-columns:repeat(2,1fr)}.g-2,.g-2-eq{grid-template-columns:1fr}}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;transition:all .2s}
 .kpi:hover{border-color:var(--n-300);box-shadow:var(--shadow-md)}
@@ -204,7 +206,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .insight{display:flex;gap:10px;padding:11px 14px;border-radius:10px;margin-bottom:8px;border:1px solid;font-size:13px;line-height:1.5;background:var(--card)}
 .insight-icon{flex-shrink:0;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;margin-top:1px}
 .insight-icon svg{width:12px;height:12px}
-.insight-body{flex:1}
+.insight-body{flex:1;min-width:0;overflow-wrap:anywhere}
 .insight strong{display:block;color:var(--n-900);font-size:13px;font-weight:600;margin-bottom:2px}
 .insight.good{border-color:var(--success-line);background:var(--success-soft)}
 .insight.good .insight-icon{background:var(--success);color:#fff}
@@ -304,6 +306,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .empty h4{margin:0 0 4px;color:var(--n-700);font-size:14px;font-weight:600}
 .empty p{margin:0;font-size:13px}
 .row{display:grid;gap:12px}.row-2{grid-template-columns:1fr 1fr}
+.hol-add-row{grid-template-columns:180px 1fr auto}
 .form-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr .9fr 2fr auto;gap:10px;align-items:end}
 @media(max-width:900px){.form-grid{grid-template-columns:1fr 1fr}}
 .panel{display:none;animation:fade .25s ease}.panel.active{display:block}
@@ -383,6 +386,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   .log-toolbar select{flex:1 1 100%;min-width:0}
   .log-view-toggle{flex:1 1 100%;justify-content:center}
   .cal-legend-top{gap:4px}
+  .hol-add-row{grid-template-columns:1fr}
+  .year-row{grid-template-columns:1fr}
 }
 .modal-grid .full{grid-column:1/-1}
 .modal-actions{display:flex;justify-content:space-between;gap:10px;padding-top:16px;border-top:1px solid var(--line-soft)}
@@ -581,7 +586,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="card">
     <div class="card-title"><h3>Company holidays</h3><span class="meta">CCCI 2026 official · 8 scheduled + 1 personal</span></div>
     <div id="holList"></div>
-    <div class="row" style="grid-template-columns:180px 1fr auto; margin-top:12px">
+    <div class="row hol-add-row" style="margin-top:12px">
       <input type="date" id="new_hol_date"/>
       <input type="text" id="new_hol_name" placeholder="Holiday name"/>
       <button class="btn ghost" onclick="addHoliday()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add holiday</button>
