@@ -1,6 +1,7 @@
-# 🗺️ PTO Command Center — Product Roadmap & Backlog
+# 🗺️ PTO Command Center — Product Roadmap v2
 
-> **For Claude Code:** Work items are sorted by priority within tiers. Each task has an ID, acceptance criteria, technical notes, and file-touch hints. Use `#PTO-XXX` when referencing tasks in commit messages or branches.
+> **v2 updates:** New backlog items PTO-501 through PTO-505 added from user feedback (July 7, 2026). See "What's New in v2" section below.
+> **Reconciled July 7, 2026:** merged with work shipped this cycle (v1.1 → v1.4). PTO-101, PTO-104, and PTO-302 are now shipped and live on `main`.
 
 ---
 
@@ -9,42 +10,161 @@
 | Metric | Value |
 |---|---|
 | Version | 1.4 (production) |
-| Features shipped | 24 |
-| File size | ~98 KB (single HTML) |
-| Backlog items | 20 |
+| Features shipped | 25 |
+| File size | ~110 KB (single HTML) |
+| Backlog items | 25 |
 | Est. total effort | ~10 weeks (part-time) |
+| Roadmap version | v2 (reconciled) |
+
+---
+
+## 🆕 What's New in v2
+
+Five new user-requested backlog items added based on real-world usage feedback:
+
+| ID | Title | Tier |
+|---|---|:-:|
+| **PTO-501** | Dashboard: Show upcoming Friday WFH appointments + dismissable insights + drill-downs | 1 |
+| **PTO-502** | Calendar: Make all draggable events beyond just PTO entries | 1 |
+| **PTO-503** | Time Off Log: Hours/Days/Date-range input toggle + polished date picker | 1 |
+| **PTO-504** | Smart Suggestions: Expand beyond CCCI holidays + WFH-Fridays | 2 |
+| **PTO-505** | Polished sidebar collapse button (best-practice pattern) | 1 |
 
 ---
 
 ## 🎯 Working Rules for Claude Code
 
-1. **One task per branch.** Branch naming: `pto-XXX-short-description`
-2. **Preserve the single-file architecture.** No splitting into multiple JS/CSS files unless a task explicitly says so.
-3. **Test before merge:** Every change must pass the smoke test in `TESTING.md` (dashboard loads, add entry works, calendar renders, dark mode toggles).
-4. **Migration-safe:** Any localStorage schema change must include a migration in the `load()` function. Bump `holidaysV` or add a new version flag.
-5. **Preserve backwards compat:** Existing user data (`localStorage.pto_state`) must never be destroyed by an update.
-6. **Update this file:** Move completed items from a backlog tier to the "✅ Shipped" section at the bottom.
+1. **One task per branch.** Naming: `pto-XXX-short-description` (this project develops on `claude/new-session-moofhd`).
+2. **Preserve the single-file architecture.** No splitting unless explicit.
+3. **Test before merge:** smoke test (dashboard loads, add entry works, calendar renders, dark mode toggles) + feature-specific verification in a real browser.
+4. **Migration-safe:** Any localStorage schema change must include migration in `load()`.
+5. **Preserve backwards compat:** Existing user data must never be destroyed.
+6. **Update this file:** Move completed items to "✅ Shipped" section.
+7. **v2 items are prioritized** — user has explicitly requested these fixes.
 
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
 
+### 🔴 PTO-501: Dashboard enhancements — Friday activities, dismissable insights, drill-downs
+- **Effort:** 3h
+- **Priority:** 🔥 Critical (user requested)
+- **Files touched:** `index.html` (dashboard panel, insight rendering, new drill-down handlers, CSS)
+- **Acceptance criteria:**
+  - [ ] **New "Upcoming Fridays" card** on dashboard next to "Upcoming time off"
+    - Shows next 4 WFH Fridays with any scheduled appointments
+    - Displays purpose text (e.g., "Dentist", "School pickup") with cyan color coding
+    - Shows "This Friday" chip for the closest upcoming
+    - Empty state: "No Friday appointments scheduled" with link to Friday Planner
+  - [ ] **Dismissable insights** — each insight card gets an "×" close button
+    - Dismissed IDs stored in `state.dismissedInsights[]`
+    - "Show dismissed" toggle in insights header when count > 0
+    - Certain critical alerts (use-it-or-lose-it) can NOT be dismissed
+    - Dismissed items re-appear if underlying data changes
+  - [ ] **Drill-down navigation from dashboard**
+    - Clicking a KPI card jumps to relevant tab:
+      - Vacation Balance card → Time Off Log filtered to Vacation
+      - Sick Balance card → Time Off Log filtered to Sick
+      - Used YTD card → Time Off Log for current year
+      - Next Refill card → Anniversaries tab
+    - Clicking any Upcoming Time Off row → Calendar at that date
+    - Clicking any Insight with a location → that tab
+    - Clicking Friday appointment → Friday Planner scrolled to that Friday
+    - All drill-downs show a subtle "→" indicator on hover
+- **Technical notes:**
+  - Insight IDs need to be stable — use a hash of type+heading so dismissal survives re-renders
+  - Add cursor:pointer + hover states to indicate clickability
+  - New state: `state.dismissedInsights` array, `state.showDismissed` bool
+
+### 🔴 PTO-502: Expand drag-to-reschedule to all non-fixed events
+- **Effort:** 3h
+- **Priority:** 🔥 Critical (user requested)
+- **Files touched:** `index.html` (calendar render + drag handlers + new drop-target logic)
+- **Acceptance criteria:**
+  - [ ] **Draggable event types:**
+    - ✅ Vacation entries (already draggable in PTO-302)
+    - ✅ Sick entries (already draggable)
+    - ✅ Personal Holiday entries (already draggable)
+    - 🆕 **Friday appointments** — draggable to other Fridays only (validated)
+    - 🆕 **Suggested PTO days** — dragging one "books" it at the target date
+  - [ ] **NOT draggable (per user):**
+    - Company Holidays (immutable per CCCI policy)
+    - Service Anniversaries (immutable per hire date)
+  - [ ] **Drag-source visual:** cursor changes to grab/grabbing
+  - [ ] **Drop-target visual:**
+    - Valid target: blue dashed border with glow
+    - Invalid target: red dashed border with "not-allowed" cursor
+    - Invalid conditions: weekend (for PTO), non-Friday (for Friday appts), existing conflict
+  - [ ] **Personal Holiday sync:** if PH moves, `state.personalHolidays[i].date` updates too
+  - [ ] **Friday appointment sync:** if appointment drags, `state.fridays[oldIso]` deletes and new key created
+  - [ ] **Suggestion drag:** creates a new vacation entry at drop target, no source deletion
+  - [ ] Toast confirms every move with new date
+- **Technical notes:**
+  - Extend `renderCalendar()` to add `draggable="true"` and `data-drag-type="fri-appt|suggestion"` to those tag classes
+  - Update the drop handler to switch on drag type
+  - Friday appointment drag can only target other `.cal-day.fri` cells
+- **Depends on:** PTO-302 (base drag foundation — ✅ shipped v1.1)
+
+### 🔴 PTO-503: Time Off Log — Hours / Days / Range input toggle + polished picker
+- **Effort:** 4h
+- **Priority:** 🔥 Critical (user requested)
+- **Files touched:** `index.html` (add-entry form, edit modal, new date-range logic)
+- **Acceptance criteria:**
+  - [ ] **Input mode toggle** in Add Entry form — 3 options:
+    - **Hours** (default) — current behavior, single date + hours field
+    - **Days** — single date + days field, auto-multiplies by workday hrs
+    - **Date range** — start date + end date, auto-calculates business days, excludes weekends and company holidays
+  - [ ] Range mode creates multiple entries (one per business day) with a shared "batch ID" for group operations
+  - [ ] **Polished date picker:**
+    - Custom calendar dropdown widget (not native browser picker)
+    - Shows month at a glance with weekends greyed out
+    - Highlights company holidays in violet, existing entries in green
+    - Disables dates that have conflicts
+    - Keyboard navigation: arrow keys move focus, Enter selects, Esc closes
+    - "Today" quick-jump button in the picker footer
+  - [ ] **Range mode UX:** show "This will create N entries totaling M hours"
+  - [ ] **Batch delete:** if a range-batch entry is deleted, prompt "Delete all N entries in this batch?"
+  - [ ] **Batch edit:** editing one range entry offers "Apply to all in batch"
+- **Technical notes:**
+  - New state: entries get optional `batchId` field
+  - Build custom picker as a reusable component (`<div class="date-picker">`)
+  - Consider Flatpickr as an alternative to custom (~50KB but polished) — decision after prototyping
+  - Days-mode formula: `hours = days * config.workday`
+- **Migration:** existing entries have no `batchId` — treat as standalone (no migration needed)
+
+### 🔴 PTO-505: Polished sidebar collapse button (best-practice pattern)
+- **Effort:** 2h
+- **Priority:** 🟡 High (user requested — screenshot shows current implementation is awkward)
+- **Files touched:** `index.html` (sidebar HTML + CSS for toggle)
+- **Acceptance criteria:**
+  - [ ] **Current issue:** The button floats awkwardly at `right:-14px` and appears cut off in dark mode (per user screenshot; see BUG-03)
+  - [ ] **New design pattern** — pick one of these best practices:
+    - **Option A: Bottom-aligned toggle** (Notion/Linear style) — small button at bottom of sidebar next to user card
+    - **Option B: Persistent edge-hit-zone** (VS Code style) — invisible 4px column on sidebar's right edge that expands to show grabber on hover
+    - **Option C: Integrated with brand mark** (Slack style) — hover on brand mark reveals subtle collapse chevron
+    - Recommendation: **Option A** (bottom-aligned) for cleanliness
+  - [ ] **Visual improvements:**
+    - Proper 32×32 button with rounded corners (not tiny 24px circle floating outside)
+    - Clear icon (chevron-left / chevron-right that rotates smoothly)
+    - Hover state: subtle background fill, no border shadow issues in dark mode
+    - Active/pressed state: slightly darker
+    - Focus ring for keyboard accessibility
+  - [ ] **Micro-interaction:** 200ms icon rotation animation on toggle
+  - [ ] **Keyboard:** Ctrl/Cmd + B still works (already implemented)
+  - [ ] **Accessibility:** aria-expanded, aria-controls, aria-label update dynamically
+  - [ ] **Mobile:** button hides on ≤820px (sidebar becomes drawer overlay instead — ✅ shipped v1.4)
+
 ### 🔴 PTO-102: iCal (.ics) export
 - **Effort:** 3h
 - **Priority:** Critical
-- **Files touched:** `index.html` (new export function + Settings button)
 - **Acceptance criteria:**
   - [ ] "Export iCal" button in Settings tab and topbar
   - [ ] Generates valid `.ics` file per RFC 5545
-  - [ ] Each PTO entry becomes an `VEVENT` with correct dtstart/dtend
+  - [ ] Each PTO entry becomes a `VEVENT` with correct dtstart/dtend
   - [ ] Personal Holidays included with pink category tag
-  - [ ] Company holidays included as separate calendar or filtered out (user choice via checkbox)
+  - [ ] Company holidays included as separate calendar or filtered out (user choice)
   - [ ] Filename: `pto_calendar_YYYYMMDD.ics`
   - [ ] Successfully imports into Outlook, Google Calendar, Apple Calendar
-- **Technical notes:**
-  - No external library needed — build ICS string manually
-  - Format dates as `YYYYMMDD` for all-day events
-  - Use `PRODID:-//Jazz Harris//PTO Command Center//EN`
 
 ### 🔴 PTO-103: PWA manifest + service worker
 - **Effort:** 4h
@@ -52,216 +172,133 @@
 - **Files touched:** `index.html`, new `manifest.json`, new `sw.js`
 - **Acceptance criteria:**
   - [ ] `manifest.json` with name, icons (192px, 512px), theme_color, start_url
-  - [ ] Service worker caches all app assets (Chart.js, fonts, index.html)
-  - [ ] Works offline after first load (verify in DevTools → Network → Offline)
+  - [ ] Service worker caches all app assets
+  - [ ] Works offline after first load
   - [ ] "Install" prompt appears in Chrome/Edge
   - [ ] Home-screen icon on iOS/Android
-  - [ ] Version bump in SW forces cache refresh on updates
-- **Technical notes:**
-  - Cache strategy: cache-first for assets, network-first for the HTML
-  - Icons should use the PTO brand mark (red gradient square)
-  - Test on both mobile and desktop
-- **Depends on:** PTO-201 (custom favicon)
+- **Depends on:** PTO-201
 
 ### 🟢 PTO-105: Slash-command search
 - **Effort:** 2h
 - **Priority:** Medium
-- **Files touched:** `index.html` (search handler)
 - **Acceptance criteria:**
-  - [ ] Typing `/vac` filters to Vacation type
-  - [ ] `/sick`, `/personal`, `/holiday` work similarly
+  - [ ] `/vac`, `/sick`, `/personal`, `/holiday` filter by type
   - [ ] `/2026` filters by year
   - [ ] `/jul` or `/july` filters by month
-  - [ ] Slash-commands stack with regular search (e.g., `/vac dentist`)
+  - [ ] Stacks with regular search (builds on the PTO-101 search box)
 
 ### 🟢 PTO-201: Custom favicon + splash
 - **Effort:** 1h
 - **Priority:** Low
-- **Files touched:** `index.html` (link tags), new `favicon.svg`, new icon PNGs
 - **Acceptance criteria:**
-  - [ ] SVG favicon showing "PT" mark or a mini calendar icon
-  - [ ] Apple touch icon (180×180) with rounded corners
+  - [ ] SVG favicon with PT mark or mini calendar icon
+  - [ ] Apple touch icon (180×180)
   - [ ] Theme-color meta tag matches CCCI red
-  - [ ] Shows correctly in browser tab, bookmark, home screen
 
 ### 🟢 PTO-202: Print-friendly stylesheet
 - **Effort:** 2h
 - **Priority:** Low
-- **Files touched:** `index.html` (add `@media print` styles)
 - **Acceptance criteria:**
   - [ ] Sidebar hidden when printing
   - [ ] Charts render at reasonable sizes
-  - [ ] Only visible panel prints (not all tabs)
-  - [ ] Page breaks between major sections (KPIs, chart, insights, log)
-  - [ ] Print header shows "PTO Summary — Jazz Harris — [date]"
-  - [ ] Dark mode disabled during print (always light)
+  - [ ] Only visible panel prints
+  - [ ] Print header with date and name
 
 ---
 
 ## 🚧 Tier 2 — Medium Effort (1–3 days each)
 
+### 🔴 PTO-504: Smart Suggestions — Expanded intelligence
+- **Effort:** 2 days
+- **Priority:** 🔥 Critical (user requested)
+- **Files touched:** `index.html` (buildSuggestions engine + new UI grouping + Settings for preferences)
+- **Acceptance criteria:**
+  - [ ] **New suggestion categories** beyond CCCI holidays + WFH-Friday:
+    - 🌡️ **Seasonal windows** — "Spring break", "Summer peak", "Fall foliage", "Winter holidays" as themed batches
+    - 🎂 **Personal date anchors** — birthday, anniversary (customizable in Settings)
+    - 📅 **Adjacent-weekend extensions** — Sunday-Monday, Thursday-Friday for any random weekend
+    - 🕐 **Low-usage windows** — months with historically low PTO usage get "quiet month" tags
+    - 🎯 **Balance-driven** — "You have 60 hrs left, here's how to use them evenly" plan
+    - 🌍 **Federal/observed holidays not on CCCI list** (Presidents Day, Veterans Day, etc.) as awareness only
+    - 🏖️ **Long-weekend maximizer** — auto-detects any Mon/Fri holiday combo across all US federal holidays
+    - 📊 **Historical patterns** — "You took time off in July last year; consider it again"
+  - [ ] **Grouped by category** in the Suggestions tab with sortable columns
+  - [ ] **Category filter chips** at top of Suggestions tab (toggle categories on/off)
+  - [ ] **Settings panel** for suggestion preferences:
+    - Personal date anchors (birthday, spouse, etc.)
+    - Home location (drives weather integration if PTO-406 built)
+    - Preferred vacation season
+    - Minimum ROI threshold (only show suggestions with ROI >= N days)
+  - [ ] **Explainability** — each suggestion shows *why* it was suggested with a small icon
+  - [ ] **New "Vacation Plan" view** — takes remaining balance and generates a distribution plan across the year
+  - [ ] **Refresh cadence** — suggestions recompute when entries/allotments/holidays/date change
+- **Technical notes:**
+  - Refactor `buildSuggestions()` into `SuggestionEngine` with pluggable strategies
+  - Each strategy returns `{category, holiday, ...standard fields, reason, tag}`
+  - Sort by ROI desc, then by category priority
+
 ### 🔴 PTO-301: SharePoint List backend for multi-device sync
 - **Effort:** 2 days
 - **Priority:** Critical
-- **Files touched:** `index.html` (new sync module), new `SETUP_SHAREPOINT.md`
+- **Files touched:** `index.html`, new `SETUP_SHAREPOINT.md`
 - **Acceptance criteria:**
   - [ ] Two SharePoint lists: `PTO_Log` and `PTO_Config`
-  - [ ] User can enter tenant + list URLs in Settings
-  - [ ] "Sync now" button pushes localStorage state to SharePoint
-  - [ ] "Pull from SharePoint" button overwrites localStorage
+  - [ ] User enters tenant + list URLs in Settings
+  - [ ] "Sync now" button pushes localStorage to SharePoint
+  - [ ] "Pull from SharePoint" overwrites localStorage
   - [ ] Auto-sync every 5 minutes when tab active
   - [ ] Conflict resolution: last-write-wins with timestamp warning
   - [ ] Offline changes queue and sync when back online
-- **Technical notes:**
-  - Use Microsoft Graph API with implicit auth
-  - Store MSAL config in Settings (client ID, tenant)
-  - Include full SharePoint list schema in setup doc
-  - Add "Last synced" timestamp visible in topbar
 
 ### 🔴 PTO-303: Power Automate weekly digest flow
 - **Effort:** 1 day
 - **Priority:** Critical
-- **Files touched:** New `flows/weekly_digest_flow.json`, update existing `PTO_Weekly_Digest.html`, new `AUTOMATION.md`
-- **Acceptance criteria:**
-  - [ ] Documented Power Automate flow that runs every Monday 7:30 AM
-  - [ ] Reads from `PTO_Log` SharePoint list (from PTO-301)
-  - [ ] Sends styled HTML email to user's Outlook
-  - [ ] Includes: balance, YTD used, top suggestion, upcoming 4 weeks
-  - [ ] JSON export of the flow importable via Power Automate
 - **Depends on:** PTO-301
 
 ### 🟡 PTO-304: Personal Holiday reminder email
-- **Effort:** 4h
-- **Priority:** High
-- **Files touched:** New `flows/ph_reminder_flow.json`, `AUTOMATION.md`
-- **Acceptance criteria:**
-  - [ ] Power Automate flow fires Nov 1
-  - [ ] Checks PTO_Log for a "Personal Holiday" entry in current year
-  - [ ] If none, sends "Your PH forfeits Dec 31" email with 8 suggested dates
-- **Depends on:** PTO-301
+- **Effort:** 4h · **Priority:** High · **Depends on:** PTO-301
 
 ### 🟡 PTO-305: Year-over-year usage comparison chart
-- **Effort:** 6h
-- **Priority:** Medium
-- **Files touched:** `index.html` (new chart on dashboard or anniversaries tab)
-- **Acceptance criteria:**
-  - [ ] Bar chart comparing vacation hrs used per month, this year vs. last year
-  - [ ] Toggle to compare against 2-year avg
-  - [ ] Insight: "You're on track to use X% more than last year"
+- **Effort:** 6h · **Priority:** Medium
 
 ### 🟡 PTO-306: Team calendar overlay
-- **Effort:** 2 days
-- **Priority:** Medium
-- **Files touched:** `index.html` (new "Team" tab), depends on backend
-- **Acceptance criteria:**
-  - [ ] Optional "Team members" list in Settings (name + email)
-  - [ ] Team members' PTO shows as faint colored bars on calendar
-  - [ ] Warns if you're planning PTO on a day when >50% of team is out
+- **Effort:** 2 days · **Priority:** Medium
 
 ### 🟡 PTO-307: CSV export
-- **Effort:** 3h
-- **Priority:** Medium
-- **Files touched:** `index.html` (new export function)
-- **Acceptance criteria:**
-  - [ ] "Export CSV" button in Settings
-  - [ ] Columns: Date, Day, Type, Hours, Status, Notes
-  - [ ] Opens cleanly in Excel with proper column widths
-  - [ ] Filename: `pto_entries_YYYYMMDD.csv`
+- **Effort:** 3h · **Priority:** Medium
 
 ### 🟢 PTO-308: Anniversary celebration email
-- **Effort:** 3h
-- **Priority:** Low
-- **Files touched:** New `flows/anniversary_flow.json`, `AUTOMATION.md`
-- **Acceptance criteria:**
-  - [ ] Fires on the morning of each service anniversary (7/28 for Jazz)
-  - [ ] "Happy X years!" email with a confetti graphic
-  - [ ] Includes vacation-bump info if applicable
+- **Effort:** 3h · **Priority:** Low
 
 ---
 
 ## 🎢 Tier 3 — Strategic (1+ weeks each)
 
 ### 🔴 PTO-401: Power BI dashboard
-- **Effort:** 3 days
-- **Priority:** Critical
-- **Files touched:** New `powerbi/PTO_Dashboard.pbix`, new `POWERBI_SETUP.md`
-- **Acceptance criteria:**
-  - [ ] .pbix file connected to `PTO_Log` SharePoint list
-  - [ ] Pages: Overview, Historical Trends, Team Analytics
-  - [ ] Slicers: Year, Type, Status
-  - [ ] Publishable to Power BI Service with row-level security
-- **Depends on:** PTO-301
+- **Effort:** 3 days · **Priority:** Critical · **Depends on:** PTO-301
 
 ### 🔴 PTO-402: Osapiens / CONA integration
-- **Effort:** 2 weeks
-- **Priority:** High
-- **Files touched:** Depends on API availability; potentially new SharePoint connector
-- **Acceptance criteria:**
-  - [ ] When a driver logs sick in CONA, it auto-creates a PTO_Log entry
-  - [ ] Coordinate with CONA team (Oscar) for API/webhook access
-  - [ ] Documented in `INTEGRATIONS.md`
-- **Notes:** May not be feasible without CONA team buy-in — investigate first
+- **Effort:** 2 weeks · **Priority:** High
 
 ### 🟡 PTO-403: Approval workflow via Teams
-- **Effort:** 1 week
-- **Priority:** High
-- **Files touched:** New `flows/approval_flow.json`, `AUTOMATION.md`
-- **Acceptance criteria:**
-  - [ ] User submits PTO from tracker → Power Automate flow
-  - [ ] Manager (Uchenna) gets Teams adaptive card
-  - [ ] Approve/Reject buttons update entry status
-  - [ ] User gets email confirmation
-- **Depends on:** PTO-301
+- **Effort:** 1 week · **Priority:** High · **Depends on:** PTO-301
 
 ### 🟡 PTO-404: AI Trip Planner
-- **Effort:** 1 week
-- **Priority:** Medium
-- **Files touched:** `index.html` (new modal + planning engine)
-- **Acceptance criteria:**
-  - [ ] "Plan a trip" button in Smart Suggestions
-  - [ ] User inputs: dates or duration + number of days
-  - [ ] Engine finds optimal PTO days considering holidays, WFH-Fridays, and existing bookings
-  - [ ] Shows "PTO days needed" vs. "Total days off" ratio
-  - [ ] One-click to book all suggested dates
+- **Effort:** 1 week · **Priority:** Medium
+- **Note:** Should leverage the SuggestionEngine architecture from PTO-504
 
 ### 🟡 PTO-405: Multi-employee mode
-- **Effort:** 1 week
-- **Priority:** Medium
-- **Files touched:** Major refactor — introduce employee context
-- **Acceptance criteria:**
-  - [ ] Multiple employee profiles in one tracker instance
-  - [ ] Employee switcher in sidebar
-  - [ ] Each profile has own entries, allotments, hire date
-  - [ ] "Team" summary view aggregates all profiles
+- **Effort:** 1 week · **Priority:** Medium
 
 ### 🟢 PTO-406: Weather-aware suggestions
-- **Effort:** 5 days
-- **Priority:** Low
-- **Files touched:** `index.html` (new API integration)
-- **Acceptance criteria:**
-  - [ ] Optional API integration with OpenWeatherMap or similar
-  - [ ] Suggestions ranked by best-weather months for given lat/long
-  - [ ] User enters location once in Settings
+- **Effort:** 5 days · **Priority:** Low
+- **Note:** Plugs into the SuggestionEngine strategies from PTO-504
 
 ### 🟢 PTO-407: Cost calculator
-- **Effort:** 3 days
-- **Priority:** Low
-- **Files touched:** `index.html` (Settings + new insight)
-- **Acceptance criteria:**
-  - [ ] Optional hourly rate input in Settings
-  - [ ] Insight card: "Your remaining vacation is worth $X"
-  - [ ] Trip planner shows PTO opportunity cost per suggestion
+- **Effort:** 3 days · **Priority:** Low
 
 ### 🟢 PTO-408: Native iOS/Android app
-- **Effort:** 2 weeks
-- **Priority:** Low
-- **Files touched:** New Capacitor project wrapping the PWA
-- **Acceptance criteria:**
-  - [ ] Capacitor wrapper builds .ipa and .apk
-  - [ ] Push notifications for anniversaries and PH deadline
-  - [ ] Local notifications for use-it-or-lose-it alerts
-  - [ ] Face ID / biometric lock option
-- **Depends on:** PTO-103 (PWA foundation)
+- **Effort:** 2 weeks · **Priority:** Low · **Depends on:** PTO-103
 
 ---
 
@@ -269,11 +306,12 @@
 
 | ID | Description | Severity |
 |---|---|:-:|
-| BUG-01 | Chart re-renders on every refresh even when data unchanged (perf) | Low |
-| BUG-02 | Personal Holiday migration edge case if user manually deletes log entry | Medium |
-| DEBT-01 | Massive single-file architecture — consider splitting for maintainability | Low |
-| DEBT-02 | No automated tests — add a lightweight test file with core flows | Medium |
-| DEBT-03 | Chart.js CDN dependency — could inline for true offline support | Low |
+| BUG-01 | Chart re-renders on every refresh (perf) | Low |
+| BUG-02 | PH migration edge case if user manually deletes log entry | Medium |
+| BUG-03 | Sidebar collapse button cut off in dark mode (addressed by PTO-505) | Medium |
+| DEBT-01 | Split monolithic HTML into multiple files | Low |
+| DEBT-02 | Add lightweight test file with core flows | Medium |
+| DEBT-03 | Chart.js CDN dependency — inline for true offline | Low |
 
 ---
 
@@ -281,31 +319,31 @@
 
 - Voice input: "Add sick day today" via Web Speech API
 - Auto-complete common notes ("Doctor appt", "Dental cleaning")
-- Emoji reactions per entry (☀️ for great vacation, 🤒 for bad sick day)
+- Emoji reactions per entry (☀️ great vacation, 🤒 bad sick day)
 - Yearly retrospective auto-generated on Dec 31
-- Shareable read-only public link (obfuscated URL)
+- Shareable read-only public link
 - Import from Outlook calendar (parse OOO entries)
 - Import from Excel spreadsheet (drop the .xlsx → auto-parse)
 - Multi-language support (Spanish for CCCI's Latin operations)
-- Vacation goal tracking ("Take 15 days this year")
-- Random vacation suggestion generator ("Book a random Friday off!")
+- Vacation goal tracking
+- Random vacation suggestion generator
 
 ---
 
 ## ✅ Shipped
 
-### v1.4 — Responsive / mobile layout (July 2026)
-- **Mobile & tablet responsiveness** — Added breakpoints at 820px and 560px. The sidebar becomes an off-canvas drawer (hamburger in the topbar + dimmed backdrop, closes on nav tap or Esc); layout collapses to a single column with reduced padding; KPI grids stack; the calendar shrinks to fit the full 7-day grid; and all data tables scroll horizontally (`overflow-x:auto` + min-width) instead of clipping. Desktop is unchanged.
-- **QA/UAT polish pass** — Fixed CSS grid/flex blow-out at very narrow widths that pushed dashboard cards, the projection chart, insights, and the upcoming table past the screen: added `min-width:0` to grid/flex children, capped the chart canvas to its container, made insight text wrap, stacked the Settings "Add holiday" and allotment rows, and forced the edit modal to a single column. Audited every element's box against the viewport across 768/414/390/360/320px on all seven tabs plus the edit modal — now zero horizontal overflow anywhere down to 320px.
+### v1.4 — Responsive / mobile layout + QA polish (July 2026)
+- **Mobile & tablet responsiveness** — breakpoints at 820px/560px; sidebar becomes an off-canvas drawer (hamburger + backdrop, closes on nav tap/Esc); single-column stacking; calendar fits the full 7-day grid; data tables scroll horizontally instead of clipping. Desktop unchanged.
+- **QA/UAT polish** — fixed CSS grid/flex blow-out at ≤320px (dashboard cards, chart, insights, upcoming table, Settings rows, edit modal). Audited every element's box vs. the viewport across 768/414/390/360/320px on all seven tabs plus the edit modal — zero horizontal overflow anywhere down to 320px.
 
 ### v1.3 — Month-grouped log view (July 2026)
-- **PTO-104** — "List | By month" toggle in the log toolbar. Month view groups entries under collapsible month headers (e.g. "July 2026"), each showing entry count, total hours, and distinct-day count; groups sorted newest-first; per-month collapse state persists to `state.collapsedMonths` and the view choice to `state.logView`. Respects the active search/type/year filters. Verified end-to-end in Chromium.
+- **PTO-104** — "List | By month" toggle; collapsible month headers with entry count / total hours / day count; per-month collapse and view choice persist; respects active filters.
 
 ### v1.2 — Log search & filter (July 2026)
-- **PTO-101** — Search + filter for the Time Off Log. Toolbar search input (icon + clear button) matching date, type, status, notes, day-of-week, and month name (case-insensitive, 150ms debounced via `getFilteredEntries()`); type and auto-populated year filter dropdowns that stack with search; count reads "X of Y entries" when filtered; filter state persists to `state.logSearch`/`logType`/`logYear` (migration-safe defaults added to `load()`); `Ctrl/Cmd + K` focuses search on the Log tab. Verified end-to-end in Chromium.
+- **PTO-101** — search (date/type/status/notes/day-of-week/month, debounced) + type & auto-populated year filters; "X of Y entries" count; `Ctrl/Cmd + K` focuses search on the Log tab; state persists.
 
 ### v1.1 — Calendar rescheduling (July 2026)
-- **PTO-302** — Drag-to-reschedule entries on calendar. Drag any entry tag to a new day; drop targets highlight blue (valid) / red (invalid); weekends, company holidays, and already-occupied days are blocked with a reason toast; Personal Holiday moves stay synced to the tracker; a full `refresh()` propagates the move to the dashboard KPIs, projection chart, Time Off Log, upcoming widget, and insights. Verified end-to-end in Chromium.
+- **PTO-302** — drag any entry tag to a new day; blue/red drop validity (blocks weekends, company holidays, occupied days); Personal Holiday sync; full app refresh on drop.
 
 ### v1.0 — Initial release (July 2026)
 - Dashboard KPIs (vacation/used/sick/refill)
@@ -316,7 +354,7 @@
 - Upcoming time off widget
 - Personal Holiday tracker (with 90-day eligibility)
 - Smart Suggestions engine (WFH-Friday aware)
-- 8+ personalized insights (under-usage, cap, milestones)
+- 8+ personalized insights
 - Anniversary timeline (7 tiers)
 - Vacation bump alerts
 - Use-it-or-lose-it escalating alerts
@@ -329,6 +367,28 @@
 - Settings tab (live-edit allotments/holidays/tiers)
 - Export/Import JSON backup
 - Auto-migration on load
+
+---
+
+## 🎯 Recommended v2 Sprint Order
+
+### Sprint 1 (~10 hours)
+1. **PTO-505** Sidebar polish (2h) — fixes visible bug from screenshot (BUG-03)
+2. **PTO-201** Favicon (1h) — prerequisite for PWA
+3. **PTO-501** Dashboard enhancements (3h) — high daily-use impact
+4. ~~**PTO-101** Search + filter~~ ✅ shipped v1.2
+5. **PTO-102** iCal export (3h)
+
+### Sprint 2 (~11 hours)
+1. **PTO-503** Log input modes + polished picker (4h)
+2. **PTO-502** Extended draggable events (3h)
+3. ~~**PTO-104** Month-grouped log view~~ ✅ shipped v1.3
+4. **PTO-103** PWA (4h)
+
+### Sprint 3 (~8 hours)
+1. **PTO-504** Enhanced Smart Suggestions (2 days)
+2. **PTO-105** Slash commands (2h)
+3. **PTO-202** Print styles (2h)
 
 ---
 
@@ -346,11 +406,8 @@
 
 - `README.md` — feature overview & deployment
 - `QUICKSTART.md` — 60-second GitHub Pages setup
-- `PTO_Command_Center_Pitch.docx` — executive pitch document
-- `PTO_Weekly_Digest.html` — companion email generator
-- Future: `SETUP_SHAREPOINT.md`, `AUTOMATION.md`, `POWERBI_SETUP.md`, `TESTING.md`
+- `BACKLOG.md` — quick checklist version of this file
 
 ---
 
-_Last updated: July 7, 2026_
-_Next review: End of Q3 2026_
+_Roadmap v2 (reconciled) — Last updated: July 7, 2026_
