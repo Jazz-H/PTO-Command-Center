@@ -759,7 +759,9 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 
 <div class="panel" id="fri">
   <div class="page-head"><h1>Friday planner</h1><div class="sub">Schedule appointments on WFH Fridays — save PTO for actual trips. Scheduled items show on your calendar.</div></div>
-  <div class="card"><div class="table-wrap"><table id="friTable"><thead><tr><th>Friday</th><th>Week</th><th>Holiday?</th><th>Purpose</th><th style="width:150px">Status</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="grid g-kpi" id="friKpis"></div>
+  <div style="height:20px"></div>
+  <div class="card"><div class="card-title"><h3>Remaining Fridays this year</h3><span class="meta" id="friMeta"></span></div><div class="table-wrap"><table id="friTable"><thead><tr><th>Friday</th><th>Week</th><th>Holiday?</th><th>Purpose</th><th style="width:150px">Status</th></tr></thead><tbody></tbody></table></div></div>
 </div>
 
 <div class="panel" id="ann">
@@ -1664,12 +1666,23 @@ function renderFridays(){
   const sf = state.fridays || {};
   const tb = document.querySelector("#friTable tbody");
   if (!fri.length){ tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No more Fridays this year</h4><p>Come back after Jan 1 for the next year's schedule.</p></div></td></tr>`; return; }
+  let nBooked = 0, nHol = 0, nOpen = 0;
   tb.innerHTML = fri.map(f => {
     const iso = isoDate(f); const hol = holidayName(f);
     const st = sf[iso] || {purpose:"", status:"Open"};
     const isThisWeek = daysBetween(t, f) <= 6;
+    if (hol) nHol++;
+    else if (st.status === "Scheduled") nBooked++;
+    else if (st.status === "Open") nOpen++;
     return `<tr id="fri-${iso}"><td>${isThisWeek?'<span class="chip r" style="margin-right:6px">This week</span>':''}<b>${fmt(f,{month:"short",day:"numeric"})}</b> <span class="day" style="color:var(--n-500)">${fmt(f,{year:"numeric"})}</span></td><td class="mono">W${weekNum(f)}</td><td>${hol?`<span class="chip v">${hol}</span>`:'<span style="color:var(--n-400)">—</span>'}</td><td><input type="text" value="${st.purpose.replace(/"/g,'&quot;')}" placeholder="e.g. Dentist" onchange="updateFri('${iso}','purpose',this.value)"/></td><td><select onchange="updateFri('${iso}','status',this.value)">${["Open","Scheduled","Done","Cancelled"].map(s=>`<option ${s===st.status?'selected':''}>${s}</option>`).join("")}</select></td></tr>`;
   }).join("");
+  const metaEl = document.getElementById("friMeta"); if (metaEl) metaEl.textContent = `${fri.length} Friday${fri.length===1?"":"s"} left`;
+  const kp = document.getElementById("friKpis");
+  if (kp) kp.innerHTML = `
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">WFH Fridays left</span><div class="kpi-icon cyan">${ICO.calendar}</div></div><div class="kpi-value v-cyan">${fri.length}</div><div class="kpi-sub">Through Dec 31, ${t.getFullYear()}</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Appointments booked</span><div class="kpi-icon purple">${ICO.check}</div></div><div class="kpi-value v-purple">${nBooked}</div><div class="kpi-sub">Marked Scheduled</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Holiday Fridays</span><div class="kpi-icon magenta">${ICO.gift}</div></div><div class="kpi-value v-magenta">${nHol}</div><div class="kpi-sub">Paid days off — no PTO needed</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Open Fridays</span><div class="kpi-icon teal">${ICO.info}</div></div><div class="kpi-value v-teal">${nOpen}</div><div class="kpi-sub">Available to plan around</div></div>`;
 }
 
 function renderAnniversaries(){
@@ -1677,10 +1690,10 @@ function renderAnniversaries(){
   const yos = yearsOfService(t); const yosYears = Math.floor(yos); const yosMonths = Math.floor((yos-yosYears)*12);
   const cur = currentMilestone(t); const nxt = nextMilestone(t);
   document.getElementById("annKpis").innerHTML = `
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Hire date</span><div class="kpi-icon b">${ICO.calendar}</div></div><div class="kpi-value" style="font-size:20px">${fmt(hire,{month:"short",day:"numeric",year:"numeric"})}</div><div class="kpi-sub">${DAYNAMES[hire.getDay()]} · CCCI</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Service tenure</span><div class="kpi-icon g">${ICO.clock}</div></div><div class="kpi-value">${yosYears}<span class="unit">yrs ${yosMonths} mo</span></div><div class="kpi-sub">${cur ? "Current tier: "+cur.label : "Pre-1yr"}</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next milestone</span><div class="kpi-icon r">${ICO.star}</div></div><div class="kpi-value" style="font-size:20px">${nxt ? nxt.label : "Max"}</div><div class="kpi-sub">${nxt ? fmt(nxt.date,{month:"short",day:"numeric"})+" · "+nxt.daysUntil+" days" : "Top tier reached"}</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next bump</span><div class="kpi-icon a">${ICO.celebrate}</div></div><div class="kpi-value">+${nxt ? (nxt.vacDays-(cur?cur.vacDays:0)) : 0}<span class="unit">days</span></div><div class="kpi-sub">${nxt ? nxt.vacDays+" days total at "+nxt.label : "N/A"}</div></div>`;
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Hire date</span><div class="kpi-icon blue">${ICO.calendar}</div></div><div class="kpi-value" style="font-size:20px">${fmt(hire,{month:"short",day:"numeric",year:"numeric"})}</div><div class="kpi-sub">${DAYNAMES[hire.getDay()]} · CCCI</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Service tenure</span><div class="kpi-icon teal">${ICO.clock}</div></div><div class="kpi-value v-teal">${yosYears}<span class="unit">yrs ${yosMonths} mo</span></div><div class="kpi-sub">${cur ? "Current tier: "+cur.label : "Pre-1yr"}</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next milestone</span><div class="kpi-icon purple">${ICO.star}</div></div><div class="kpi-value v-purple" style="font-size:20px">${nxt ? nxt.label : "Max"}</div><div class="kpi-sub">${nxt ? fmt(nxt.date,{month:"short",day:"numeric"})+" · "+nxt.daysUntil+" days" : "Top tier reached"}</div></div>
+    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next bump</span><div class="kpi-icon magenta">${ICO.celebrate}</div></div><div class="kpi-value v-magenta">+${nxt ? (nxt.vacDays-(cur?cur.vacDays:0)) : 0}<span class="unit">days</span></div><div class="kpi-sub">${nxt ? nxt.vacDays+" days total at "+nxt.label : "N/A"}</div></div>`;
   document.getElementById("milestoneList").innerHTML = state.tiers.map(tier => {
     const date = anniversaryFor(tier.years); const passed = date <= t;
     const isCurrent = cur && tier.years === cur.years; const isNext = nxt && tier.years === nxt.years;
