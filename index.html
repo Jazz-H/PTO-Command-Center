@@ -1240,7 +1240,13 @@ function renderKPIs(){
   const y = cfg.year, ph = getPersonalHoliday(y), elig = isEligibleForPH();
   let phVal, phSub, phAction = "";
   if (!elig.eligible){ phVal = "Not eligible"; phSub = `Eligible ${fmt(elig.eligibleOn,{month:"short",day:"numeric"})}`; }
-  else if (ph.status==="Scheduled" || ph.status==="Taken"){ const d = parseDate(ph.date); phVal = fmt(d,{month:"short",day:"numeric"}); phSub = ph.status==="Taken" ? "Taken ✓" : fmt(d,{weekday:"long"}); phAction = `<button class="btn subtle sm" style="margin-top:8px;width:100%" onclick="viewInCalendar('${ph.date}')">View in calendar</button>`; }
+  else if (ph.status==="Scheduled" || ph.status==="Taken"){
+    const d = parseDate(ph.date); phVal = fmt(d,{month:"short",day:"numeric"}); phSub = ph.status==="Taken" ? "Taken ✓" : fmt(d,{weekday:"long"});
+    const view = `<button class="btn subtle sm" style="margin-top:8px;width:100%" onclick="viewInCalendar('${ph.date}')">View in calendar</button>`;
+    phAction = ph.status==="Taken"
+      ? view + `<button class="btn ghost sm" style="margin-top:6px;width:100%;color:var(--accent)" onclick="unschedulePersonalHoliday(${y})">Reset</button>`
+      : view + `<div style="display:flex;gap:6px;margin-top:6px"><button class="btn ghost sm" style="flex:1" onclick="markPersonalHolidayTaken(${y})">Mark taken</button><button class="btn ghost sm" style="flex:1;color:var(--accent)" onclick="unschedulePersonalHoliday(${y})">Unschedule</button></div>`;
+  }
   else { phVal = "Not scheduled"; phSub = "1 day available"; phAction = `<input type="date" id="ph_date_${y}" min="${isoDate(today())}" max="${y}-12-31" style="width:100%;margin-top:8px"/><button class="btn sm" style="margin-top:6px;width:100%" onclick="schedulePersonalHoliday(${y})">Schedule</button>`; }
   // Next anniversary
   const nxt = nextMilestone(); let annVal, annSub;
