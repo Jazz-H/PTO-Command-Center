@@ -163,6 +163,41 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .compact-table tr.clickable:hover td{background:var(--hover-bg)}
 .compact-table td.arrow-cell{width:18px;text-align:right;color:var(--n-300)}
 .compact-table tr.clickable:hover td.arrow-cell{color:var(--n-500)}
+.dp-field{display:flex;align-items:center;gap:8px;width:100%;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);box-shadow:var(--shadow-xs);cursor:pointer;font-family:inherit;font-size:13px;color:var(--n-900);text-align:left}
+.dp-field:hover{border-color:var(--n-300)}
+.dp-field:focus-visible{outline:none;border-color:var(--n-500);box-shadow:0 0 0 3px var(--ring)}
+.dp-field .dp-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dp-field svg{width:15px;height:15px;color:var(--n-400);flex-shrink:0}
+.dp-field.placeholder .dp-text{color:var(--n-400)}
+.dp-pop{position:fixed;z-index:1000;width:262px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lg);padding:12px;display:none}
+.dp-pop.open{display:block;animation:dpIn .12s ease}
+@keyframes dpIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.dp-title{font-weight:700;font-size:13px;color:var(--n-800)}
+.dp-nav{width:28px;height:28px;border:1px solid var(--line);background:var(--card);border-radius:7px;display:grid;place-items:center;cursor:pointer;color:var(--n-600);box-shadow:none;padding:0}
+.dp-nav:hover{background:var(--hover-bg);color:var(--n-900)}
+.dp-nav svg{width:14px;height:14px}
+.dp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px}
+.dp-dow span{text-align:center;font-size:10px;font-weight:600;color:var(--n-400);text-transform:uppercase;padding:2px 0}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dp-day{aspect-ratio:1;border:none;background:transparent;border-radius:7px;font-size:12px;font-weight:500;color:var(--n-800);cursor:pointer;font-family:inherit;font-variant-numeric:tabular-nums;display:grid;place-items:center;position:relative;box-shadow:none;padding:0}
+.dp-day.blank{visibility:hidden;pointer-events:none}
+.dp-day:hover:not(.disabled){background:var(--hover-strong)}
+.dp-day.wknd{color:var(--n-400)}
+.dp-day.hol{background:var(--violet-soft);color:var(--violet)}
+.dp-day.ent::after{content:"";position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--success)}
+.dp-day.today{box-shadow:inset 0 0 0 1.5px var(--n-400)}
+.dp-day.sel,.dp-day.sel.hol{background:var(--accent);color:#fff}
+.dp-day.sel::after{background:#fff}
+.dp-day.disabled{color:var(--n-300);cursor:not-allowed;text-decoration:line-through}
+.dp-day.focus{box-shadow:0 0 0 2px var(--ring)}
+.dp-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft)}
+.dp-today{border:1px solid var(--line);background:var(--card);border-radius:7px;font-size:11px;font-weight:600;color:var(--n-700);padding:4px 10px;cursor:pointer;box-shadow:none;width:auto;font-family:inherit}
+.dp-today:hover{background:var(--hover-bg)}
+.dp-legend{display:flex;gap:8px;font-size:10px;color:var(--n-500)}
+.dp-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:3px;vertical-align:middle}
+.dp-legend .sw-hol{background:var(--violet)}
+.dp-legend .sw-ent{background:var(--success)}
 .range-preview{margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--info-soft);border:1px solid var(--info-line);color:var(--n-600);font-size:12.5px;line-height:1.5}
 .range-preview b{color:var(--n-800)}
 .range-preview.warn{background:var(--warn-soft);border-color:var(--warn-line)}
@@ -498,8 +533,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
       </div>
     </div>
     <div class="form-grid">
-      <div id="f_date"><label class="field" id="e_date_label">Date</label><input type="date" id="e_date" oninput="updateRangePreview()"/></div>
-      <div id="f_end" style="display:none"><label class="field">End date</label><input type="date" id="e_end" oninput="updateRangePreview()"/></div>
+      <div id="f_date"><label class="field" id="e_date_label">Date</label><button type="button" class="dp-field" onclick="openDatePicker('e_date',this)"><span class="dp-text" id="e_date_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_date"/></div>
+      <div id="f_end" style="display:none"><label class="field">End date</label><button type="button" class="dp-field" onclick="openDatePicker('e_end',this)"><span class="dp-text" id="e_end_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_end"/></div>
       <div><label class="field">Type</label><select id="e_type"><option>Vacation</option><option>Sick</option><option>Personal Holiday</option><option>Personal</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
       <div id="f_hours"><label class="field">Hours</label><input type="number" id="e_hours" value="8" step="0.5" min="0"/></div>
       <div id="f_days" style="display:none"><label class="field">Days</label><input type="number" id="e_days" value="1" step="0.5" min="0"/></div>
@@ -649,7 +684,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
       <button class="modal-close" onclick="closeEditModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-grid">
-      <div><label class="field">Date</label><input type="date" id="edit_date"/></div>
+      <div><label class="field">Date</label><button type="button" class="dp-field" onclick="openDatePicker('edit_date',this)"><span class="dp-text" id="edit_date_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="edit_date"/></div>
       <div><label class="field">Type</label><select id="edit_type"><option>Vacation</option><option>Sick</option><option>Personal Holiday</option><option>Personal</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
       <div><label class="field">Hours</label><input type="number" id="edit_hours" step="0.5" min="0"/></div>
       <div><label class="field">Status</label><select id="edit_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
@@ -659,6 +694,20 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
       <button class="btn subtle sm" onclick="closeEditModal()">Cancel</button>
       <button class="btn" onclick="saveEditEntry()">Save changes</button>
     </div>
+  </div>
+</div>
+
+<div class="dp-pop" id="datePicker" role="dialog" aria-label="Choose a date">
+  <div class="dp-head">
+    <button type="button" class="dp-nav" onclick="dpMonth(-1)" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="dp-title" id="dpTitle"></div>
+    <button type="button" class="dp-nav" onclick="dpMonth(1)" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+  </div>
+  <div class="dp-dow" id="dpDow"></div>
+  <div class="dp-grid" id="dpGrid"></div>
+  <div class="dp-foot">
+    <button type="button" class="dp-today" onclick="dpToday()">Today</button>
+    <div class="dp-legend"><span><i class="sw-hol"></i>Holiday</span><span><i class="sw-ent"></i>Entry</span></div>
   </div>
 </div>
 
@@ -1163,7 +1212,7 @@ function clearLogFilters(){ state.logSearch = ""; state.logType = "All"; state.l
 function openEditModal(idx){
   editingIdx = idx;
   const e = state.entries[idx]; if (!e) return;
-  document.getElementById("edit_date").value = e.date;
+  dpSet("edit_date", e.date);
   document.getElementById("edit_type").value = e.type;
   document.getElementById("edit_hours").value = e.hours;
   document.getElementById("edit_status").value = e.status || "Approved";
@@ -1429,6 +1478,91 @@ function rescheduleEntry(idx, newDate){
   toast(`Moved ${oldType} → ${fmt(parseDate(newDate),{weekday:"short",month:"short",day:"numeric"})}`);
 }
 
+// ===== Custom date picker (PTO-503 step B) =====
+let _dp = { field:null, cursor:null, focus:null };
+function dpSet(fieldId, iso){
+  const inp = document.getElementById(fieldId); if (!inp) return;
+  inp.value = iso || "";
+  const txt = document.getElementById(fieldId + "_text");
+  if (txt){ const btn = txt.closest(".dp-field");
+    if (iso){ txt.textContent = fmt(parseDate(iso),{weekday:"short",month:"short",day:"numeric",year:"numeric"}); if (btn) btn.classList.remove("placeholder"); }
+    else { txt.textContent = "Pick a date"; if (btn) btn.classList.add("placeholder"); }
+  }
+}
+function dpDisabled(fieldId, iso){
+  if (fieldId === "e_end") return false;                                   // range end — any day
+  if (fieldId === "e_date" && (state.entryMode||"hours") === "range") return false; // range start — any day
+  const editingDate = (fieldId === "edit_date" && editingIdx >= 0 && state.entries[editingIdx]) ? state.entries[editingIdx].date : null;
+  if (iso === editingDate) return false;                                   // the entry's own date is fine
+  return state.entries.some(e => e.date === iso);                          // otherwise block already-booked days
+}
+function openDatePicker(fieldId, anchor){
+  _dp.field = fieldId;
+  const cur = document.getElementById(fieldId).value;
+  const base = cur ? parseDate(cur) : today();
+  _dp.cursor = new Date(base.getFullYear(), base.getMonth(), 1);
+  _dp.focus = cur || isoDate(today());
+  renderDatePicker();
+  const pop = document.getElementById("datePicker");
+  pop.classList.add("open");
+  positionDatePicker(anchor);
+}
+function closeDatePicker(){ const p = document.getElementById("datePicker"); if (p) p.classList.remove("open"); _dp.field = null; }
+function datePickerOpen(){ const p = document.getElementById("datePicker"); return !!(p && p.classList.contains("open")); }
+function positionDatePicker(anchor){
+  const pop = document.getElementById("datePicker"); const r = anchor.getBoundingClientRect();
+  const pw = pop.offsetWidth || 262, ph = pop.offsetHeight || 300;
+  let left = r.left; let top = r.bottom + 6;
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  if (left < 8) left = 8;
+  if (top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 6);
+  pop.style.left = left + "px"; pop.style.top = top + "px";
+}
+function dpMonth(n){ _dp.cursor = new Date(_dp.cursor.getFullYear(), _dp.cursor.getMonth() + n, 1); renderDatePicker(); }
+function dpToday(){ const t = today(); _dp.cursor = new Date(t.getFullYear(), t.getMonth(), 1); _dp.focus = isoDate(t); renderDatePicker(); }
+function renderDatePicker(){
+  const y = _dp.cursor.getFullYear(), m = _dp.cursor.getMonth();
+  document.getElementById("dpTitle").textContent = `${MONTHNAMES[m]} ${y}`;
+  document.getElementById("dpDow").innerHTML = DOWABBR.map(d => `<span>${d[0]}</span>`).join("");
+  const pad = new Date(y,m,1).getDay(), dim = new Date(y,m+1,0).getDate();
+  const sel = document.getElementById(_dp.field).value;
+  let cells = "";
+  for (let i=0;i<pad;i++) cells += `<button type="button" class="dp-day blank" tabindex="-1"></button>`;
+  for (let d=1;d<=dim;d++){
+    const date = new Date(y,m,d), iso = isoDate(date); const hn = holidayName(date);
+    const cls = ["dp-day"];
+    if (isWeekend(date)) cls.push("wknd");
+    if (hn) cls.push("hol");
+    if (state.entries.some(e => e.date === iso)) cls.push("ent");
+    if (date.getTime() === today().getTime()) cls.push("today");
+    if (iso === sel) cls.push("sel");
+    if (iso === _dp.focus) cls.push("focus");
+    const dis = dpDisabled(_dp.field, iso); if (dis) cls.push("disabled");
+    cells += `<button type="button" class="${cls.join(' ')}" ${dis ? 'aria-disabled="true"' : `onclick="dpSelect('${iso}')"`} title="${hn ? esc(hn) : ''}" tabindex="-1">${d}</button>`;
+  }
+  document.getElementById("dpGrid").innerHTML = cells;
+}
+function dpSelect(iso){
+  const field = _dp.field;
+  dpSet(field, iso);
+  closeDatePicker();
+  if (field === "e_date" || field === "e_end") updateRangePreview();
+}
+document.addEventListener("keydown", e => {
+  if (!datePickerOpen()) return;
+  const move = days => { let f = parseDate(_dp.focus || isoDate(today())); f = addDays(f, days); _dp.focus = isoDate(f); _dp.cursor = new Date(f.getFullYear(), f.getMonth(), 1); renderDatePicker(); e.preventDefault(); };
+  if (e.key === "ArrowLeft") move(-1);
+  else if (e.key === "ArrowRight") move(1);
+  else if (e.key === "ArrowUp") move(-7);
+  else if (e.key === "ArrowDown") move(7);
+  else if (e.key === "PageUp"){ dpMonth(-1); e.preventDefault(); }
+  else if (e.key === "PageDown"){ dpMonth(1); e.preventDefault(); }
+  else if (e.key === "Enter"){ if (_dp.focus && !dpDisabled(_dp.field, _dp.focus)) dpSelect(_dp.focus); e.preventDefault(); }
+  else if (e.key === "Escape"){ closeDatePicker(); e.preventDefault(); }
+});
+window.addEventListener("scroll", () => { if (datePickerOpen()) closeDatePicker(); }, true);
+window.addEventListener("resize", () => { if (datePickerOpen()) closeDatePicker(); });
+
 function renderSettings(){
   const c = state.config;
   document.getElementById("c_name").value = c.name;
@@ -1561,11 +1695,13 @@ document.addEventListener('click', e => {
   if (legendBtn) toggleLegendFilter(legendBtn.dataset.filter);
   // Close modal on backdrop click
   if (e.target.id === 'editModal') closeEditModal();
+  // Close date picker when clicking outside it (and not on a picker field)
+  if (datePickerOpen() && !e.target.closest('#datePicker') && !e.target.closest('.dp-field')) closeDatePicker();
 });
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'j'){ e.preventDefault(); setTheme(getTheme()==='dark' ? 'light' : 'dark'); }
-  if (e.key === 'Escape' && document.getElementById('editModal').classList.contains('open')) closeEditModal();
-  if (e.key === 'Escape' && document.documentElement.getAttribute('data-nav')==='open') closeNav();
+  if (e.key === 'Escape' && !e.defaultPrevented && document.getElementById('editModal').classList.contains('open')) closeEditModal();
+  if (e.key === 'Escape' && !e.defaultPrevented && document.documentElement.getAttribute('data-nav')==='open') closeNav();
   if ((e.ctrlKey || e.metaKey) && e.key === 'b'){ e.preventDefault(); toggleSidebar(); }
   if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')){
     const logPanel = document.getElementById('log');
@@ -1578,7 +1714,7 @@ document.addEventListener('dragend', () => {
   _drag = null;
 });
 
-document.getElementById("e_date").value = isoDate(today());
+dpSet("e_date", isoDate(today()));
 calCursor = new Date(state.config.year, today().getMonth(), 1);
 document.getElementById("dash-sub").textContent = `${fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"})}`;
 updateThemeToggle();

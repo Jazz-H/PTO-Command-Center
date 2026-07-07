@@ -8,7 +8,7 @@
 
 - [x] **PTO-501** Dashboard: Friday activities + dismissable insights + drill-downs · 3h · 🔥 Critical — ✅ shipped v1.5
 - [x] **PTO-502** Expand drag-to-reschedule to Friday appts + suggestions · 3h · 🔥 Critical — ✅ shipped v1.6
-- [ ] **PTO-503** Time Off Log: Hours/Days/Range toggle + polished picker · 4h · 🔥 Critical
+- [x] **PTO-503** Time Off Log: Hours/Days/Range toggle + polished picker · 4h · 🔥 Critical — ✅ shipped v1.7
 - [ ] **PTO-504** Smart Suggestions: expanded intelligence categories · 2d · 🔥 Critical
 - [ ] **PTO-505** Polished sidebar collapse button · 2h · 🟡 High
 

@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.6 (production) |
-| Features shipped | 27 |
-| File size | ~116 KB (single HTML) |
-| Backlog items | 23 |
+| Version | 1.7 (production) |
+| Features shipped | 28 |
+| File size | ~122 KB (single HTML) |
+| Backlog items | 22 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -45,33 +45,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
-
-### 🔴 PTO-503: Time Off Log — Hours / Days / Range input toggle + polished picker
-- **Effort:** 4h
-- **Priority:** 🔥 Critical (user requested)
-- **Files touched:** `index.html` (add-entry form, edit modal, new date-range logic)
-- **Acceptance criteria:**
-  - [ ] **Input mode toggle** in Add Entry form — 3 options:
-    - **Hours** (default) — current behavior, single date + hours field
-    - **Days** — single date + days field, auto-multiplies by workday hrs
-    - **Date range** — start date + end date, auto-calculates business days, excludes weekends and company holidays
-  - [ ] Range mode creates multiple entries (one per business day) with a shared "batch ID" for group operations
-  - [ ] **Polished date picker:**
-    - Custom calendar dropdown widget (not native browser picker)
-    - Shows month at a glance with weekends greyed out
-    - Highlights company holidays in violet, existing entries in green
-    - Disables dates that have conflicts
-    - Keyboard navigation: arrow keys move focus, Enter selects, Esc closes
-    - "Today" quick-jump button in the picker footer
-  - [ ] **Range mode UX:** show "This will create N entries totaling M hours"
-  - [ ] **Batch delete:** if a range-batch entry is deleted, prompt "Delete all N entries in this batch?"
-  - [ ] **Batch edit:** editing one range entry offers "Apply to all in batch"
-- **Technical notes:**
-  - New state: entries get optional `batchId` field
-  - Build custom picker as a reusable component (`<div class="date-picker">`)
-  - Consider Flatpickr as an alternative to custom (~50KB but polished) — decision after prototyping
-  - Days-mode formula: `hours = days * config.workday`
-- **Migration:** existing entries have no `batchId` — treat as standalone (no migration needed)
 
 ### 🔴 PTO-505: Polished sidebar collapse button (best-practice pattern)
 - **Effort:** 2h
@@ -272,6 +245,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.7 — Log input modes + custom date picker (July 2026)
+- **PTO-503** — Add-entry input toggle (Hours / Days / Range). Days converts to hours (`days × workday`); Range creates one entry per business day (weekends, company holidays, and already-booked days excluded) sharing a `batchId`, with a live "N entries totaling M hours" preview. Batch delete removes the whole batch on confirm; batch edit applies type/status/notes to all siblings. Custom in-file date picker (replaces native inputs on the add form + edit modal): month grid with weekends greyed, company holidays in violet, existing entries dotted green, conflicts disabled, keyboard nav (arrows/PageUp-Down/Enter/Esc), and a Today button. Two-picker range selection. Verified end-to-end in Chromium including keyboard nav and Esc layering over the edit modal.
 
 ### v1.6 — Extended calendar drag (July 2026)
 - **PTO-502** — Generalized the drag system to three payload types. Friday appointments drag to other Fridays only (non-Friday and already-booked Fridays blocked in red; `state.fridays` key moves). Suggestion chips are draggable and book a Vacation entry on whatever valid weekday they're dropped on (weekend/holiday/occupied blocked). Company holidays and anniversaries stay non-draggable. Existing PTO/Personal-Holiday drag (PTO-302) unchanged.
