@@ -290,6 +290,24 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .ul-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .ul-name{color:var(--n-700);font-weight:500}
 .ul-val{margin-left:auto;color:var(--n-500);font-variant-numeric:tabular-nums}
+.cal-stats{display:flex;gap:20px;flex-wrap:wrap;padding:2px 0 14px;margin-bottom:8px;border-bottom:1px solid var(--line-soft)}
+.cal-stat{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--n-500)}
+.cal-stat b{font-size:15px;font-weight:700;color:var(--n-900);font-variant-numeric:tabular-nums}
+.cal-stat .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bulk-bar{display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;margin-bottom:14px;background:var(--primary-soft);border:1px solid var(--primary-line);border-radius:10px}
+.bulk-bar.show{display:flex}
+.bulk-count{font-size:13px;font-weight:600;color:var(--primary)}
+.bulk-actions{display:flex;gap:8px;flex-wrap:wrap}
+#logTable input[type=checkbox],#logSelectAll{width:16px;height:16px;cursor:pointer;accent-color:var(--primary)}
+#logTable tr.row-selected td{background:var(--primary-soft)}
+.cfg-snapshot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.cfg-snap-item{background:var(--hover-bg);border:1px solid var(--line);border-radius:10px;padding:12px}
+.cfg-snap-item .cs-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--n-500);font-weight:600}
+.cfg-snap-item .cs-val{font-size:18px;font-weight:700;color:var(--n-900);margin-top:4px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.cfg-snap-item .cs-sub{font-size:11px;color:var(--n-500);margin-top:2px}
+@media(max-width:600px){.cfg-snapshot{grid-template-columns:1fr}}
+.cal-day.flash{animation:calFlash 1.3s ease}
+@keyframes calFlash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px var(--primary)}}
 /* Segmented toggle (chart range) */
 .seg-toggle{display:inline-flex;background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
 .seg-toggle button{width:auto;border:none;background:transparent;color:var(--n-500);font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;box-shadow:none;font-family:inherit}
@@ -698,6 +716,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     </div>
     </div>
     <div class="topbar-actions">
+      <button class="icon-btn" onclick="requestTimeOff()" title="Add time off (N)" aria-label="Add time off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
       <button class="icon-btn" onclick="openNotifications()" title="Notifications" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>
       <div class="theme-toggle">
         <button class="theme-btn" data-set-theme="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
@@ -773,8 +792,10 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     </div>
     <div id="rangePreview" class="range-preview" style="display:none"></div>
   </div>
+  <div class="card no-print" style="margin-bottom:20px"><div class="card-title"><h3>Monthly usage</h3><span class="meta" id="logChartMeta"></span></div><div class="chart-wrap" style="height:180px"><canvas id="logMonthChart"></canvas></div></div>
   <div class="card">
     <div class="card-title"><h3>All entries</h3><span class="meta" id="logCount">0 entries</span></div>
+    <div class="bulk-bar no-print" id="logBulkBar"><span class="bulk-count" id="logBulkCount">0 selected</span><div class="bulk-actions"><button class="btn ghost sm" onclick="bulkStatusLog('Taken')">Mark Taken</button><button class="btn ghost sm" onclick="bulkStatusLog('Approved')">Mark Approved</button><button class="btn ghost sm" style="color:var(--accent);border-color:var(--accent-line)" onclick="bulkDeleteLog()">Delete</button><button class="btn subtle sm" onclick="clearLogSelection()">Clear</button></div></div>
     <div class="log-toolbar">
       <div class="log-search">
         <span class="lsi" id="logSearchIcon"></span>
@@ -797,7 +818,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
         <button type="button" data-view="month" onclick="setLogView('month')">By month</button>
       </div>
     </div>
-    <div class="table-wrap"><table id="logTable"><thead><tr><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
+    <div class="table-wrap"><table id="logTable"><thead><tr><th style="width:34px" class="no-print"><input type="checkbox" id="logSelectAll" onchange="toggleLogSelectAll(this.checked)" title="Select all" aria-label="Select all entries"></th><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
   </div>
 </div>
 
@@ -822,6 +843,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
         <button class="legend-item" data-filter="fri"><span class="legend-swatch" style="background:var(--info-soft); border-top:2px solid var(--info)"></span><span>WFH Fri</span></button>
       </div>
     </div>
+    <div class="cal-stats" id="calStats"></div>
     <div class="cal-grid" id="calHead"></div>
     <div style="height:6px"></div>
     <div class="cal-grid" id="calBody"></div>
@@ -857,6 +879,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     <div class="card"><div class="card-title"><h3>Insights</h3></div><div id="annInsights"></div></div>
   </div>
   <div style="height:20px"></div>
+  <div class="card"><div class="card-title"><h3>Vacation growth over tenure</h3><span class="meta">Days/year at each milestone</span></div><div class="chart-wrap" style="height:220px"><canvas id="tierChart"></canvas></div></div>
+  <div style="height:20px"></div>
   <div class="card">
     <div class="card-title"><h3>Vacation tier reference</h3><span class="meta">Edit to match HR policy</span></div>
     <div class="table-wrap"><table id="tierTable"><thead><tr><th>Milestone</th><th>Anniversary date</th><th>Year</th><th style="width:110px">Vacation days</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
@@ -877,6 +901,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
         <div class="row row-2"><div><label class="field">Hire date</label><input type="date" id="c_hire"/></div><div><label class="field">Plan year</label><input type="number" id="c_year"/></div></div>
         <div class="row row-2"><div><label class="field">Standard workday (hrs)</label><input type="number" id="c_workday" step="0.5"/></div><div><label class="field">Birthday <span style="color:var(--n-400);font-weight:400">(for suggestions)</span></label><input type="date" id="c_birthday"/></div></div>
       </div>
+      <div class="cfg-snapshot" id="cfgSnapshot"></div>
     </div>
     <div class="card">
       <div class="card-title"><h3>Annual allotments</h3><span class="meta">Front-loaded Jan 1</span></div>
@@ -1276,7 +1301,8 @@ function buildInsights(){
   return ins;
 }
 
-let balChart, pieChart;
+let balChart, pieChart, logChart, tierChart;
+let selectedLog = new Set();
 
 function renderGreeting(){
   const h = new Date().getHours();
@@ -1662,8 +1688,27 @@ function renderLogSummary(){
     miniKpi("magenta", ICO.sick, "Sick Used YTD", `${us.toFixed(1)}<span class="unit">hrs</span>`, "v-magenta", `${(us/cfg.workday).toFixed(1)} days in ${y}`) +
     miniKpi("amber", ICO.gift, "Personal / Other", `${otherHrs.toFixed(1)}<span class="unit">hrs</span>`, "v-amber", `${(otherHrs/cfg.workday).toFixed(1)} days in ${y}`);
 }
+function renderLogChart(){
+  const cvs = document.getElementById("logMonthChart"); if (!cvs || typeof Chart === "undefined") return;
+  const y = state.config.year; const dark = getTheme()==='dark';
+  const labels = MONTHNAMES.map(m => m.slice(0,3));
+  const series = {Vacation:new Array(12).fill(0), Sick:new Array(12).fill(0), "Personal Holiday":new Array(12).fill(0), Other:new Array(12).fill(0)};
+  state.entries.forEach(e => { const d = parseDate(e.date); if (d.getFullYear()!==y) return; const mo = d.getMonth(); const h = Number(e.hours||0);
+    if (e.type==="Vacation") series.Vacation[mo]+=h; else if (e.type==="Sick") series.Sick[mo]+=h; else if (e.type==="Personal Holiday") series["Personal Holiday"][mo]+=h; else series.Other[mo]+=h; });
+  const col = {Vacation:cssVar('--data-green'), Sick:cssVar('--accent'), "Personal Holiday":cssVar('--data-magenta'), Other:cssVar('--data-amber')};
+  const meta = document.getElementById("logChartMeta"); if (meta) meta.textContent = `${y} · hours per month`;
+  const tick = cssVar('--chart-tick'), grid = cssVar('--chart-grid');
+  if (logChart) logChart.destroy();
+  logChart = new Chart(cvs, {type:'bar',
+    data:{labels, datasets:Object.keys(series).map(k => ({label:k, data:series[k], backgroundColor:col[k], borderRadius:3, stack:'s', maxBarThickness:24}))},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:9,boxHeight:9,usePointStyle:true,pointStyle:'circle',font:{size:11},color:tick,padding:12}}, tooltip:{backgroundColor:dark?'#fff':'#0F172A',titleColor:dark?'#000':'#fff',bodyColor:dark?'#000':'#fff',padding:10,cornerRadius:8}},
+      scales:{x:{stacked:true, grid:{display:false}, ticks:{font:{size:10},color:tick}, border:{display:false}}, y:{stacked:true, beginAtZero:true, grid:{color:grid,drawTicks:false}, ticks:{font:{size:10},color:tick,padding:6,callback:v=>v+'h'}, border:{display:false}}}}
+  });
+}
 function renderLog(){
   renderLogSummary();
+  renderLogChart();
   const tb = document.querySelector("#logTable tbody");
   // Sync toolbar controls to state
   const searchEl = document.getElementById("logSearch");
@@ -1688,8 +1733,9 @@ function renderLog(){
 
   if (!filtered.length){
     tb.innerHTML = total === 0
-      ? `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No entries yet</h4><p>Add your first entry using the form above.</p></div></td></tr>`
-      : `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.search}</div><h4>No matching entries</h4><p>No entries match your search or filters. <a href="#" onclick="clearLogFilters();return false;" style="color:var(--accent);font-weight:600">Clear filters</a></p></div></td></tr>`;
+      ? `<tr><td colspan="8"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No entries yet</h4><p>Add your first entry using the form above.</p></div></td></tr>`
+      : `<tr><td colspan="8"><div class="empty"><div class="empty-icon">${ICO.search}</div><h4>No matching entries</h4><p>No entries match your search or filters. <a href="#" onclick="clearLogFilters();return false;" style="color:var(--accent);font-weight:600">Clear filters</a></p></div></td></tr>`;
+    updateLogBulkBar();
     return;
   }
 
@@ -1703,19 +1749,27 @@ function renderLog(){
       const totalHrs = items.reduce((s,e) => s + Number(e.hours||0), 0);
       const days = new Set(items.map(e => e.date)).size;
       const collapsed = !!(state.collapsedMonths && state.collapsedMonths[k]);
-      const header = `<tr class="log-group${collapsed?' collapsed':''}" onclick="toggleMonthCollapse('${k}')"><td colspan="7"><div class="log-group-head"><span class="log-group-chev">${collapsed?ICO.chevRight:ICO.chevDown}</span><span class="log-group-title">${MONTHNAMES[mm-1]} ${yy}</span><span class="log-group-stats">${items.length} ${items.length===1?"entry":"entries"} · ${totalHrs}h · ${days} ${days===1?"day":"days"}</span></div></td></tr>`;
+      const header = `<tr class="log-group${collapsed?' collapsed':''}" onclick="toggleMonthCollapse('${k}')"><td colspan="8"><div class="log-group-head"><span class="log-group-chev">${collapsed?ICO.chevRight:ICO.chevDown}</span><span class="log-group-title">${MONTHNAMES[mm-1]} ${yy}</span><span class="log-group-stats">${items.length} ${items.length===1?"entry":"entries"} · ${totalHrs}h · ${days} ${days===1?"day":"days"}</span></div></td></tr>`;
       return header + (collapsed ? "" : items.map(logRowHtml).join(""));
     }).join("");
   } else {
     tb.innerHTML = filtered.map(logRowHtml).join("");
   }
+  updateLogBulkBar();
 }
 function logRowHtml(e){
   const idx = state.entries.indexOf(e); const d = parseDate(e.date);
   let cls = 'a';
   if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
-  return `<tr><td><b>${fmt(d)}</b></td><td style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td><span class="chip ${cls}">${e.type}</span></td><td class="num">${e.hours}</td><td><span class="chip n">${e.status||"-"}</span></td><td style="color:var(--n-500)">${e.notes||"—"}</td><td><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
+  const chk = `<td class="no-print"><input type="checkbox" class="log-check" data-idx="${idx}" ${selectedLog.has(idx)?'checked':''} onchange="onLogCheck(${idx},this.checked)" aria-label="Select entry"></td>`;
+  return `<tr${selectedLog.has(idx)?' class="row-selected"':''}>${chk}<td><b>${fmt(d)}</b></td><td style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td><span class="chip ${cls}">${e.type}</span></td><td class="num">${e.hours}</td><td><span class="chip n">${e.status||"-"}</span></td><td style="color:var(--n-500)">${e.notes||"—"}</td><td><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
 }
+function onLogCheck(idx, checked){ if (checked) selectedLog.add(idx); else selectedLog.delete(idx); const tr = document.querySelector(`.log-check[data-idx="${idx}"]`)?.closest('tr'); if (tr) tr.classList.toggle('row-selected', checked); updateLogBulkBar(); }
+function toggleLogSelectAll(checked){ document.querySelectorAll('#logTable .log-check').forEach(cb => { const idx = Number(cb.dataset.idx); cb.checked = checked; if (checked) selectedLog.add(idx); else selectedLog.delete(idx); cb.closest('tr').classList.toggle('row-selected', checked); }); updateLogBulkBar(); }
+function updateLogBulkBar(){ const bar = document.getElementById('logBulkBar'); const cnt = document.getElementById('logBulkCount'); const n = selectedLog.size; if (bar) bar.classList.toggle('show', n>0); if (cnt) cnt.textContent = `${n} selected`; const all = document.getElementById('logSelectAll'); const boxes = document.querySelectorAll('#logTable .log-check'); if (all) all.checked = boxes.length>0 && [...boxes].every(b=>b.checked); }
+function clearLogSelection(){ selectedLog.clear(); renderLog(); }
+function bulkStatusLog(status){ if (!selectedLog.size) return; [...selectedLog].forEach(i => { if (state.entries[i]) state.entries[i].status = status; }); const n = selectedLog.size; selectedLog.clear(); save(); refresh(); toast(`Marked ${n} as ${status}`); }
+function bulkDeleteLog(){ if (!selectedLog.size) return; const n = selectedLog.size; if (!confirm(`Delete ${n} selected ${n===1?'entry':'entries'}?`)) return; [...selectedLog].sort((a,b)=>b-a).forEach(i => { const e = state.entries[i]; if (e){ detachPH(e); state.entries.splice(i,1); } }); selectedLog.clear(); save(); refresh(); toast(`Deleted ${n} ${n===1?'entry':'entries'}`); }
 function monthKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; }
 function setLogView(v){ state.logView = v; save(); renderLog(); }
 function toggleMonthCollapse(k){ state.collapsedMonths = state.collapsedMonths || {}; if (state.collapsedMonths[k]) delete state.collapsedMonths[k]; else state.collapsedMonths[k] = true; save(); renderLog(); }
@@ -1886,6 +1940,20 @@ function renderAnniversaries(){
   tb.innerHTML = state.tiers.map((tier, idx) => { const date = anniversaryFor(tier.years);
     return `<tr><td><b>${tier.label}</b></td><td>${fmt(date,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}</td><td class="mono">Year ${tier.years}</td><td><input type="number" value="${tier.vacDays}" step="1" min="0" onchange="updateTier(${idx},'vacDays',this.value)"/></td><td><input type="text" value="${(tier.notes||'').replace(/"/g,'&quot;')}" onchange="updateTier(${idx},'notes',this.value)"/></td></tr>`;
   }).join("");
+  renderTierChart();
+}
+function renderTierChart(){
+  const cvs = document.getElementById("tierChart"); if (!cvs || typeof Chart === "undefined") return;
+  const tiers = [...state.tiers].sort((a,b) => a.years-b.years);
+  const labels = tiers.map(t => t.years+"yr"); const data = tiers.map(t => t.vacDays);
+  const dark = getTheme()==='dark'; const line = cssVar('--data-blue'); const tick = cssVar('--chart-tick'), grid = cssVar('--chart-grid');
+  if (tierChart) tierChart.destroy();
+  tierChart = new Chart(cvs, {type:'line',
+    data:{labels, datasets:[{label:'Vacation days/year', data, borderColor:line, backgroundColor:(ctx)=>{const c=ctx.chart.ctx; const g=c.createLinearGradient(0,0,0,220); g.addColorStop(0,cssVar('--data-blue-soft')); g.addColorStop(1,'rgba(0,0,0,0)'); return g;}, stepped:true, fill:true, pointRadius:4, pointHoverRadius:6, pointBackgroundColor:line, pointBorderColor:dark?'#0a0a0a':'#fff', pointBorderWidth:2, borderWidth:2.5}]},
+    options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{backgroundColor:dark?'#fff':'#0F172A',titleColor:dark?'#000':'#fff',bodyColor:dark?'#000':'#fff',padding:10,cornerRadius:8,callbacks:{label:ctx=>` ${ctx.parsed.y} days/year`}}},
+      scales:{x:{grid:{display:false}, ticks:{font:{size:11},color:tick}, border:{display:false}}, y:{beginAtZero:true, grid:{color:grid,drawTicks:false}, ticks:{font:{size:10},color:tick,padding:6,callback:v=>v+'d'}, border:{display:false}}}}
+  });
 }
 function updateTier(i, field, val){ state.tiers[i][field] = field==="notes" ? val : Number(val); save(); }
 
@@ -1935,10 +2003,27 @@ function renderCalendar(){
       tags.push(`<span class="cal-tag fri-appt" draggable="true" ondragstart="dragStart(event,'fri','${iso}')" title="${esc(appt.purpose)} · drag to another Friday">${appt.purpose.length>14?esc(appt.purpose.slice(0,13))+'…':esc(appt.purpose)}</span>`);
     }
 
-    return `<div class="${c.join(' ')}" ondragover="dragOver(event,'${iso}')" ondragleave="dragLeave(event)" ondrop="dropOnDay(event,'${iso}')"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
+    return `<div class="${c.join(' ')}" data-iso="${iso}" ondragover="dragOver(event,'${iso}')" ondragleave="dragLeave(event)" ondrop="dropOnDay(event,'${iso}')"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
   }).join("");
+  renderCalStats(y, m);
   updateLegendUI();
 }
+function renderCalStats(y, m){
+  const el = document.getElementById("calStats"); if (!el) return;
+  const inMonth = d => d.getFullYear()===y && d.getMonth()===m;
+  const ents = state.entries.filter(e => inMonth(parseDate(e.date)));
+  const daysOff = new Set(ents.map(e => e.date)).size;
+  const hrs = ents.reduce((s,e) => s+Number(e.hours||0), 0);
+  const hols = (state.holidays||[]).filter(h => inMonth(parseDate(h.date))).length;
+  let fridays = 0; const dim = new Date(y,m+1,0).getDate();
+  for (let d=1; d<=dim; d++){ if (new Date(y,m,d).getDay()===5) fridays++; }
+  el.innerHTML =
+    `<span class="cal-stat"><span class="dot" style="background:var(--data-green)"></span><b>${daysOff}</b> ${daysOff===1?'day':'days'} off</span>` +
+    `<span class="cal-stat"><b>${hrs.toFixed(0)}</b> hrs booked</span>` +
+    `<span class="cal-stat"><span class="dot" style="background:var(--data-purple)"></span><b>${hols}</b> ${hols===1?'holiday':'holidays'}</span>` +
+    `<span class="cal-stat"><span class="dot" style="background:var(--data-cyan)"></span><b>${fridays}</b> WFH Fridays</span>`;
+}
+function flashCalDay(iso){ setTimeout(() => { const cell = document.querySelector(`.cal-day[data-iso="${iso}"]`); if (cell){ cell.classList.add('flash'); setTimeout(()=>cell.classList.remove('flash'), 1400); } }, 150); }
 
 function updateLegendUI(){
   const f = state.calFilters || {};
@@ -2148,6 +2233,16 @@ function renderSettings(){
     return `<div class="year-row"><div class="year-label">${a.year}</div><div><input type="number" value="${a.vacation}" step="0.5" onchange="updateAllot(${i},'vacation',this.value)"/></div><div class="sick-input-wrap"><input type="number" value="${isNA?'':a.sick}" step="0.5" placeholder="${isNA?'N/A':''}" ${isNA?'disabled':''} onchange="updateAllot(${i},'sick',this.value)"/><label class="na-toggle"><input type="checkbox" ${isNA?'checked':''} onchange="toggleNA(${i},this.checked)"/>N/A</label></div><div><input type="text" value="${(a.notes||'').replace(/"/g,'&quot;')}" onchange="updateAllot(${i},'notes',this.value)"/></div></div>`;
   }).join("");
   document.getElementById("holList").innerHTML = state.holidays.sort((a,b) => a.date.localeCompare(b.date)).map((h,i) => `<div style="display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft)"><span style="width:140px;color:var(--n-500);font-size:13px;font-variant-numeric:tabular-nums">${fmt(parseDate(h.date))}</span><span style="flex:1;font-size:13px;color:var(--n-800);font-weight:500">${h.name}</span><button class="btn subtle sm" onclick="delHoliday(${i})">${ICO.trash}</button></div>`).join("");
+  const snap = document.getElementById("cfgSnapshot");
+  if (snap){
+    const bal = currentBalance(); const t = today();
+    const yos = yearsOfService(t); const yy = Math.floor(yos); const mm = Math.floor((yos-yy)*12);
+    const nxt = nextMilestone(t);
+    snap.innerHTML =
+      `<div class="cfg-snap-item"><div class="cs-lbl">Vacation Balance</div><div class="cs-val">${bal.toFixed(1)} hrs</div><div class="cs-sub">${(bal/c.workday).toFixed(1)} days available</div></div>` +
+      `<div class="cfg-snap-item"><div class="cs-lbl">Service Tenure</div><div class="cs-val">${yy}y ${mm}m</div><div class="cs-sub">Since ${fmt(parseDate(c.hire),{month:"short",year:"numeric"})}</div></div>` +
+      `<div class="cfg-snap-item"><div class="cs-lbl">Next Milestone</div><div class="cs-val">${nxt?nxt.label:"Max"}</div><div class="cs-sub">${nxt?nxt.daysUntil+" days · "+nxt.vacDays+" days/yr":"Top tier"}</div></div>`;
+  }
 }
 
 function uid(){ return "b" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
@@ -2236,6 +2331,7 @@ function bookSuggestion(dates){
   save(); calCursor = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1); refresh();
   toast(`Booked ${added} day${added===1?"":"s"} — ${fmt(firstDate,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}`);
   switchTab("cal");
+  dates.forEach(flashCalDay);
 }
 function switchTab(id){
   document.querySelectorAll(".nav-item").forEach(x => x.classList.remove("active"));
@@ -2329,6 +2425,11 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'b'){ e.preventDefault(); toggleSidebar(); }
   if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')){
     e.preventDefault(); const gs = document.getElementById('globalSearch'); if (gs){ gs.focus(); gs.select(); }
+  }
+  // "N" — quick Add Time Off (ignore when typing or with modifiers)
+  if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey && !e.altKey){
+    const el = document.activeElement; const tag = el ? el.tagName : '';
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT' && !(el && el.isContentEditable)){ e.preventDefault(); requestTimeOff(); }
   }
 });
 document.addEventListener('dragend', () => {
