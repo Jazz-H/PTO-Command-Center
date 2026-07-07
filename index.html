@@ -202,6 +202,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .kpi-value{font-family:'JetBrains Mono','Inter',monospace;font-size:26px;font-weight:600;color:var(--n-900);letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
 .kpi-value .unit{font-size:13px;font-weight:500;color:var(--n-400);letter-spacing:0}
 .kpi-value.v-cyan{color:var(--data-cyan)}.kpi-value.v-purple{color:var(--data-purple)}.kpi-value.v-magenta{color:var(--data-magenta)}.kpi-value.v-blue{color:var(--data-blue)}.kpi-value.v-teal{color:var(--data-teal)}.kpi-value.v-green{color:var(--data-green)}.kpi-value.v-amber{color:var(--data-amber)}
+.kpi-value.sm{font-size:18px;letter-spacing:-.01em}
 .kpi-sub{font-size:12px;color:var(--n-500);margin-top:6px;display:flex;align-items:center;gap:6px}
 .kpi.kpi-link{cursor:pointer;position:relative}
 .kpi.kpi-link:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--n-300)}
@@ -751,6 +752,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 
 <div class="panel" id="log">
   <div class="page-head"><h1>Time off log</h1><div class="sub">Record, edit, and manage every vacation, sick, personal, and holiday day</div></div>
+  <div class="grid g-kpi no-print" id="logKpis" style="margin-bottom:20px"></div>
   <div class="card no-print" style="margin-bottom:20px">
     <div class="card-title"><h3>Add entry</h3>
       <div class="log-view-toggle" id="entryModeToggle">
@@ -832,6 +834,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
     <div><strong>How this works.</strong> The engine weighs company holidays, federal long weekends, ordinary weekends, your personal dates, and your remaining balance against your WFH-Friday edge. Toggle categories below; hover the ⓘ on any row to see why it's suggested.</div>
   </div>
+  <div class="grid g-kpi" id="sugKpis" style="margin-bottom:20px"></div>
   <div class="card">
     <div class="sug-filters" id="sugFilters"></div>
     <div class="table-wrap"><table id="sugTable"><thead><tr><th>Occasion</th><th>When</th><th>Take PTO on</th><th>Outcome</th><th style="text-align:right">Hours</th><th>ROI</th><th style="width:100px"></th></tr></thead><tbody></tbody></table></div>
@@ -1290,6 +1293,9 @@ function ringSVG2(pct, cls){
   const r = 20, c = 2*Math.PI*r, p = Math.min(100, Math.max(0, pct)), off = c*(1 - p/100);
   return `<svg class="kpi-ring lg ${cls}" viewBox="0 0 48 48"><circle class="rt" cx="24" cy="24" r="${r}"/><circle class="rp" cx="24" cy="24" r="${r}" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/><text class="rl" x="24" y="21">${Math.round(p)}%</text><text class="rl2" x="24" y="31">used</text></svg>`;
 }
+function miniKpi(colorCls, icon, title, value, valueCls, sub){
+  return `<div class="kpi"><div class="kpi-top"><div class="kpi-icon ${colorCls}">${icon}</div><span class="kpi-title">${title}</span></div><div class="kpi-body"><div class="kpi-main"><div class="kpi-value ${valueCls||''}">${value}</div><div class="kpi-sub">${sub}</div></div></div></div>`;
+}
 function usageThisVsLast(){
   const t = today(), y = t.getFullYear(), m = t.getMonth();
   const inMonth = (yy,mm) => state.entries.filter(e => e.type==="Vacation" && parseDate(e.date).getFullYear()===yy && parseDate(e.date).getMonth()===mm).reduce((s,e)=>s+Number(e.hours||0),0);
@@ -1642,7 +1648,22 @@ function getFilteredEntries(){
     return true;
   });
 }
+function renderLogSummary(){
+  const kp = document.getElementById("logKpis"); if (!kp) return;
+  const cfg = state.config, y = cfg.year;
+  const uv = ytdUsage("Vacation", y), us = ytdUsage("Sick", y);
+  const uph = ytdUsage("Personal Holiday", y), upe = ytdUsage("Personal", y);
+  const otherHrs = uph + upe;
+  const total = state.entries.length;
+  const totalHrs = state.entries.filter(e => parseDate(e.date).getFullYear()===y).reduce((s,e)=>s+Number(e.hours||0),0);
+  kp.innerHTML =
+    miniKpi("blue", ICO.calendar, "Total Entries", `${total}`, "v-blue", `${totalHrs.toFixed(0)} hrs logged in ${y}`) +
+    miniKpi("green", ICO.palm, "Vacation Used YTD", `${uv.toFixed(1)}<span class="unit">hrs</span>`, "v-green", `${(uv/cfg.workday).toFixed(1)} days in ${y}`) +
+    miniKpi("magenta", ICO.sick, "Sick Used YTD", `${us.toFixed(1)}<span class="unit">hrs</span>`, "v-magenta", `${(us/cfg.workday).toFixed(1)} days in ${y}`) +
+    miniKpi("amber", ICO.gift, "Personal / Other", `${otherHrs.toFixed(1)}<span class="unit">hrs</span>`, "v-amber", `${(otherHrs/cfg.workday).toFixed(1)} days in ${y}`);
+}
 function renderLog(){
+  renderLogSummary();
   const tb = document.querySelector("#logTable tbody");
   // Sync toolbar controls to state
   const searchEl = document.getElementById("logSearch");
@@ -1752,9 +1773,25 @@ function saveEditEntry(){
   save(); closeEditModal(); refresh(); toast("Entry updated");
 }
 
+function renderSugSummary(all){
+  const kp = document.getElementById("sugKpis"); if (!kp) return;
+  const cfg = state.config;
+  const bookable = all.filter(s => s.bookable);
+  const best = all.reduce((a,b) => (b.roi > (a ? a.roi : -1) ? b : a), null);
+  const longWk = all.filter(s => s.roi >= 4).length;
+  const bal = currentBalance(); const balDays = bal / cfg.workday;
+  const bestVal = best ? `${best.roi}<span class="unit">days off</span>` : "—";
+  const bestSub = best ? esc(best.occasion) : "Add holidays in Settings";
+  kp.innerHTML =
+    miniKpi("green", ICO.award, "Best Opportunity", bestVal, "v-green", bestSub) +
+    miniKpi("purple", ICO.bulb, "Bookable Ideas", `${bookable.length}`, "v-purple", "Across the year") +
+    miniKpi("cyan", ICO.calendar, "Long Weekends", `${longWk}`, "v-cyan", "4-day+ breaks available") +
+    miniKpi("amber", ICO.palm, "Balance to Deploy", `${bal.toFixed(0)}<span class="unit">hrs</span>`, "v-amber", `${balDays.toFixed(1)} days available now`);
+}
 function renderSuggestions(){
   const all = buildAllSuggestions(state.config.year);
   const eds = new Set(state.entries.map(e => e.date));
+  renderSugSummary(all);
   const filters = state.sugFilters || {};
   const present = [...new Set(all.map(s => s.category))].sort((a,b) => SUG_CATS[a].order - SUG_CATS[b].order);
   // Filter chips
@@ -1812,22 +1849,22 @@ function renderFridays(){
   }).join("");
   const metaEl = document.getElementById("friMeta"); if (metaEl) metaEl.textContent = `${fri.length} Friday${fri.length===1?"":"s"} left`;
   const kp = document.getElementById("friKpis");
-  if (kp) kp.innerHTML = `
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">WFH Fridays left</span><div class="kpi-icon cyan">${ICO.calendar}</div></div><div class="kpi-value v-cyan">${fri.length}</div><div class="kpi-sub">Through Dec 31, ${t.getFullYear()}</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Appointments booked</span><div class="kpi-icon purple">${ICO.check}</div></div><div class="kpi-value v-purple">${nBooked}</div><div class="kpi-sub">Marked Scheduled</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Holiday Fridays</span><div class="kpi-icon magenta">${ICO.gift}</div></div><div class="kpi-value v-magenta">${nHol}</div><div class="kpi-sub">Paid days off — no PTO needed</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Open Fridays</span><div class="kpi-icon teal">${ICO.info}</div></div><div class="kpi-value v-teal">${nOpen}</div><div class="kpi-sub">Available to plan around</div></div>`;
+  if (kp) kp.innerHTML =
+    miniKpi("cyan", ICO.calendar, "WFH Fridays Left", `${fri.length}`, "v-cyan", `Through Dec 31, ${t.getFullYear()}`) +
+    miniKpi("purple", ICO.check, "Appointments Booked", `${nBooked}`, "v-purple", "Marked Scheduled") +
+    miniKpi("magenta", ICO.gift, "Holiday Fridays", `${nHol}`, "v-magenta", "Paid days off — no PTO needed") +
+    miniKpi("teal", ICO.info, "Open Fridays", `${nOpen}`, "v-teal", "Available to plan around");
 }
 
 function renderAnniversaries(){
   const t = today(); const hire = parseDate(state.config.hire);
   const yos = yearsOfService(t); const yosYears = Math.floor(yos); const yosMonths = Math.floor((yos-yosYears)*12);
   const cur = currentMilestone(t); const nxt = nextMilestone(t);
-  document.getElementById("annKpis").innerHTML = `
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Hire date</span><div class="kpi-icon blue">${ICO.calendar}</div></div><div class="kpi-value" style="font-size:20px">${fmt(hire,{month:"short",day:"numeric",year:"numeric"})}</div><div class="kpi-sub">${DAYNAMES[hire.getDay()]} · CCCI</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Service tenure</span><div class="kpi-icon teal">${ICO.clock}</div></div><div class="kpi-value v-teal">${yosYears}<span class="unit">yrs ${yosMonths} mo</span></div><div class="kpi-sub">${cur ? "Current tier: "+cur.label : "Pre-1yr"}</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next milestone</span><div class="kpi-icon purple">${ICO.star}</div></div><div class="kpi-value v-purple" style="font-size:20px">${nxt ? nxt.label : "Max"}</div><div class="kpi-sub">${nxt ? fmt(nxt.date,{month:"short",day:"numeric"})+" · "+nxt.daysUntil+" days" : "Top tier reached"}</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next bump</span><div class="kpi-icon magenta">${ICO.celebrate}</div></div><div class="kpi-value v-magenta">+${nxt ? (nxt.vacDays-(cur?cur.vacDays:0)) : 0}<span class="unit">days</span></div><div class="kpi-sub">${nxt ? nxt.vacDays+" days total at "+nxt.label : "N/A"}</div></div>`;
+  document.getElementById("annKpis").innerHTML =
+    miniKpi("blue", ICO.calendar, "Hire Date", fmt(hire,{month:"short",day:"numeric",year:"numeric"}), "sm", `${DAYNAMES[hire.getDay()]} · CCCI`) +
+    miniKpi("teal", ICO.clock, "Service Tenure", `${yosYears}<span class="unit">yrs ${yosMonths} mo</span>`, "v-teal", cur ? "Current tier: "+cur.label : "Pre-1yr") +
+    miniKpi("purple", ICO.award, "Next Milestone", nxt ? nxt.label : "Max", "v-purple sm", nxt ? fmt(nxt.date,{month:"short",day:"numeric"})+" · "+nxt.daysUntil+" days" : "Top tier reached") +
+    miniKpi("magenta", ICO.celebrate, "Next Bump", `+${nxt ? (nxt.vacDays-(cur?cur.vacDays:0)) : 0}<span class="unit">days</span>`, "v-magenta", nxt ? nxt.vacDays+" days total at "+nxt.label : "N/A");
   document.getElementById("milestoneList").innerHTML = state.tiers.map(tier => {
     const date = anniversaryFor(tier.years); const passed = date <= t;
     const isCurrent = cur && tier.years === cur.years; const isNext = nxt && tier.years === nxt.years;
