@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.4 (production) |
-| Features shipped | 25 |
-| File size | ~110 KB (single HTML) |
-| Backlog items | 25 |
+| Version | 1.5 (production) |
+| Features shipped | 26 |
+| File size | ~115 KB (single HTML) |
+| Backlog items | 24 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -45,36 +45,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
-
-### 🔴 PTO-501: Dashboard enhancements — Friday activities, dismissable insights, drill-downs
-- **Effort:** 3h
-- **Priority:** 🔥 Critical (user requested)
-- **Files touched:** `index.html` (dashboard panel, insight rendering, new drill-down handlers, CSS)
-- **Acceptance criteria:**
-  - [ ] **New "Upcoming Fridays" card** on dashboard next to "Upcoming time off"
-    - Shows next 4 WFH Fridays with any scheduled appointments
-    - Displays purpose text (e.g., "Dentist", "School pickup") with cyan color coding
-    - Shows "This Friday" chip for the closest upcoming
-    - Empty state: "No Friday appointments scheduled" with link to Friday Planner
-  - [ ] **Dismissable insights** — each insight card gets an "×" close button
-    - Dismissed IDs stored in `state.dismissedInsights[]`
-    - "Show dismissed" toggle in insights header when count > 0
-    - Certain critical alerts (use-it-or-lose-it) can NOT be dismissed
-    - Dismissed items re-appear if underlying data changes
-  - [ ] **Drill-down navigation from dashboard**
-    - Clicking a KPI card jumps to relevant tab:
-      - Vacation Balance card → Time Off Log filtered to Vacation
-      - Sick Balance card → Time Off Log filtered to Sick
-      - Used YTD card → Time Off Log for current year
-      - Next Refill card → Anniversaries tab
-    - Clicking any Upcoming Time Off row → Calendar at that date
-    - Clicking any Insight with a location → that tab
-    - Clicking Friday appointment → Friday Planner scrolled to that Friday
-    - All drill-downs show a subtle "→" indicator on hover
-- **Technical notes:**
-  - Insight IDs need to be stable — use a hash of type+heading so dismissal survives re-renders
-  - Add cursor:pointer + hover states to indicate clickability
-  - New state: `state.dismissedInsights` array, `state.showDismissed` bool
 
 ### 🔴 PTO-502: Expand drag-to-reschedule to all non-fixed events
 - **Effort:** 3h
@@ -331,6 +301,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.5 — Dashboard enhancements (July 2026)
+- **PTO-501** — New "Upcoming Fridays" card beside "Upcoming time off" (next WFH Fridays with scheduled appointments, cyan chips, "This Friday" marker, empty-state link to the Friday Planner). Dismissable insights with an "×" per card, dismissed IDs persisted (`state.dismissedInsights`, stable type+heading hash), a "Show dismissed (N)" header toggle, and critical use-it-or-lose-it alerts locked from dismissal. Drill-downs: KPI cards jump to the filtered Log (Vacation/Sick/year) or Anniversaries; upcoming-time-off rows open the Calendar at that date; Friday rows jump to the Planner and flash the row — each with a hover arrow affordance.
 
 ### v1.4 — Responsive / mobile layout + QA polish (July 2026)
 - **Mobile & tablet responsiveness** — breakpoints at 820px/560px; sidebar becomes an off-canvas drawer (hamburger + backdrop, closes on nav tap/Esc); single-column stacking; calendar fits the full 7-day grid; data tables scroll horizontally instead of clipping. Desktop unchanged.

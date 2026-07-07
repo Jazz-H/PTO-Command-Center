@@ -145,6 +145,26 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .kpi-value{font-size:28px;font-weight:700;color:var(--n-900);letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
 .kpi-value .unit{font-size:13px;font-weight:500;color:var(--n-400);letter-spacing:0}
 .kpi-sub{font-size:12px;color:var(--n-500);margin-top:6px;display:flex;align-items:center;gap:6px}
+.kpi.kpi-link{cursor:pointer;position:relative}
+.kpi.kpi-link:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--n-300)}
+.kpi.kpi-link:focus-visible{outline:none;border-color:var(--n-500);box-shadow:0 0 0 3px var(--ring)}
+.kpi-arrow{position:absolute;right:14px;bottom:14px;color:var(--n-400);opacity:0;transform:translateX(-4px);transition:opacity .15s ease,transform .15s ease}
+.kpi-arrow svg{width:15px;height:15px;display:block}
+.kpi.kpi-link:hover .kpi-arrow,.kpi.kpi-link:focus-visible .kpi-arrow{opacity:1;transform:translateX(0)}
+.insight-dismiss{flex-shrink:0;width:22px;height:22px;border:none;background:transparent;color:var(--n-400);border-radius:6px;cursor:pointer;display:grid;place-items:center;align-self:flex-start;box-shadow:none;padding:0;opacity:0;transition:opacity .15s}
+.insight:hover .insight-dismiss{opacity:1}
+.insight-dismiss:hover{background:var(--hover-strong);color:var(--n-700)}
+.insight-dismiss svg{width:13px;height:13px}
+.insight.dismissed{opacity:.5}
+.insight.dismissed .insight-dismiss{opacity:1}
+.link-btn{border:none;background:transparent;color:var(--n-500);font-size:11px;font-weight:600;cursor:pointer;padding:2px 6px;border-radius:6px;width:auto;box-shadow:none;font-family:inherit}
+.link-btn:hover{background:var(--hover-bg);color:var(--n-800)}
+.compact-table tr.clickable{cursor:pointer}
+.compact-table tr.clickable:hover td{background:var(--hover-bg)}
+.compact-table td.arrow-cell{width:18px;text-align:right;color:var(--n-300)}
+.compact-table tr.clickable:hover td.arrow-cell{color:var(--n-500)}
+tr.row-flash td{animation:rowFlash 1.2s ease}
+@keyframes rowFlash{0%,100%{background:transparent}25%{background:var(--info-soft)}}
 .kpi-sub .dot{width:4px;height:4px;border-radius:50%;background:var(--n-400)}
 .kpi.na .kpi-value{color:var(--n-400);font-weight:600;font-size:22px}
 .na-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--hover-bg);color:var(--n-500);border:1px solid var(--line);border-radius:999px;font-size:10px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
@@ -388,6 +408,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   .cal-legend-top{gap:4px}
   .hol-add-row{grid-template-columns:1fr}
   .year-row{grid-template-columns:1fr}
+  .insight-dismiss{opacity:.55}
 }
 .modal-grid .full{grid-column:1/-1}
 .modal-actions{display:flex;justify-content:space-between;gap:10px;padding-top:16px;border-top:1px solid var(--line-soft)}
@@ -448,15 +469,17 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
       <div class="chart-wrap"><canvas id="balChart"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-title"><h3>Insights</h3><span class="chip n"><span id="insightCount">0</span> items</span></div>
+      <div class="card-title"><h3>Insights</h3><div style="display:flex;align-items:center;gap:6px"><button class="link-btn" id="showDismissedBtn" onclick="toggleShowDismissed()" style="display:none"></button><span class="chip n"><span id="insightCount">0</span> items</span></div></div>
       <div id="insights"></div>
     </div>
   </div>
   <div style="height:20px"></div>
-  <div class="grid g-2">
+  <div class="grid g-2-eq">
     <div class="card"><div class="card-title"><h3>Upcoming time off</h3><span class="meta">Next 4 weeks</span></div><div id="upcoming"></div></div>
-    <div class="card"><div class="card-title"><h3>Usage breakdown</h3><span class="meta">Year to date</span></div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
+    <div class="card"><div class="card-title"><h3>Upcoming Fridays</h3><span class="meta">WFH · appointments</span></div><div id="upcomingFridays"></div></div>
   </div>
+  <div style="height:20px"></div>
+  <div class="card"><div class="card-title"><h3>Usage breakdown</h3><span class="meta">Year to date</span></div><div class="chart-wrap" style="max-width:520px;margin:0 auto"><canvas id="pieChart"></canvas></div></div>
   <div style="height:20px"></div>
   <div id="phStrip"></div>
 </div>
@@ -648,7 +671,8 @@ const ICO = {
   search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
   chevDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
-  chevRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+  chevRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+  arrowRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
 };
 
 const CCCI_2026_HOLIDAYS = [
@@ -680,7 +704,8 @@ const DEFAULTS = {
   ],
   holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
   entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {},
-  logSearch: "", logType: "All", logYear: "All", logView: "list", collapsedMonths: {}
+  logSearch: "", logType: "All", logYear: "All", logView: "list", collapsedMonths: {},
+  dismissedInsights: [], showDismissed: false
 };
 
 let state = load();
@@ -712,6 +737,8 @@ function load(){
         if (!s.logYear) s.logYear = "All";
         if (!s.logView) s.logView = "list";
         if (!s.collapsedMonths) s.collapsedMonths = {};
+        if (!s.dismissedInsights) s.dismissedInsights = [];
+        if (s.showDismissed === undefined) s.showDismissed = false;
         return s;
       }
     }
@@ -860,12 +887,17 @@ function renderKPIs(){
   const uv = ytdUsage("Vacation", cfg.year); const us = ytdUsage("Sick", cfg.year);
   const allot = getAllotment(cfg.year); const daysToRefill = daysUntilNextRefill();
   const sickIsNA = allot.sick === null; const sickBal = sickIsNA ? null : allot.sick - us;
+  const arrow = `<span class="kpi-arrow">${ICO.arrowRight}</span>`;
+  const link = (fn, title) => `class="kpi kpi-link" role="button" tabindex="0" title="${title}" onclick="${fn}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}}"`;
   document.getElementById("kpis").innerHTML = `
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Vacation balance</span><div class="kpi-icon g">${ICO.vac}</div></div><div class="kpi-value">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days remaining</div></div>
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Used year to date</span><div class="kpi-icon r">${ICO.used}</div></div><div class="kpi-value">${uv.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(uv/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days used <span class="dot"></span> ${Math.round(uv/allot.vacation*100)}%</div></div>
-    ${sickIsNA ? `<div class="kpi na"><div class="kpi-head"><span class="kpi-label">Sick balance</span><span class="na-badge">N/A</span></div><div class="kpi-value">Not set</div><div class="kpi-sub">Confirm accrual with HR</div></div>` : `<div class="kpi"><div class="kpi-head"><span class="kpi-label">Sick balance</span><div class="kpi-icon a">${ICO.sick}</div></div><div class="kpi-value">${sickBal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(sickBal/cfg.workday).toFixed(1)} of ${allot.sick/cfg.workday} days remaining</div></div>`}
-    <div class="kpi"><div class="kpi-head"><span class="kpi-label">Next refill</span><div class="kpi-icon b">${ICO.refill}</div></div><div class="kpi-value">${daysToRefill}<span class="unit">days</span></div><div class="kpi-sub">Jan 1 · +${getAllotment(cfg.year+1).vacation} hrs incoming</div></div>`;
+    <div ${link("dashDrillLog('Vacation')","View vacation entries")}><div class="kpi-head"><span class="kpi-label">Vacation balance</span><div class="kpi-icon g">${ICO.vac}</div></div><div class="kpi-value">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days remaining</div>${arrow}</div>
+    <div ${link("dashDrillLogYear("+cfg.year+")","View this year's entries")}><div class="kpi-head"><span class="kpi-label">Used year to date</span><div class="kpi-icon r">${ICO.used}</div></div><div class="kpi-value">${uv.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(uv/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days used <span class="dot"></span> ${Math.round(uv/allot.vacation*100)}%</div>${arrow}</div>
+    ${sickIsNA ? `<div ${link("dashDrillLog('Sick')","View sick entries")}><div class="kpi-head"><span class="kpi-label">Sick balance</span><span class="na-badge">N/A</span></div><div class="kpi-value">Not set</div><div class="kpi-sub">Confirm accrual with HR</div>${arrow}</div>` : `<div ${link("dashDrillLog('Sick')","View sick entries")}><div class="kpi-head"><span class="kpi-label">Sick balance</span><div class="kpi-icon a">${ICO.sick}</div></div><div class="kpi-value">${sickBal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(sickBal/cfg.workday).toFixed(1)} of ${allot.sick/cfg.workday} days remaining</div>${arrow}</div>`}
+    <div ${link("switchTab('ann')","View anniversaries")}><div class="kpi-head"><span class="kpi-label">Next refill</span><div class="kpi-icon b">${ICO.refill}</div></div><div class="kpi-value">${daysToRefill}<span class="unit">days</span></div><div class="kpi-sub">Jan 1 · +${getAllotment(cfg.year+1).vacation} hrs incoming</div>${arrow}</div>`;
 }
+function dashDrillLog(type){ state.logType = type||"All"; state.logYear = "All"; state.logSearch = ""; save(); switchTab("log"); renderLog(); }
+function dashDrillLogYear(year){ state.logType = "All"; state.logYear = String(year); state.logSearch = ""; save(); switchTab("log"); renderLog(); }
+function drillFriday(iso){ switchTab("fri"); setTimeout(() => { const row = document.getElementById("fri-"+iso); if (row){ row.scrollIntoView({block:"center"}); row.classList.add("row-flash"); setTimeout(()=>row.classList.remove("row-flash"), 1200); } }, 60); }
 
 function renderPersonalHolidayStrip(){
   const y = state.config.year; const ph = getPersonalHoliday(y); const elig = isEligibleForPH();
@@ -968,11 +1000,35 @@ function renderCharts(){
   });
 }
 
-function renderInsights(){
-  const list = buildInsights();
-  document.getElementById("insightCount").textContent = list.length;
-  document.getElementById("insights").innerHTML = list.length ? list.map(i => `<div class="insight ${i.t}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}</div></div>`).join("") : `<div class="empty"><div class="empty-icon">${ICO.info}</div><h4>No insights yet</h4><p>Add some time-off entries to see recommendations.</p></div>`;
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function hashStr(s){ let h=0; for (let k=0;k<s.length;k++){ h=(h*31 + s.charCodeAt(k))|0; } return (h>>>0).toString(36); }
+function insightId(i){ return "i"+hashStr(i.t+"|"+i.h); }
+function insightHtml(i, isDismissed){
+  const btn = isDismissed
+    ? `<button class="insight-dismiss" onclick="restoreInsight('${i.id}')" title="Restore insight" aria-label="Restore insight">${ICO.refill}</button>`
+    : (i.dismissable ? `<button class="insight-dismiss" onclick="dismissInsight('${i.id}')" title="Dismiss insight" aria-label="Dismiss insight">${ICO.x}</button>` : "");
+  return `<div class="insight ${i.t}${isDismissed?" dismissed":""}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}</div>${btn}</div>`;
 }
+function renderInsights(){
+  const all = buildInsights().map(i => ({...i, id: insightId(i), dismissable: i.t !== "critical"}));
+  const dismissed = new Set(state.dismissedInsights || []);
+  const visible = all.filter(i => !(i.dismissable && dismissed.has(i.id)));
+  const hiddenOnes = all.filter(i => i.dismissable && dismissed.has(i.id));
+  document.getElementById("insightCount").textContent = visible.length;
+  const btn = document.getElementById("showDismissedBtn");
+  if (btn){
+    if (hiddenOnes.length){ btn.style.display = ""; btn.textContent = state.showDismissed ? "Hide dismissed" : `Show dismissed (${hiddenOnes.length})`; }
+    else { btn.style.display = "none"; }
+  }
+  let rows = visible.map(i => insightHtml(i, false));
+  if (state.showDismissed) rows = rows.concat(hiddenOnes.map(i => insightHtml(i, true)));
+  document.getElementById("insights").innerHTML = rows.length
+    ? rows.join("")
+    : `<div class="empty"><div class="empty-icon">${ICO.info}</div><h4>No insights yet</h4><p>Add some time-off entries to see recommendations.</p></div>`;
+}
+function dismissInsight(id){ state.dismissedInsights = state.dismissedInsights || []; if (!state.dismissedInsights.includes(id)) state.dismissedInsights.push(id); save(); renderInsights(); }
+function restoreInsight(id){ state.dismissedInsights = (state.dismissedInsights || []).filter(x => x !== id); if (!(state.dismissedInsights.length)) state.showDismissed = false; save(); renderInsights(); }
+function toggleShowDismissed(){ state.showDismissed = !state.showDismissed; save(); renderInsights(); }
 
 function renderUpcoming(){
   const t = today();
@@ -982,8 +1038,27 @@ function renderUpcoming(){
     up.map(e => {
       let cls = 'a';
       if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
-      return `<tr><td><b>${fmt(e.d,{month:"short",day:"numeric"})}</b> <span class="day">${DOWABBR[e.d.getDay()]}</span></td><td><span class="chip ${cls}">${e.type}</span></td><td><b>${e.hours}h</b></td></tr>`;
+      return `<tr class="clickable" title="Open in calendar" onclick="viewInCalendar('${e.date}')"><td><b>${fmt(e.d,{month:"short",day:"numeric"})}</b> <span class="day">${DOWABBR[e.d.getDay()]}</span></td><td><span class="chip ${cls}">${e.type}</span></td><td><b>${e.hours}h</b></td><td class="arrow-cell">${ICO.chevRight}</td></tr>`;
     }).join("")+`</tbody></table>`;
+}
+function renderUpcomingFridays(){
+  const el = document.getElementById("upcomingFridays"); if (!el) return;
+  const t = today();
+  const endOfYear = new Date(t.getFullYear(), 11, 31);
+  let d = new Date(t); while (d.getDay() !== 5) d = addDays(d, 1); // next Friday (today if it's Friday)
+  const sf = state.fridays || {};
+  const upcoming = [];
+  while (d <= endOfYear){ const iso = isoDate(d); const item = sf[iso]; if (item && item.purpose && item.status !== "Cancelled") upcoming.push({d:new Date(d), iso, item}); d = addDays(d, 7); }
+  const four = upcoming.slice(0, 4);
+  if (!four.length){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No Friday appointments scheduled</h4><p>Plan errands on WFH Fridays in the <a href="#" onclick="switchTab('fri');return false;" style="color:var(--cyan);font-weight:600">Friday Planner</a>.</p></div>`;
+    return;
+  }
+  el.innerHTML = `<table class="compact-table"><tbody>` + four.map(({d, iso, item}) => {
+    const isThis = daysBetween(t, d) <= 6;
+    const hol = holidayName(d);
+    return `<tr class="clickable" title="Open Friday Planner" onclick="drillFriday('${iso}')"><td><b>${fmt(d,{month:"short",day:"numeric"})}</b> <span class="day">${DOWABBR[d.getDay()]}</span>${isThis?' <span class="chip r" style="margin-left:4px">This Friday</span>':''}</td><td><span class="chip c">${esc(item.purpose)}</span>${hol?` <span class="chip v">${esc(hol)}</span>`:''}</td><td class="arrow-cell">${ICO.chevRight}</td></tr>`;
+  }).join("") + `</tbody></table>`;
 }
 
 // ============ EDITABLE LOG ============
@@ -1135,7 +1210,7 @@ function renderFridays(){
     const iso = isoDate(f); const hol = holidayName(f);
     const st = sf[iso] || {purpose:"", status:"Open"};
     const isThisWeek = daysBetween(t, f) <= 6;
-    return `<tr><td>${isThisWeek?'<span class="chip r" style="margin-right:6px">This week</span>':''}<b>${fmt(f,{month:"short",day:"numeric"})}</b> <span class="day" style="color:var(--n-500)">${fmt(f,{year:"numeric"})}</span></td><td class="mono">W${weekNum(f)}</td><td>${hol?`<span class="chip v">${hol}</span>`:'<span style="color:var(--n-400)">—</span>'}</td><td><input type="text" value="${st.purpose.replace(/"/g,'&quot;')}" placeholder="e.g. Dentist" onchange="updateFri('${iso}','purpose',this.value)"/></td><td><select onchange="updateFri('${iso}','status',this.value)">${["Open","Scheduled","Done","Cancelled"].map(s=>`<option ${s===st.status?'selected':''}>${s}</option>`).join("")}</select></td></tr>`;
+    return `<tr id="fri-${iso}"><td>${isThisWeek?'<span class="chip r" style="margin-right:6px">This week</span>':''}<b>${fmt(f,{month:"short",day:"numeric"})}</b> <span class="day" style="color:var(--n-500)">${fmt(f,{year:"numeric"})}</span></td><td class="mono">W${weekNum(f)}</td><td>${hol?`<span class="chip v">${hol}</span>`:'<span style="color:var(--n-400)">—</span>'}</td><td><input type="text" value="${st.purpose.replace(/"/g,'&quot;')}" placeholder="e.g. Dentist" onchange="updateFri('${iso}','purpose',this.value)"/></td><td><select onchange="updateFri('${iso}','status',this.value)">${["Open","Scheduled","Done","Cancelled"].map(s=>`<option ${s===st.status?'selected':''}>${s}</option>`).join("")}</select></td></tr>`;
   }).join("");
 }
 
@@ -1344,17 +1419,17 @@ function switchTab(id){
 }
 function viewInCalendar(iso){ const d = parseDate(iso); calCursor = new Date(d.getFullYear(), d.getMonth(), 1); renderCalendar(); switchTab("cal"); }
 function navMonth(n){ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+n, 1); renderCalendar(); }
-function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); }
+function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); renderUpcomingFridays(); }
 function updateAllot(i, field, val){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx][field] = field==="notes" ? val : Number(val); save(); }
 function toggleNA(i, checked){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx].sick = checked ? null : 0; save(); refresh(); toast(checked?"Marked as N/A":"N/A removed"); }
 function saveConfig(){ const c = state.config; c.name = document.getElementById("c_name").value; c.hire = document.getElementById("c_hire").value; c.year = Number(document.getElementById("c_year").value); c.workday = Number(document.getElementById("c_workday").value); save(); refresh(); toast("Settings saved"); }
 function addHoliday(){ const d = document.getElementById("new_hol_date").value; const n = document.getElementById("new_hol_name").value; if (!d||!n){ toast("Enter date and name"); return; } state.holidays.push({date:d, name:n}); save(); document.getElementById("new_hol_date").value=""; document.getElementById("new_hol_name").value=""; renderSettings(); refresh(); toast("Holiday added"); }
 function delHoliday(i){ const sorted = [...state.holidays].sort((a,b) => a.date.localeCompare(b.date)); const target = sorted[i]; state.holidays = state.holidays.filter(h => h!==target); save(); renderSettings(); refresh(); toast("Holiday removed"); }
 function exportData(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_backup_${isoDate(today())}.json`; a.click(); URL.revokeObjectURL(url); toast("Backup exported"); }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
 
-function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); }
+function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); }
 
 const TAB_TITLES = {dash:"Dashboard", log:"Time Off Log", cal:"Calendar", sug:"Smart Suggestions", fri:"Friday Planner", ann:"Anniversaries", cfg:"Settings"};
 document.querySelectorAll(".nav-item").forEach(t => { t.addEventListener("click", () => { switchTab(t.dataset.tab); closeNav(); }); });
