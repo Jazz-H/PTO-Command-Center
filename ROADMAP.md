@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.12 (production) |
-| Features shipped | 33 |
-| File size | ~131 KB (single HTML) |
-| Backlog items | 18 |
+| Version | 1.13 (production) |
+| Features shipped | 34 |
+| File size | ~131 KB (single HTML) + icon assets |
+| Backlog items | 17 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -57,14 +57,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
   - [ ] "Install" prompt appears in Chrome/Edge
   - [ ] Home-screen icon on iOS/Android
 - **Depends on:** PTO-201
-
-### 🟢 PTO-201: Custom favicon + splash
-- **Effort:** 1h
-- **Priority:** Low
-- **Acceptance criteria:**
-  - [ ] SVG favicon with PT mark or mini calendar icon
-  - [ ] Apple touch icon (180×180)
-  - [ ] Theme-color meta tag matches CCCI red
 
 ### 🟢 PTO-202: Print-friendly stylesheet
 - **Effort:** 2h
@@ -180,6 +172,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.13 — Custom favicon + icons (July 2026)
+- **PTO-201** — Added a brand favicon: a scalable `favicon.svg` ("PT" mark on the red→slate brand gradient), a 32px PNG fallback, a 180×180 `apple-touch-icon.png`, and a `theme-color` meta of CCCI red (`#DC2626`). Also rendered 192/512 PNG icons to prep the PWA work (PTO-103). Icons show in the browser tab, bookmarks, and iOS/Android home screen.
 
 ### v1.12 — Slash-command search (July 2026)
 - **PTO-105** — The log search box now parses slash-commands that stack with each other and free text: `/vac /sick /personal /holiday /bereavement /jury /unpaid` (type), `/2026` (year), `/jul` or `/july` (month). Later type commands override earlier ones; everything else filters as free text. Verified: each command, month abbrev/full, stacking, and free-text fallthrough.

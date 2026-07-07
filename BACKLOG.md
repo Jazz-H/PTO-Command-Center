@@ -19,7 +19,7 @@
 - [ ] **PTO-103** PWA manifest + service worker · 4h · 🔴 Critical
 - [x] **PTO-104** Month-grouped Log view · 3h · 🟡 High — ✅ shipped v1.3
 - [x] **PTO-105** Slash-command search · 2h · 🟢 Medium — ✅ shipped v1.12
-- [ ] **PTO-201** Custom favicon + splash · 1h · 🟢 Low
+- [x] **PTO-201** Custom favicon + splash · 1h · 🟢 Low — ✅ shipped v1.13
 - [ ] **PTO-202** Print-friendly stylesheet · 2h · 🟢 Low
 
 ## 🚧 Tier 2 — Medium Effort
