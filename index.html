@@ -206,6 +206,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .range-preview{margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--info-soft);border:1px solid var(--info-line);color:var(--n-600);font-size:12.5px;line-height:1.5}
 .range-preview b{color:var(--n-800)}
 .range-preview.warn{background:var(--warn-soft);border-color:var(--warn-line)}
+.sug-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+tr.sug-cat td{background:var(--hover-bg);font-weight:700;color:var(--n-600);font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line)}
+.sug-cat-ic{display:inline-flex;vertical-align:middle;margin-right:6px;color:var(--n-500)}
+.sug-cat-ic svg{width:14px;height:14px}
+.sug-why{display:inline-flex;vertical-align:middle;color:var(--n-400);cursor:help}
+.sug-why svg{width:13px;height:13px}
 tr.row-flash td{animation:rowFlash 1.2s ease}
 @keyframes rowFlash{0%,100%{background:transparent}25%{background:var(--info-soft)}}
 .kpi-sub .dot{width:4px;height:4px;border-radius:50%;background:var(--n-400)}
@@ -609,10 +615,11 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="page-head"><h1>Smart suggestions</h1><div class="sub">Maximize time off with strategic PTO placement — WFH Fridays give you an edge</div></div>
   <div class="banner info">
     <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-    <div><strong>How this works.</strong> Every CCCI holiday is analyzed against your WFH-Friday schedule to find the highest-ROI PTO day. Rows marked <span class="chip star">★ Best</span> give you 5 consecutive days off for just 1 PTO day.</div>
+    <div><strong>How this works.</strong> The engine weighs company holidays, federal long weekends, ordinary weekends, your personal dates, and your remaining balance against your WFH-Friday edge. Toggle categories below; hover the ⓘ on any row to see why it's suggested.</div>
   </div>
   <div class="card">
-    <div class="table-wrap"><table id="sugTable"><thead><tr><th>Holiday</th><th>Date</th><th>Day</th><th>Take PTO on</th><th>Result</th><th style="text-align:right">Hours</th><th>ROI</th><th style="width:100px"></th></tr></thead><tbody></tbody></table></div>
+    <div class="sug-filters" id="sugFilters"></div>
+    <div class="table-wrap"><table id="sugTable"><thead><tr><th>Occasion</th><th>When</th><th>Take PTO on</th><th>Outcome</th><th style="text-align:right">Hours</th><th>ROI</th><th style="width:100px"></th></tr></thead><tbody></tbody></table></div>
   </div>
 </div>
 
@@ -648,7 +655,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
       <div class="row">
         <div><label class="field">Name</label><input id="c_name"/></div>
         <div class="row row-2"><div><label class="field">Hire date</label><input type="date" id="c_hire"/></div><div><label class="field">Plan year</label><input type="number" id="c_year"/></div></div>
-        <div><label class="field">Standard workday (hrs)</label><input type="number" id="c_workday" step="0.5"/></div>
+        <div class="row row-2"><div><label class="field">Standard workday (hrs)</label><input type="number" id="c_workday" step="0.5"/></div><div><label class="field">Birthday <span style="color:var(--n-400);font-weight:400">(for suggestions)</span></label><input type="date" id="c_birthday"/></div></div>
       </div>
     </div>
     <div class="card">
@@ -750,7 +757,7 @@ const CCCI_2026_HOLIDAYS = [
 ];
 
 const DEFAULTS = {
-  config: { name:"Jazz Harris", hire:"2025-07-28", year:2026, workday:8 },
+  config: { name:"Jazz Harris", hire:"2025-07-28", year:2026, workday:8, birthday:"" },
   allotments: [
     {year:2025, vacation:32, sick:null, notes:"Partial — hired 7/28/2025"},
     {year:2026, vacation:80, sick:null, notes:"10 days vacation"},
@@ -772,7 +779,7 @@ const DEFAULTS = {
   holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
   entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {},
   logSearch: "", logType: "All", logYear: "All", logView: "list", collapsedMonths: {},
-  dismissedInsights: [], showDismissed: false, entryMode: "hours"
+  dismissedInsights: [], showDismissed: false, entryMode: "hours", sugFilters: {}
 };
 
 let state = load();
@@ -807,6 +814,8 @@ function load(){
         if (!s.dismissedInsights) s.dismissedInsights = [];
         if (s.showDismissed === undefined) s.showDismissed = false;
         if (!s.entryMode) s.entryMode = "hours";
+        if (!s.sugFilters) s.sugFilters = {};
+        if (s.config && s.config.birthday === undefined) s.config.birthday = "";
         return s;
       }
     }
@@ -923,6 +932,84 @@ function buildSuggestions(year){
   return out;
 }
 function suggestedDates(){ return new Set(buildSuggestions(state.config.year).flatMap(s => s.takeOn.map(d => isoDate(d)))); }
+
+// ===== SuggestionEngine (PTO-504) — pluggable strategies grouped by category =====
+const SUG_CATS = {
+  company:  {label:"Company holidays",     chip:"v", color:"violet",  icon:ICO.gift,      order:1},
+  federal:  {label:"Federal long weekends",chip:"c", color:"cyan",    icon:ICO.calendar,  order:2},
+  weekend:  {label:"Long weekends",        chip:"a", color:"warn",    icon:ICO.star,      order:3},
+  personal: {label:"Personal",             chip:"p", color:"pink",    icon:ICO.celebrate, order:4},
+  balance:  {label:"Balance plan",         chip:"g", color:"success", icon:ICO.used,      order:5}
+};
+function nthWeekday(year, month, weekday, n){
+  if (n > 0){ let d = new Date(year, month, 1), count = 0; while (true){ if (d.getDay() === weekday){ count++; if (count === n) return d; } d = addDays(d, 1); } }
+  let d = new Date(year, month + 1, 0); while (d.getDay() !== weekday) d = addDays(d, -1); return d;
+}
+function usFederalHolidays(year){
+  return [
+    {name:"New Year's Day", d:new Date(year,0,1)},
+    {name:"MLK Day", d:nthWeekday(year,0,1,3)},
+    {name:"Presidents' Day", d:nthWeekday(year,1,1,3)},
+    {name:"Memorial Day", d:nthWeekday(year,4,1,-1)},
+    {name:"Juneteenth", d:new Date(year,5,19)},
+    {name:"Independence Day", d:new Date(year,6,4)},
+    {name:"Labor Day", d:nthWeekday(year,8,1,1)},
+    {name:"Columbus Day", d:nthWeekday(year,9,1,2)},
+    {name:"Veterans Day", d:new Date(year,10,11)},
+    {name:"Thanksgiving", d:nthWeekday(year,10,4,4)},
+    {name:"Christmas Day", d:new Date(year,11,25)}
+  ];
+}
+// Longest consecutive run of "off" days (weekend / company holiday / WFH-Friday / a PTO day) covering the first PTO date
+function ptoOffSpan(dates){
+  if (!dates.length) return 0;
+  const pto = new Set(dates.map(isoDate));
+  const flex = x => isWeekend(x) || isHoliday(x) || x.getDay() === 5 || pto.has(isoDate(x));
+  const seed = dates[0];
+  let start = new Date(seed), end = new Date(seed);
+  while (flex(addDays(start,-1))) start = addDays(start,-1);
+  while (flex(addDays(end,1))) end = addDays(end,1);
+  return Math.round((end - start) / 86400000) + 1;
+}
+function buildAllSuggestions(year){
+  const wd = state.config.workday || 8, t = today(), out = [];
+  const booked = new Set(state.entries.map(e => e.date));
+  // S1 — company holiday bridges (reuse existing engine)
+  buildSuggestions(year).forEach(s => out.push({category:"company", occasion:s.holiday, date:s.hDate, dayName:s.hDay, takeOn:s.takeOn, result:s.result, hours:s.hours, roi:s.roi, reason:`Adjacent to the ${s.holiday} company holiday — your WFH Friday stretches it further.`, bookable:true}));
+  // S2 — federal holidays CCCI doesn't observe
+  const ccci = new Set(state.holidays.map(h => h.date));
+  usFederalHolidays(year).forEach(f => {
+    const iso = isoDate(f.d), w = f.d.getDay();
+    if (ccci.has(iso) || f.d < t || isWeekend(f.d) || w === 5) return;
+    const span = ptoOffSpan([f.d]); if (span < 3) return;
+    out.push({category:"federal", occasion:f.name, date:new Date(f.d), dayName:DAYNAMES[w], takeOn:[new Date(f.d)], result:`${span} days off (incl. WFH Fri + weekend)`, hours:wd, roi:span, reason:`${f.name} is a US federal holiday CCCI doesn't observe — one PTO day here makes a long weekend.`, bookable:true});
+  });
+  // S3 — adjacent-weekend extensions (one Monday per month, up to 6)
+  { let d = new Date(t); while (d.getDay() !== 1) d = addDays(d,1); const months = new Set(); let n = 0; const endY = new Date(year,11,31);
+    while (d <= endY && n < 6){ const iso = isoDate(d), mk = d.getFullYear()+"-"+d.getMonth();
+      if (!isWeekend(d) && !isHoliday(d) && !booked.has(iso) && !months.has(mk)){
+        const span = ptoOffSpan([d]);
+        if (span >= 3){ out.push({category:"weekend", occasion:`Weekend of ${fmt(addDays(d,-2),{month:"short",day:"numeric"})}`, date:new Date(d), dayName:"Monday", takeOn:[new Date(d)], result:`${span}-day weekend`, hours:wd, roi:span, reason:"Take the Monday to turn an ordinary weekend into a long one — your WFH Friday helps.", bookable:true}); months.add(mk); n++; }
+      }
+      d = addDays(d,7);
+    }
+  }
+  // S4 — personal anchors (birthday + work anniversary)
+  const anchors = [];
+  const bd = (state.config.birthday||"").trim();
+  if (bd){ const parts = bd.split("-").map(Number); const mm = parts[parts.length-2], dd = parts[parts.length-1]; if (mm && dd) anchors.push({name:"Your birthday 🎂", d:new Date(year, mm-1, dd)}); }
+  { const h = parseDate(state.config.hire); const yrs = year - h.getFullYear(); if (yrs > 0) anchors.push({name:`Work anniversary · ${yrs} yr`, d:new Date(year, h.getMonth(), h.getDate())}); }
+  anchors.forEach(a => { if (a.d < t || isWeekend(a.d) || isHoliday(a.d) || booked.has(isoDate(a.d))) return;
+    const span = ptoOffSpan([a.d]);
+    out.push({category:"personal", occasion:a.name, date:new Date(a.d), dayName:DAYNAMES[a.d.getDay()], takeOn:[new Date(a.d)], result: span >= 3 ? `${span}-day break` : "A day for you", hours:wd, roi:span, reason:`${a.name} falls on a ${fmt(a.d,{weekday:"long"})} this year — take it off.`, bookable:true});
+  });
+  // S5 — balance plan (informational)
+  { const bal = currentBalance(); const daysLeft = bal / wd; const mLeft = Math.max(1, 12 - t.getMonth());
+    if (daysLeft >= 1){ out.push({category:"balance", occasion:"Use your remaining balance", date:null, dayName:"", takeOn:[], result:`${daysLeft.toFixed(1)} days over ~${mLeft} mo (≈${(daysLeft/mLeft).toFixed(1)}/mo)`, hours:bal, roi:Math.round(daysLeft), reason:"Vacation doesn't roll over on Dec 31 — spread the rest across the remaining months so you don't forfeit any.", bookable:false}); }
+  }
+  return out;
+}
+function toggleSugFilter(cat){ state.sugFilters = state.sugFilters || {}; state.sugFilters[cat] = state.sugFilters[cat] === false ? true : false; save(); renderSuggestions(); }
 
 function anniversaryFor(years){ const h = parseDate(state.config.hire); return new Date(h.getFullYear()+years, h.getMonth(), h.getDate()); }
 function yearsOfService(asOf){ asOf = asOf || today(); const h = parseDate(state.config.hire); return (asOf - h) / (365.25 * 86400000); }
@@ -1267,16 +1354,41 @@ function saveEditEntry(){
 }
 
 function renderSuggestions(){
-  const list = buildSuggestions(state.config.year); const eds = new Set(state.entries.map(e => e.date));
+  const all = buildAllSuggestions(state.config.year);
+  const eds = new Set(state.entries.map(e => e.date));
+  const filters = state.sugFilters || {};
+  const present = [...new Set(all.map(s => s.category))].sort((a,b) => SUG_CATS[a].order - SUG_CATS[b].order);
+  // Filter chips
+  const chipsEl = document.getElementById("sugFilters");
+  if (chipsEl){
+    chipsEl.innerHTML = present.map(c => { const m = SUG_CATS[c]; const off = filters[c] === false; const n = all.filter(s => s.category === c).length;
+      return `<button class="legend-item${off?' off':''}" onclick="toggleSugFilter('${c}')"><span class="legend-swatch" style="background:var(--${m.color})"></span><span>${m.label} (${n})</span></button>`; }).join("");
+  }
   const tb = document.querySelector("#sugTable tbody");
-  tb.innerHTML = list.length ? list.map(s => {
-    const takeStr = s.takeOn.map(d => fmt(d,{weekday:"short",month:"short",day:"numeric"})).join(", ");
-    const roiB = s.roi>=5 ? `<span class="chip star">★ Best</span>` : `<span class="chip v">${s.roi}-day</span>`;
-    const booked = s.takeOn.every(d => eds.has(isoDate(d)));
-    const firstIso = isoDate(s.takeOn[0]);
-    const btn = booked ? `<button class="btn subtle sm" onclick="viewInCalendar('${firstIso}')" title="View in calendar"><span class="chip g" style="margin:0">${ICO.check} Booked</span></button>` : `<button class="btn sm" onclick='bookSuggestion(${JSON.stringify(s.takeOn.map(isoDate))})'>Book</button>`;
-    return `<tr><td><b>${s.holiday}</b></td><td>${fmt(s.hDate)}</td><td style="color:var(--n-500)">${s.hDay}</td><td><b>${takeStr}</b></td><td>${s.result}</td><td class="num">${s.hours}</td><td>${roiB}</td><td>${btn}</td></tr>`;
-  }).join("") : `<tr><td colspan="8"><div class="empty"><div class="empty-icon">${ICO.star}</div><h4>No suggestions</h4><p>Add holidays in Settings to see recommendations.</p></div></td></tr>`;
+  if (!all.length){ tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.star}</div><h4>No suggestions</h4><p>Add holidays in Settings, or set your birthday, to see recommendations.</p></div></td></tr>`; return; }
+  const visibleCats = present.filter(c => filters[c] !== false);
+  if (!visibleCats.length){ tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.star}</div><h4>All categories hidden</h4><p>Turn a category chip back on to see suggestions.</p></div></td></tr>`; return; }
+  let html = "";
+  visibleCats.forEach(cat => {
+    const m = SUG_CATS[cat];
+    const items = all.filter(s => s.category === cat).sort((a,b) => b.roi - a.roi || ((a.date && b.date) ? a.date - b.date : 0));
+    html += `<tr class="sug-cat"><td colspan="7"><span class="sug-cat-ic">${m.icon}</span>${m.label}</td></tr>`;
+    html += items.map(s => {
+      const takeStr = s.takeOn.length ? s.takeOn.map(d => fmt(d,{weekday:"short",month:"short",day:"numeric"})).join(", ") : "—";
+      const roiB = s.roi >= 5 ? `<span class="chip star">★ ${s.roi}d</span>` : `<span class="chip v">${s.roi}-day</span>`;
+      const when = s.date ? `${fmt(s.date,{month:"short",day:"numeric"})} <span style="color:var(--n-400)">${s.dayName.slice(0,3)}</span>` : "—";
+      const why = `<span class="sug-why" title="${esc(s.reason)}">${ICO.info}</span>`;
+      let action = "";
+      if (s.bookable){
+        const bookedAll = s.takeOn.length && s.takeOn.every(d => eds.has(isoDate(d)));
+        action = bookedAll
+          ? `<button class="btn subtle sm" onclick="viewInCalendar('${isoDate(s.takeOn[0])}')" title="View in calendar"><span class="chip g" style="margin:0">${ICO.check} Booked</span></button>`
+          : `<button class="btn sm" onclick='bookSuggestion(${JSON.stringify(s.takeOn.map(isoDate))})'>Book</button>`;
+      }
+      return `<tr><td><b>${esc(s.occasion)}</b></td><td>${when}</td><td><b>${takeStr}</b></td><td>${esc(s.result)} ${why}</td><td class="num">${s.hours}</td><td>${roiB}</td><td>${action}</td></tr>`;
+    }).join("");
+  });
+  tb.innerHTML = html;
 }
 
 function renderFridays(){
@@ -1583,6 +1695,7 @@ function renderSettings(){
   document.getElementById("c_hire").value = c.hire;
   document.getElementById("c_year").value = c.year;
   document.getElementById("c_workday").value = c.workday;
+  document.getElementById("c_birthday").value = c.birthday || "";
   document.getElementById("allotList").innerHTML = state.allotments.sort((a,b) => a.year-b.year).map((a,i) => {
     const isNA = a.sick === null;
     return `<div class="year-row"><div class="year-label">${a.year}</div><div><input type="number" value="${a.vacation}" step="0.5" onchange="updateAllot(${i},'vacation',this.value)"/></div><div class="sick-input-wrap"><input type="number" value="${isNA?'':a.sick}" step="0.5" placeholder="${isNA?'N/A':''}" ${isNA?'disabled':''} onchange="updateAllot(${i},'sick',this.value)"/><label class="na-toggle"><input type="checkbox" ${isNA?'checked':''} onchange="toggleNA(${i},this.checked)"/>N/A</label></div><div><input type="text" value="${(a.notes||'').replace(/"/g,'&quot;')}" onchange="updateAllot(${i},'notes',this.value)"/></div></div>`;
@@ -1692,11 +1805,11 @@ function navMonth(n){ calCursor = new Date(calCursor.getFullYear(), calCursor.ge
 function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); renderUpcomingFridays(); }
 function updateAllot(i, field, val){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx][field] = field==="notes" ? val : Number(val); save(); }
 function toggleNA(i, checked){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx].sick = checked ? null : 0; save(); refresh(); toast(checked?"Marked as N/A":"N/A removed"); }
-function saveConfig(){ const c = state.config; c.name = document.getElementById("c_name").value; c.hire = document.getElementById("c_hire").value; c.year = Number(document.getElementById("c_year").value); c.workday = Number(document.getElementById("c_workday").value); save(); refresh(); toast("Settings saved"); }
+function saveConfig(){ const c = state.config; c.name = document.getElementById("c_name").value; c.hire = document.getElementById("c_hire").value; c.year = Number(document.getElementById("c_year").value); c.workday = Number(document.getElementById("c_workday").value); c.birthday = document.getElementById("c_birthday").value; save(); refresh(); toast("Settings saved"); }
 function addHoliday(){ const d = document.getElementById("new_hol_date").value; const n = document.getElementById("new_hol_name").value; if (!d||!n){ toast("Enter date and name"); return; } state.holidays.push({date:d, name:n}); save(); document.getElementById("new_hol_date").value=""; document.getElementById("new_hol_name").value=""; renderSettings(); refresh(); toast("Holiday added"); }
 function delHoliday(i){ const sorted = [...state.holidays].sort((a,b) => a.date.localeCompare(b.date)); const target = sorted[i]; state.holidays = state.holidays.filter(h => h!==target); save(); renderSettings(); refresh(); toast("Holiday removed"); }
 function exportData(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_backup_${isoDate(today())}.json`; a.click(); URL.revokeObjectURL(url); toast("Backup exported"); }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
 
 function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }

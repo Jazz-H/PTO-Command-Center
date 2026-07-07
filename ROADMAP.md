@@ -9,9 +9,9 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.8 (production) |
-| Features shipped | 29 |
-| File size | ~123 KB (single HTML) |
+| Version | 1.9 (production) |
+| Features shipped | 30 |
+| File size | ~128 KB (single HTML) |
 | Backlog items | 21 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
@@ -100,34 +100,15 @@ Five new user-requested backlog items added based on real-world usage feedback:
 
 ## 🚧 Tier 2 — Medium Effort (1–3 days each)
 
-### 🔴 PTO-504: Smart Suggestions — Expanded intelligence
-- **Effort:** 2 days
-- **Priority:** 🔥 Critical (user requested)
-- **Files touched:** `index.html` (buildSuggestions engine + new UI grouping + Settings for preferences)
-- **Acceptance criteria:**
-  - [ ] **New suggestion categories** beyond CCCI holidays + WFH-Friday:
-    - 🌡️ **Seasonal windows** — "Spring break", "Summer peak", "Fall foliage", "Winter holidays" as themed batches
-    - 🎂 **Personal date anchors** — birthday, anniversary (customizable in Settings)
-    - 📅 **Adjacent-weekend extensions** — Sunday-Monday, Thursday-Friday for any random weekend
-    - 🕐 **Low-usage windows** — months with historically low PTO usage get "quiet month" tags
-    - 🎯 **Balance-driven** — "You have 60 hrs left, here's how to use them evenly" plan
-    - 🌍 **Federal/observed holidays not on CCCI list** (Presidents Day, Veterans Day, etc.) as awareness only
-    - 🏖️ **Long-weekend maximizer** — auto-detects any Mon/Fri holiday combo across all US federal holidays
-    - 📊 **Historical patterns** — "You took time off in July last year; consider it again"
-  - [ ] **Grouped by category** in the Suggestions tab with sortable columns
-  - [ ] **Category filter chips** at top of Suggestions tab (toggle categories on/off)
-  - [ ] **Settings panel** for suggestion preferences:
-    - Personal date anchors (birthday, spouse, etc.)
-    - Home location (drives weather integration if PTO-406 built)
-    - Preferred vacation season
-    - Minimum ROI threshold (only show suggestions with ROI >= N days)
-  - [ ] **Explainability** — each suggestion shows *why* it was suggested with a small icon
-  - [ ] **New "Vacation Plan" view** — takes remaining balance and generates a distribution plan across the year
-  - [ ] **Refresh cadence** — suggestions recompute when entries/allotments/holidays/date change
-- **Technical notes:**
-  - Refactor `buildSuggestions()` into `SuggestionEngine` with pluggable strategies
-  - Each strategy returns `{category, holiday, ...standard fields, reason, tag}`
-  - Sort by ROI desc, then by category priority
+### 🟡 PTO-504b: Smart Suggestions — remaining categories (follow-up)
+- **Effort:** ~1 day
+- **Priority:** Medium
+- **Context:** PTO-504's engine + grouped UI + explainability shipped in v1.9 (strong subset). Deferred pieces:
+  - [ ] Seasonal windows (Spring break / Summer peak / Fall foliage / Winter holidays)
+  - [ ] Low-usage / historical-pattern strategies (needs prior-year data)
+  - [ ] Full suggestion-preferences panel (home location, preferred season, min-ROI threshold)
+  - [ ] Dedicated "Vacation Plan" distribution view (v1.9 ships a lite balance-plan row)
+- **Note:** New strategies plug into the shipped `buildAllSuggestions()` engine.
 
 ### 🔴 PTO-301: SharePoint List backend for multi-device sync
 - **Effort:** 2 days
@@ -223,6 +204,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.9 — Smart Suggestions engine (July 2026)
+- **PTO-504 (strong subset)** — Refactored `buildSuggestions()` into a pluggable `buildAllSuggestions()` engine returning unified `{category, occasion, takeOn, result, hours, roi, reason, bookable}` items. Strategies: company-holiday bridges, **federal long weekends** (future US federal holidays CCCI doesn't observe, with a real long-weekend span), **adjacent-weekend extensions** (one Monday/month, WFH-Friday aware), **personal anchors** (birthday from Settings + work anniversary), and a **balance-plan** row (spread remaining days before Dec 31). Suggestions tab regrouped by category with toggle filter chips (persisted to `state.sugFilters`) and a hover "why" tooltip on every row. Birthday field added to Settings. Calendar "Try PTO" tags stay limited to company bridges to avoid clutter. Remaining categories tracked as **PTO-504b**. Verified end-to-end in Chromium; no overflow; smoke test passes.
 
 ### v1.8 — Polished sidebar collapse button (July 2026)
 - **PTO-505** — Replaced the tiny circular toggle that floated at `right:-14px` (and clipped in dark mode) with a proper bottom-docked button below the user card (Notion/Linear pattern). Full-width "‹ Collapse" when expanded, icon-only centered "›" when collapsed, with a 200ms chevron rotation, hover/active/focus-ring states that behave in both themes, and dynamic `aria-expanded` / `aria-label` / `aria-controls`. Ctrl/Cmd+B unchanged; hidden on mobile (drawer mode). Fixes **BUG-03**.
