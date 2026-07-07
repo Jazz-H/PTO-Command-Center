@@ -12,11 +12,11 @@
 <meta name="apple-mobile-web-app-title" content="PTO"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 <script>
-(function(){const m=localStorage.getItem('pto_theme')||'system';const sysDark=window.matchMedia('(prefers-color-scheme: dark)').matches;const p=(m==='system')?(sysDark?'dark':'light'):m;document.documentElement.setAttribute('data-theme',p);
+(function(){const m=localStorage.getItem('pto_theme')||'dark';const sysDark=window.matchMedia('(prefers-color-scheme: dark)').matches;const p=(m==='system')?(sysDark?'dark':'light'):m;document.documentElement.setAttribute('data-theme',p);
 const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.documentElement.setAttribute('data-sidebar','collapsed');})();
 </script>
 <style>
@@ -25,12 +25,12 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --n-300:#cbd5e1;--n-400:#94a3b8;--n-500:#64748b;--n-600:#475569;
   --n-700:#334155;--n-800:#1e293b;--n-900:#0f172a;--n-950:#020617;
   --accent:#DC2626;--accent-soft:#FEF2F2;--accent-line:#FECACA;
-  --primary:#7C3AED;--primary-hover:#6D28D9;--primary-soft:#F5F3FF;--primary-line:#DDD6FE;--primary-fg:#fff;
-  --gradient-primary:linear-gradient(135deg,#7C3AED 0%,#DB2777 100%);
-  --gradient-glow:0 4px 14px rgba(124,58,237,.30);
-  --data-cyan:#0891B2;--data-cyan-soft:#ECFEFF;--data-purple:#7C3AED;--data-purple-soft:#F5F3FF;
-  --data-magenta:#DB2777;--data-magenta-soft:#FDF2F8;--data-blue:#2563EB;--data-blue-soft:#EFF4FF;
-  --data-teal:#0D9488;--data-teal-soft:#F0FDFA;
+  --primary:#2563EB;--primary-hover:#1D4ED8;--primary-soft:#EFF4FF;--primary-line:#BFDBFE;--primary-fg:#fff;
+  --gradient-primary:linear-gradient(135deg,#2563EB 0%,#06B6D4 100%);
+  --gradient-glow:0 4px 14px rgba(37,99,235,.26);
+  --data-cyan:#06B6D4;--data-cyan-soft:#ECFEFF;--data-purple:#2563EB;--data-purple-soft:#EFF4FF;
+  --data-magenta:#0EA5E9;--data-magenta-soft:#F0F9FF;--data-blue:#2563EB;--data-blue-soft:#EFF4FF;
+  --data-teal:#0891B2;--data-teal-soft:#ECFEFF;
   --dur-fast:120ms;--dur:200ms;--dur-slow:320ms;--ease:cubic-bezier(.4,0,.2,1);
   --success:#059669;--success-soft:#ECFDF5;--success-line:#A7F3D0;
   --warn:#D97706;--warn-soft:#FFFBEB;--warn-line:#FDE68A;
@@ -43,14 +43,14 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --input-bg:var(--n-0);--input-disabled:var(--n-50);
   --hover-bg:var(--n-50);--hover-strong:var(--n-100);
   --nav-active-bg:var(--primary);--nav-active-fg:#fff;
-  --chart-grid:#F1F5F9;--chart-tick:#94A3B8;--chart-line:#0891B2;
-  --chart-fill-1:rgba(8,145,178,.16);--chart-fill-2:rgba(8,145,178,0);
-  --chart-usage:#DB2777;--chart-usage-fill:rgba(219,39,119,.08);
-  --shadow-xs:0 1px 2px rgba(15,23,42,.04);
-  --shadow-sm:0 1px 3px rgba(15,23,42,.05),0 1px 2px rgba(15,23,42,.03);
-  --shadow-md:0 4px 6px -1px rgba(15,23,42,.06),0 2px 4px -2px rgba(15,23,42,.04);
-  --shadow-lg:0 10px 15px -3px rgba(15,23,42,.08),0 4px 6px -4px rgba(15,23,42,.05);
-  --ring:rgba(124,58,237,.24);
+  --chart-grid:#F1F5F9;--chart-tick:#94A3B8;--chart-line:#2563EB;
+  --chart-fill-1:rgba(37,99,235,.14);--chart-fill-2:rgba(37,99,235,0);
+  --chart-usage:#06B6D4;--chart-usage-fill:rgba(6,182,212,.07);
+  --shadow-xs:none;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.04);
+  --shadow-md:0 4px 10px -3px rgba(15,23,42,.08),0 2px 4px -2px rgba(15,23,42,.04);
+  --shadow-lg:0 12px 24px -6px rgba(15,23,42,.12),0 4px 8px -4px rgba(15,23,42,.06);
+  --ring:rgba(37,99,235,.24);
   --sidebar-w:240px;--sidebar-w-collapsed:60px;
 }
 /* TRUE BLACK dark mode */
@@ -60,11 +60,11 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --n-700:#d4d4d4;--n-800:#e5e5e5;--n-900:#fafafa;--n-950:#fff;
   --accent:#F87171;
   --accent-soft:rgba(248,113,113,.12);--accent-line:rgba(248,113,113,.28);
-  --primary:#A78BFA;--primary-hover:#C4B5FD;--primary-soft:rgba(167,139,250,.16);--primary-line:rgba(167,139,250,.34);--primary-fg:#fff;
-  --gradient-primary:linear-gradient(135deg,#8B5CF6 0%,#EC4899 100%);
-  --gradient-glow:0 4px 18px rgba(139,92,246,.35);
-  --data-cyan:#22D3EE;--data-cyan-soft:rgba(34,211,238,.14);--data-purple:#A78BFA;--data-purple-soft:rgba(167,139,250,.16);
-  --data-magenta:#F472B6;--data-magenta-soft:rgba(244,114,182,.16);--data-blue:#60A5FA;--data-blue-soft:rgba(96,165,250,.14);
+  --primary:#60A5FA;--primary-hover:#93C5FD;--primary-soft:rgba(96,165,250,.16);--primary-line:rgba(96,165,250,.34);--primary-fg:#fff;
+  --gradient-primary:linear-gradient(135deg,#3B82F6 0%,#22D3EE 100%);
+  --gradient-glow:0 4px 18px rgba(59,130,246,.35);
+  --data-cyan:#22D3EE;--data-cyan-soft:rgba(34,211,238,.14);--data-purple:#60A5FA;--data-purple-soft:rgba(96,165,250,.16);
+  --data-magenta:#38BDF8;--data-magenta-soft:rgba(56,189,248,.16);--data-blue:#60A5FA;--data-blue-soft:rgba(96,165,250,.14);
   --data-teal:#2DD4BF;--data-teal-soft:rgba(45,212,191,.14);
   --success:#34D399;--success-soft:rgba(52,211,153,.1);--success-line:rgba(52,211,153,.25);
   --warn:#FBBF24;--warn-soft:rgba(251,191,36,.12);--warn-line:rgba(251,191,36,.3);
@@ -77,14 +77,14 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --input-bg:#0f0f0f;--input-disabled:#050505;
   --hover-bg:#111;--hover-strong:#1a1a1a;
   --nav-active-bg:var(--primary);--nav-active-fg:#fff;
-  --chart-grid:#141414;--chart-tick:#525252;--chart-line:#22D3EE;
-  --chart-fill-1:rgba(34,211,238,.18);--chart-fill-2:rgba(34,211,238,0);
-  --chart-usage:#F472B6;--chart-usage-fill:rgba(244,114,182,.08);
-  --shadow-xs:0 1px 2px rgba(0,0,0,.6);
-  --shadow-sm:0 1px 3px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.6);
-  --shadow-md:0 4px 6px -1px rgba(0,0,0,.7),0 2px 4px -2px rgba(0,0,0,.6);
-  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.8),0 4px 6px -4px rgba(0,0,0,.7);
-  --ring:rgba(167,139,250,.35);
+  --chart-grid:#141414;--chart-tick:#525252;--chart-line:#60A5FA;
+  --chart-fill-1:rgba(96,165,250,.18);--chart-fill-2:rgba(96,165,250,0);
+  --chart-usage:#22D3EE;--chart-usage-fill:rgba(34,211,238,.08);
+  --shadow-xs:none;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.6);
+  --shadow-md:0 6px 16px -6px rgba(0,0,0,.8),0 2px 6px -2px rgba(0,0,0,.7);
+  --shadow-lg:0 16px 32px -8px rgba(0,0,0,.9),0 6px 12px -6px rgba(0,0,0,.8);
+  --ring:rgba(96,165,250,.35);
 }
 *{box-sizing:border-box}html,body{margin:0;padding:0}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--n-800);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:'cv02','cv03','cv04','cv11';transition:background-color .3s ease,color .3s ease}
@@ -203,7 +203,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .kpi-spark{margin-top:8px;height:28px;width:100%;display:block}
 .kpi-spark path.fill{fill:var(--data-purple-soft)}
 .kpi-spark path.line{fill:none;stroke:var(--data-purple);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.kpi-value{font-size:28px;font-weight:700;color:var(--n-900);letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
+.kpi-value{font-family:'JetBrains Mono','Inter',monospace;font-size:26px;font-weight:600;color:var(--n-900);letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px}
 .kpi-value .unit{font-size:13px;font-weight:500;color:var(--n-400);letter-spacing:0}
 .kpi-value.v-cyan{color:var(--data-cyan)}.kpi-value.v-purple{color:var(--data-purple)}.kpi-value.v-magenta{color:var(--data-magenta)}.kpi-value.v-blue{color:var(--data-blue)}.kpi-value.v-teal{color:var(--data-teal)}
 .kpi-sub{font-size:12px;color:var(--n-500);margin-top:6px;display:flex;align-items:center;gap:6px}
@@ -979,7 +979,7 @@ function load(){
 function save(){ localStorage.setItem("pto_state", JSON.stringify(state)); }
 function toast(msg){ const t = document.getElementById("toast"); t.innerHTML = ICO.check + '<span>'+msg+'</span>'; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2400); }
 
-function getThemeMode(){ return localStorage.getItem('pto_theme') || 'system'; }
+function getThemeMode(){ return localStorage.getItem('pto_theme') || 'dark'; }
 function resolveTheme(mode){ return mode==='system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : mode; }
 function getTheme(){ return document.documentElement.getAttribute('data-theme') || 'light'; }
 function setTheme(mode){ if(mode!=='system'&&mode!=='dark'&&mode!=='light') mode='system'; localStorage.setItem('pto_theme', mode); document.documentElement.setAttribute('data-theme', resolveTheme(mode)); updateThemeToggle(); renderCharts(); }
