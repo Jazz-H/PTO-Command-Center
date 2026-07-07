@@ -174,6 +174,18 @@ input:disabled,select:disabled{background:var(--input-disabled);color:var(--n-40
 .log-search-clear:hover{background:var(--hover-bg);color:var(--n-700)}
 .log-search-clear.show{display:block}
 .log-toolbar select{width:auto;min-width:140px;flex:0 0 auto}
+.log-view-toggle{display:inline-flex;background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:3px;gap:2px;box-shadow:var(--shadow-xs);flex:0 0 auto}
+.log-view-toggle button{width:auto;border:none;background:transparent;color:var(--n-500);font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;box-shadow:none}
+.log-view-toggle button:hover{color:var(--n-800)}
+.log-view-toggle button.active{background:var(--card);color:var(--n-900);box-shadow:var(--shadow-xs)}
+tr.log-group{cursor:pointer;user-select:none}
+tr.log-group td{background:var(--hover-bg);border-bottom:1px solid var(--line)}
+tr.log-group:hover td{background:var(--hover-strong)}
+.log-group-head{display:flex;align-items:center;gap:10px}
+.log-group-chev{display:inline-flex;color:var(--n-500);flex:0 0 auto}
+.log-group-chev svg{width:15px;height:15px;display:block}
+.log-group-title{font-weight:700;color:var(--n-800);font-size:13px}
+.log-group-stats{margin-left:auto;color:var(--n-500);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
 label.field{display:block;font-size:11px;font-weight:600;color:var(--n-600);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
 .table-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
 table{width:100%;border-collapse:collapse;font-size:13px}
@@ -426,6 +438,10 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
         <option value="Unpaid">Unpaid</option>
       </select>
       <select id="logYearFilter" onchange="onLogFilter('logYear',this.value)" title="Filter by year"></select>
+      <div class="log-view-toggle" id="logViewToggle">
+        <button type="button" data-view="list" onclick="setLogView('list')">List</button>
+        <button type="button" data-view="month" onclick="setLogView('month')">By month</button>
+      </div>
     </div>
     <div class="table-wrap"><table id="logTable"><thead><tr><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
   </div>
@@ -575,7 +591,9 @@ const ICO = {
   celebrate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="M22 2L11 13"/></svg>',
   gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
   search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
-  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  chevDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+  chevRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
 };
 
 const CCCI_2026_HOLIDAYS = [
@@ -607,7 +625,7 @@ const DEFAULTS = {
   ],
   holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
   entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {},
-  logSearch: "", logType: "All", logYear: "All"
+  logSearch: "", logType: "All", logYear: "All", logView: "list", collapsedMonths: {}
 };
 
 let state = load();
@@ -637,6 +655,8 @@ function load(){
         if (s.logSearch === undefined) s.logSearch = "";
         if (!s.logType) s.logType = "All";
         if (!s.logYear) s.logYear = "All";
+        if (!s.logView) s.logView = "list";
+        if (!s.collapsedMonths) s.collapsedMonths = {};
         return s;
       }
     }
@@ -943,24 +963,46 @@ function renderLog(){
   const yearSel = document.getElementById("logYearFilter");
   if (yearSel){ yearSel.innerHTML = `<option value="All">All years</option>` + years.map(y => `<option value="${y}">${y}</option>`).join(""); yearSel.value = state.logYear||"All"; }
   const typeSel = document.getElementById("logTypeFilter"); if (typeSel) typeSel.value = state.logType||"All";
+  const view = state.logView||"list";
+  document.querySelectorAll("#logViewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
 
   const filtered = getFilteredEntries().sort((a,b) => parseDate(b.date) - parseDate(a.date));
   const total = state.entries.length;
   document.getElementById("logCount").textContent = logIsFiltered() ? `${filtered.length} of ${total} entries` : `${total} entries`;
 
-  if (filtered.length){
-    tb.innerHTML = filtered.map(e => {
-      const idx = state.entries.indexOf(e); const d = parseDate(e.date);
-      let cls = 'a';
-      if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
-      return `<tr><td><b>${fmt(d)}</b></td><td style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td><span class="chip ${cls}">${e.type}</span></td><td class="num">${e.hours}</td><td><span class="chip n">${e.status||"-"}</span></td><td style="color:var(--n-500)">${e.notes||"—"}</td><td><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
+  if (!filtered.length){
+    tb.innerHTML = total === 0
+      ? `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No entries yet</h4><p>Add your first entry using the form above.</p></div></td></tr>`
+      : `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.search}</div><h4>No matching entries</h4><p>No entries match your search or filters. <a href="#" onclick="clearLogFilters();return false;" style="color:var(--accent);font-weight:600">Clear filters</a></p></div></td></tr>`;
+    return;
+  }
+
+  if (view === "month"){
+    const groups = {};
+    filtered.forEach(e => { const k = monthKey(parseDate(e.date)); (groups[k] = groups[k] || []).push(e); });
+    const keys = Object.keys(groups).sort((a,b) => b.localeCompare(a)); // newest first
+    tb.innerHTML = keys.map(k => {
+      const items = groups[k];
+      const [yy, mm] = k.split("-").map(Number);
+      const totalHrs = items.reduce((s,e) => s + Number(e.hours||0), 0);
+      const days = new Set(items.map(e => e.date)).size;
+      const collapsed = !!(state.collapsedMonths && state.collapsedMonths[k]);
+      const header = `<tr class="log-group${collapsed?' collapsed':''}" onclick="toggleMonthCollapse('${k}')"><td colspan="7"><div class="log-group-head"><span class="log-group-chev">${collapsed?ICO.chevRight:ICO.chevDown}</span><span class="log-group-title">${MONTHNAMES[mm-1]} ${yy}</span><span class="log-group-stats">${items.length} ${items.length===1?"entry":"entries"} · ${totalHrs}h · ${days} ${days===1?"day":"days"}</span></div></td></tr>`;
+      return header + (collapsed ? "" : items.map(logRowHtml).join(""));
     }).join("");
-  } else if (total === 0){
-    tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No entries yet</h4><p>Add your first entry using the form above.</p></div></td></tr>`;
   } else {
-    tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.search}</div><h4>No matching entries</h4><p>No entries match your search or filters. <a href="#" onclick="clearLogFilters();return false;" style="color:var(--accent);font-weight:600">Clear filters</a></p></div></td></tr>`;
+    tb.innerHTML = filtered.map(logRowHtml).join("");
   }
 }
+function logRowHtml(e){
+  const idx = state.entries.indexOf(e); const d = parseDate(e.date);
+  let cls = 'a';
+  if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
+  return `<tr><td><b>${fmt(d)}</b></td><td style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td><span class="chip ${cls}">${e.type}</span></td><td class="num">${e.hours}</td><td><span class="chip n">${e.status||"-"}</span></td><td style="color:var(--n-500)">${e.notes||"—"}</td><td><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
+}
+function monthKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; }
+function setLogView(v){ state.logView = v; save(); renderLog(); }
+function toggleMonthCollapse(k){ state.collapsedMonths = state.collapsedMonths || {}; if (state.collapsedMonths[k]) delete state.collapsedMonths[k]; else state.collapsedMonths[k] = true; save(); renderLog(); }
 let _logSearchTimer = null;
 function onLogSearch(v){
   state.logSearch = v;
@@ -1251,7 +1293,7 @@ function saveConfig(){ const c = state.config; c.name = document.getElementById(
 function addHoliday(){ const d = document.getElementById("new_hol_date").value; const n = document.getElementById("new_hol_name").value; if (!d||!n){ toast("Enter date and name"); return; } state.holidays.push({date:d, name:n}); save(); document.getElementById("new_hol_date").value=""; document.getElementById("new_hol_name").value=""; renderSettings(); refresh(); toast("Holiday added"); }
 function delHoliday(i){ const sorted = [...state.holidays].sort((a,b) => a.date.localeCompare(b.date)); const target = sorted[i]; state.holidays = state.holidays.filter(h => h!==target); save(); renderSettings(); refresh(); toast("Holiday removed"); }
 function exportData(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_backup_${isoDate(today())}.json`; a.click(); URL.revokeObjectURL(url); toast("Backup exported"); }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
 
 function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); }

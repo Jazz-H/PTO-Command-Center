@@ -8,10 +8,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.2 (production) |
-| Features shipped | 23 |
+| Version | 1.3 (production) |
+| Features shipped | 24 |
 | File size | ~98 KB (single HTML) |
-| Backlog items | 21 |
+| Backlog items | 20 |
 | Est. total effort | ~10 weeks (part-time) |
 
 ---
@@ -62,18 +62,6 @@
   - Icons should use the PTO brand mark (red gradient square)
   - Test on both mobile and desktop
 - **Depends on:** PTO-201 (custom favicon)
-
-### 🟡 PTO-104: Month-grouped Log view
-- **Effort:** 3h
-- **Priority:** High
-- **Files touched:** `index.html` (view toggle + new renderer + CSS)
-- **Acceptance criteria:**
-  - [ ] Toggle button in log toolbar: "List" | "By month"
-  - [ ] Month view groups entries under collapsible headers (e.g., "July 2026")
-  - [ ] Each group shows: entry count, total hrs, days count
-  - [ ] Collapse state persists per-month to `state.collapsedMonths[key]`
-  - [ ] Groups sorted descending (newest first)
-  - [ ] View preference persists to `state.logView`
 
 ### 🟢 PTO-105: Slash-command search
 - **Effort:** 2h
@@ -305,6 +293,9 @@
 ---
 
 ## ✅ Shipped
+
+### v1.3 — Month-grouped log view (July 2026)
+- **PTO-104** — "List | By month" toggle in the log toolbar. Month view groups entries under collapsible month headers (e.g. "July 2026"), each showing entry count, total hours, and distinct-day count; groups sorted newest-first; per-month collapse state persists to `state.collapsedMonths` and the view choice to `state.logView`. Respects the active search/type/year filters. Verified end-to-end in Chromium.
 
 ### v1.2 — Log search & filter (July 2026)
 - **PTO-101** — Search + filter for the Time Off Log. Toolbar search input (icon + clear button) matching date, type, status, notes, day-of-week, and month name (case-insensitive, 150ms debounced via `getFilteredEntries()`); type and auto-populated year filter dropdowns that stack with search; count reads "X of Y entries" when filtered; filter state persists to `state.logSearch`/`logType`/`logYear` (migration-safe defaults added to `load()`); `Ctrl/Cmd + K` focuses search on the Log tab. Verified end-to-end in Chromium.
