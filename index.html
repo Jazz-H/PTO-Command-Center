@@ -115,9 +115,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .nav-item.active{background:var(--nav-active-bg);color:var(--nav-active-fg);box-shadow:var(--shadow-sm)}
 .nav-item.active .icon{color:var(--nav-active-fg)}
 .nav-item .icon{width:16px;height:16px;color:var(--n-400);flex-shrink:0}
-.nav-label{transition:opacity .2s ease}
-[data-sidebar="collapsed"] .nav-label{opacity:0}
-[data-sidebar="collapsed"] .nav-item{justify-content:center;padding:8px}
+.nav-label{transition:opacity .15s ease}
+[data-sidebar="collapsed"] .nav-label{opacity:0;width:0;overflow:hidden}
+[data-sidebar="collapsed"] .nav-item{justify-content:center;padding:8px;gap:0}
+[data-sidebar="collapsed"] .nav-item .icon{width:18px;height:18px}
 .nav-item[data-tooltip]{position:relative}
 [data-sidebar="collapsed"] .nav-item[data-tooltip]:hover::after{content:attr(data-tooltip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--n-900);color:var(--n-0);padding:5px 10px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:100;box-shadow:var(--shadow-md);pointer-events:none}
 .user-card{margin-top:auto;padding:12px;background:var(--hover-bg);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;gap:10px;transition:padding .25s ease}
