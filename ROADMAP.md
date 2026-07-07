@@ -8,10 +8,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.1 (production) |
-| Features shipped | 22 |
+| Version | 1.2 (production) |
+| Features shipped | 23 |
 | File size | ~98 KB (single HTML) |
-| Backlog items | 22 |
+| Backlog items | 21 |
 | Est. total effort | ~10 weeks (part-time) |
 
 ---
@@ -28,23 +28,6 @@
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
-
-### 🔴 PTO-101: Search + filter for Time Off Log
-- **Effort:** 2h
-- **Priority:** Critical
-- **Files touched:** `index.html` (log panel HTML + renderLog function + new CSS)
-- **Acceptance criteria:**
-  - [ ] Search input in log toolbar with icon and clear button
-  - [ ] Type filter dropdown (All types, Vacation, Sick, etc.)
-  - [ ] Year filter dropdown auto-populated from existing entries
-  - [ ] Search matches: date, type, status, notes, day-of-week, month name
-  - [ ] Filter state persists to `state.logSearch`, `logType`, `logYear`
-  - [ ] Count shows "X of Y entries" when filtered
-  - [ ] Keyboard shortcut: `Ctrl/Cmd + K` focuses search when on Log tab
-- **Technical notes:**
-  - Add helper `getFilteredEntries()` before `renderLog()`
-  - Debounce search input by 150ms if perf is a concern
-  - Search should be case-insensitive
 
 ### 🔴 PTO-102: iCal (.ics) export
 - **Effort:** 3h
@@ -322,6 +305,9 @@
 ---
 
 ## ✅ Shipped
+
+### v1.2 — Log search & filter (July 2026)
+- **PTO-101** — Search + filter for the Time Off Log. Toolbar search input (icon + clear button) matching date, type, status, notes, day-of-week, and month name (case-insensitive, 150ms debounced via `getFilteredEntries()`); type and auto-populated year filter dropdowns that stack with search; count reads "X of Y entries" when filtered; filter state persists to `state.logSearch`/`logType`/`logYear` (migration-safe defaults added to `load()`); `Ctrl/Cmd + K` focuses search on the Log tab. Verified end-to-end in Chromium.
 
 ### v1.1 — Calendar rescheduling (July 2026)
 - **PTO-302** — Drag-to-reschedule entries on calendar. Drag any entry tag to a new day; drop targets highlight blue (valid) / red (invalid); weekends, company holidays, and already-occupied days are blocked with a reason toast; Personal Holiday moves stay synced to the tracker; a full `refresh()` propagates the move to the dashboard KPIs, projection chart, Time Off Log, upcoming widget, and insights. Verified end-to-end in Chromium.

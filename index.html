@@ -165,6 +165,15 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 input,select,textarea{font-family:inherit;font-size:13px;color:var(--n-900);padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);width:100%;transition:all .15s;box-shadow:var(--shadow-xs)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--n-500);box-shadow:0 0 0 3px var(--ring)}
 input:disabled,select:disabled{background:var(--input-disabled);color:var(--n-400);cursor:not-allowed}
+.log-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.log-search{position:relative;flex:1 1 240px;min-width:200px}
+.log-search .lsi{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--n-400);pointer-events:none;display:block}
+.log-search input{width:100%;padding-left:32px;padding-right:32px}
+.log-search-clear{position:absolute;right:5px;top:50%;transform:translateY(-50%);border:none;background:transparent;color:var(--n-400);cursor:pointer;padding:4px;border-radius:6px;box-shadow:none;width:auto;display:none;line-height:0}
+.log-search-clear svg{width:14px;height:14px;display:block}
+.log-search-clear:hover{background:var(--hover-bg);color:var(--n-700)}
+.log-search-clear.show{display:block}
+.log-toolbar select{width:auto;min-width:140px;flex:0 0 auto}
 label.field{display:block;font-size:11px;font-weight:600;color:var(--n-600);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
 .table-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
 table{width:100%;border-collapse:collapse;font-size:13px}
@@ -400,6 +409,24 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   </div>
   <div class="card">
     <div class="card-title"><h3>All entries</h3><span class="meta" id="logCount">0 entries</span></div>
+    <div class="log-toolbar">
+      <div class="log-search">
+        <span class="lsi" id="logSearchIcon"></span>
+        <input type="text" id="logSearch" placeholder="Search date, type, status, notes, day…" autocomplete="off" oninput="onLogSearch(this.value)"/>
+        <button type="button" class="log-search-clear" id="logSearchClear" onclick="clearLogSearch()" title="Clear search" aria-label="Clear search"></button>
+      </div>
+      <select id="logTypeFilter" onchange="onLogFilter('logType',this.value)" title="Filter by type">
+        <option value="All">All types</option>
+        <option value="Vacation">Vacation</option>
+        <option value="Sick">Sick</option>
+        <option value="Personal Holiday">Personal Holiday</option>
+        <option value="Personal">Personal</option>
+        <option value="Bereavement">Bereavement</option>
+        <option value="Jury Duty">Jury Duty</option>
+        <option value="Unpaid">Unpaid</option>
+      </select>
+      <select id="logYearFilter" onchange="onLogFilter('logYear',this.value)" title="Filter by year"></select>
+    </div>
     <div class="table-wrap"><table id="logTable"><thead><tr><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
   </div>
 </div>
@@ -546,7 +573,9 @@ const ICO = {
   minus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>',
   calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
   celebrate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="M22 2L11 13"/></svg>',
-  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>'
+  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
 };
 
 const CCCI_2026_HOLIDAYS = [
@@ -577,7 +606,8 @@ const DEFAULTS = {
     {years:25, vacDays:30, label:"25 Years", notes:"Quarter century"}
   ],
   holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
-  entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {}
+  entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {},
+  logSearch: "", logType: "All", logYear: "All"
 };
 
 let state = load();
@@ -604,6 +634,9 @@ function load(){
         if (!s.personalHolidays) s.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays));
         if (!s.calFilters) s.calFilters = {};
         if (!s.fridays) s.fridays = {};
+        if (s.logSearch === undefined) s.logSearch = "";
+        if (!s.logType) s.logType = "All";
+        if (!s.logYear) s.logYear = "All";
         return s;
       }
     }
@@ -876,17 +909,68 @@ function renderUpcoming(){
 }
 
 // ============ EDITABLE LOG ============
+function logIsFiltered(){
+  return !!((state.logSearch||"").trim()) || (state.logType||"All")!=="All" || (state.logYear||"All")!=="All";
+}
+function getFilteredEntries(){
+  const q = (state.logSearch||"").trim().toLowerCase();
+  const type = state.logType||"All";
+  const year = state.logYear||"All";
+  return state.entries.filter(e => {
+    if (type!=="All" && e.type!==type) return false;
+    const d = parseDate(e.date);
+    if (year!=="All" && String(d.getFullYear())!==String(year)) return false;
+    if (q){
+      const hay = [e.date, fmt(d), e.type, e.status||"", e.notes||"", DAYNAMES[d.getDay()], MONTHNAMES[d.getMonth()], MONTHNAMES[d.getMonth()].slice(0,3)].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
 function renderLog(){
   const tb = document.querySelector("#logTable tbody");
-  const sorted = [...state.entries].sort((a,b) => parseDate(b.date) - parseDate(a.date));
-  document.getElementById("logCount").textContent = `${sorted.length} entries`;
-  tb.innerHTML = sorted.length ? sorted.map(e => {
-    const idx = state.entries.indexOf(e); const d = parseDate(e.date);
-    let cls = 'a';
-    if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
-    return `<tr><td><b>${fmt(d)}</b></td><td style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td><span class="chip ${cls}">${e.type}</span></td><td class="num">${e.hours}</td><td><span class="chip n">${e.status||"-"}</span></td><td style="color:var(--n-500)">${e.notes||"—"}</td><td><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
-  }).join("") : `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No entries yet</h4><p>Add your first entry using the form above.</p></div></td></tr>`;
+  // Sync toolbar controls to state
+  const searchEl = document.getElementById("logSearch");
+  const iconEl = document.getElementById("logSearchIcon");
+  if (iconEl && !iconEl.innerHTML) iconEl.innerHTML = ICO.search;
+  const clearEl = document.getElementById("logSearchClear");
+  if (clearEl && !clearEl.innerHTML) clearEl.innerHTML = ICO.x;
+  if (searchEl && document.activeElement !== searchEl && searchEl.value !== (state.logSearch||"")) searchEl.value = state.logSearch||"";
+  if (clearEl) clearEl.classList.toggle("show", !!(state.logSearch||"").length);
+  // Year filter, auto-populated from entries
+  const years = [...new Set(state.entries.map(e => parseDate(e.date).getFullYear()))].sort((a,b) => b-a);
+  if ((state.logYear||"All")!=="All" && !years.map(String).includes(String(state.logYear))) state.logYear = "All";
+  const yearSel = document.getElementById("logYearFilter");
+  if (yearSel){ yearSel.innerHTML = `<option value="All">All years</option>` + years.map(y => `<option value="${y}">${y}</option>`).join(""); yearSel.value = state.logYear||"All"; }
+  const typeSel = document.getElementById("logTypeFilter"); if (typeSel) typeSel.value = state.logType||"All";
+
+  const filtered = getFilteredEntries().sort((a,b) => parseDate(b.date) - parseDate(a.date));
+  const total = state.entries.length;
+  document.getElementById("logCount").textContent = logIsFiltered() ? `${filtered.length} of ${total} entries` : `${total} entries`;
+
+  if (filtered.length){
+    tb.innerHTML = filtered.map(e => {
+      const idx = state.entries.indexOf(e); const d = parseDate(e.date);
+      let cls = 'a';
+      if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
+      return `<tr><td><b>${fmt(d)}</b></td><td style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td><span class="chip ${cls}">${e.type}</span></td><td class="num">${e.hours}</td><td><span class="chip n">${e.status||"-"}</span></td><td style="color:var(--n-500)">${e.notes||"—"}</td><td><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
+    }).join("");
+  } else if (total === 0){
+    tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No entries yet</h4><p>Add your first entry using the form above.</p></div></td></tr>`;
+  } else {
+    tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.search}</div><h4>No matching entries</h4><p>No entries match your search or filters. <a href="#" onclick="clearLogFilters();return false;" style="color:var(--accent);font-weight:600">Clear filters</a></p></div></td></tr>`;
+  }
 }
+let _logSearchTimer = null;
+function onLogSearch(v){
+  state.logSearch = v;
+  const clearEl = document.getElementById("logSearchClear"); if (clearEl) clearEl.classList.toggle("show", !!v.length);
+  if (_logSearchTimer) clearTimeout(_logSearchTimer);
+  _logSearchTimer = setTimeout(() => { save(); renderLog(); }, 150);
+}
+function clearLogSearch(){ state.logSearch = ""; const el = document.getElementById("logSearch"); if (el){ el.value = ""; el.focus(); } save(); renderLog(); }
+function onLogFilter(key, val){ state[key] = val; save(); renderLog(); }
+function clearLogFilters(){ state.logSearch = ""; state.logType = "All"; state.logYear = "All"; save(); renderLog(); }
 
 function openEditModal(idx){
   editingIdx = idx;
@@ -1167,7 +1251,7 @@ function saveConfig(){ const c = state.config; c.name = document.getElementById(
 function addHoliday(){ const d = document.getElementById("new_hol_date").value; const n = document.getElementById("new_hol_name").value; if (!d||!n){ toast("Enter date and name"); return; } state.holidays.push({date:d, name:n}); save(); document.getElementById("new_hol_date").value=""; document.getElementById("new_hol_name").value=""; renderSettings(); refresh(); toast("Holiday added"); }
 function delHoliday(i){ const sorted = [...state.holidays].sort((a,b) => a.date.localeCompare(b.date)); const target = sorted[i]; state.holidays = state.holidays.filter(h => h!==target); save(); renderSettings(); refresh(); toast("Holiday removed"); }
 function exportData(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_backup_${isoDate(today())}.json`; a.click(); URL.revokeObjectURL(url); toast("Backup exported"); }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
 
 function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); }
@@ -1185,6 +1269,10 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'j'){ e.preventDefault(); setTheme(getTheme()==='dark' ? 'light' : 'dark'); }
   if (e.key === 'Escape' && document.getElementById('editModal').classList.contains('open')) closeEditModal();
   if ((e.ctrlKey || e.metaKey) && e.key === 'b'){ e.preventDefault(); toggleSidebar(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')){
+    const logPanel = document.getElementById('log');
+    if (logPanel && logPanel.classList.contains('active')){ e.preventDefault(); const el = document.getElementById('logSearch'); if (el) el.focus(); }
+  }
 });
 document.addEventListener('dragend', () => {
   document.querySelectorAll('.cal-tag.dragging').forEach(el => el.classList.remove('dragging'));
