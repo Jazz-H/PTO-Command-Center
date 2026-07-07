@@ -9,10 +9,10 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.14 (production) |
-| Features shipped | 35 |
-| File size | ~131 KB (single HTML) + icons + PWA |
-| Backlog items | 16 |
+| Version | 1.15 (production) |
+| Features shipped | 36 |
+| File size | ~132 KB (single HTML) + icons + PWA |
+| Backlog items | 15 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
 
@@ -45,15 +45,6 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## 🚀 Tier 1 — Quick Wins (< 4 hours each)
-
-### 🟢 PTO-202: Print-friendly stylesheet
-- **Effort:** 2h
-- **Priority:** Low
-- **Acceptance criteria:**
-  - [ ] Sidebar hidden when printing
-  - [ ] Charts render at reasonable sizes
-  - [ ] Only visible panel prints
-  - [ ] Print header with date and name
 
 ---
 
@@ -160,6 +151,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v1.15 — Print stylesheet (July 2026)
+- **PTO-202** — An `@media print` layer: hides the sidebar, topbar, toolbars, filter chips, buttons, and the add-entry form; prints only the active panel; forces a light palette even in dark mode; keeps cards from breaking across pages; and adds a "PTO Summary — [name] — [date]" header (hidden on screen). Verified via print-media emulation in Chromium.
 
 ### v1.14 — PWA (installable + offline) (July 2026)
 - **PTO-103** — Added `manifest.json` (name, standalone display, theme/background colors, 192/512 + 180 icons, start_url) and a `sw.js` service worker: precaches the app shell on install, cleans old caches on activate (bump `pto-cache-v1` to force refresh), network-first for the HTML document, cache-first with runtime caching for assets + CDN libs/fonts. Registered from `index.html` (guarded to http/https). Verified over a real HTTP server in Chromium: SW registers & activates, shell cached, and the app loads **offline** after first visit (title + nav render). Installable in Chrome/Edge; adds a home-screen icon on iOS/Android. **Tier 1 backlog now fully shipped.** (True offline for the charts still wants Chart.js inlined — tracked as DEBT-03.)

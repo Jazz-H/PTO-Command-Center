@@ -467,6 +467,36 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 }
 .modal-grid .full{grid-column:1/-1}
 .modal-actions{display:flex;justify-content:space-between;gap:10px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.print-header{display:none}
+
+/* ===== Print ===== */
+@media print{
+  /* Always print light, regardless of dark mode */
+  :root[data-theme="dark"]{
+    --bg:#fff;--card:#fff;--n-0:#fff;--n-50:#f8fafc;--n-100:#f1f5f9;--n-150:#e9eef5;--n-200:#e2e8f0;--n-300:#cbd5e1;--n-400:#94a3b8;--n-500:#64748b;--n-600:#475569;--n-700:#334155;--n-800:#1e293b;--n-900:#0f172a;--n-950:#020617;
+    --line:#e2e8f0;--line-soft:#eef2f7;--hover-bg:#f8fafc;--hover-strong:#f1f5f9;--input-bg:#fff;--topbar-bg:#fff;--sidebar-bg:#fff;--card:#fff;--bg:#fff;
+  }
+  html,body{background:#fff!important}
+  @page{margin:14mm}
+  .sidebar,.nav-backdrop,.topbar,.sidebar-collapse,.log-toolbar,.sug-filters,.cal-legend-top,.no-print{display:none!important}
+  .app{grid-template-columns:1fr!important;display:block!important}
+  .main{overflow:visible!important}
+  .content{padding:0!important;max-width:none!important}
+  .panel{display:none!important}
+  .panel.active{display:block!important}
+  .print-header{display:block!important;font-size:13px;color:#0f172a;border-bottom:2px solid #0f172a;padding-bottom:8px;margin-bottom:16px}
+  .card{break-inside:avoid;box-shadow:none!important;border:1px solid #cbd5e1!important}
+  .grid{break-inside:avoid}
+  .page-head{break-after:avoid}
+  .page-head h1{font-size:20px}
+  .chart-wrap{height:230px!important}
+  .table-wrap{overflow:visible!important;border:1px solid #cbd5e1!important}
+  .table-wrap table{min-width:0!important}
+  thead th{position:static!important}
+  .btn,.kpi-arrow,.insight-dismiss,.dp-field,.na-toggle,input,select,textarea,#logTable th:last-child,#logTable td:last-child,#tierTable td:last-child,#tierTable th:last-child{display:none!important}
+  tr.log-group td{background:#f1f5f9!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head><body>
 <div class="app">
@@ -513,6 +543,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     </div>
   </div>
   <div class="content">
+<div class="print-header"><strong>PTO Summary</strong> — <span id="printName">Jazz Harris</span> — <span id="printDate"></span></div>
 
 <div class="panel active" id="dash">
   <div class="page-head"><h1>Welcome back, Jazz</h1><div class="sub" id="dash-sub">Here's your PTO snapshot</div></div>
@@ -542,7 +573,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 
 <div class="panel" id="log">
   <div class="page-head"><h1>Time off log</h1><div class="sub">Record, edit, and manage every vacation, sick, personal, and holiday day</div></div>
-  <div class="card" style="margin-bottom:20px">
+  <div class="card no-print" style="margin-bottom:20px">
     <div class="card-title"><h3>Add entry</h3>
       <div class="log-view-toggle" id="entryModeToggle">
         <button type="button" data-mode="hours" onclick="setEntryMode('hours')">Hours</button>
@@ -1926,6 +1957,8 @@ updateThemeToggle();
 refresh();
 updateEntryModeUI();
 updateSidebarToggleA11y();
+document.getElementById("printName").textContent = state.config.name || "";
+document.getElementById("printDate").textContent = fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"});
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }

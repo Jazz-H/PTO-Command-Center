@@ -20,7 +20,7 @@
 - [x] **PTO-104** Month-grouped Log view · 3h · 🟡 High — ✅ shipped v1.3
 - [x] **PTO-105** Slash-command search · 2h · 🟢 Medium — ✅ shipped v1.12
 - [x] **PTO-201** Custom favicon + splash · 1h · 🟢 Low — ✅ shipped v1.13
-- [ ] **PTO-202** Print-friendly stylesheet · 2h · 🟢 Low
+- [x] **PTO-202** Print-friendly stylesheet · 2h · 🟢 Low — ✅ shipped v1.15
 
 ## 🚧 Tier 2 — Medium Effort
 
