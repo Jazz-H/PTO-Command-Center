@@ -25,6 +25,7 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --n-300:#cbd5e1;--n-400:#94a3b8;--n-500:#64748b;--n-600:#475569;
   --n-700:#334155;--n-800:#1e293b;--n-900:#0f172a;--n-950:#020617;
   --accent:#DC2626;--accent-soft:#FEF2F2;--accent-line:#FECACA;
+  --primary:#2563EB;--primary-hover:#1D4ED8;--primary-soft:#EFF4FF;--primary-line:#C7D9FF;--primary-fg:#fff;
   --success:#059669;--success-soft:#ECFDF5;--success-line:#A7F3D0;
   --warn:#D97706;--warn-soft:#FFFBEB;--warn-line:#FDE68A;
   --info:#0369A1;--info-soft:#F0F9FF;--info-line:#BAE6FD;
@@ -35,9 +36,9 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --sidebar-bg:var(--n-0);--topbar-bg:var(--n-0);
   --input-bg:var(--n-0);--input-disabled:var(--n-50);
   --hover-bg:var(--n-50);--hover-strong:var(--n-100);
-  --nav-active-bg:var(--n-900);--nav-active-fg:var(--n-0);
-  --chart-grid:#F1F5F9;--chart-tick:#94A3B8;--chart-line:#0F172A;
-  --chart-fill-1:rgba(15,23,42,.15);--chart-fill-2:rgba(15,23,42,0);
+  --nav-active-bg:var(--primary);--nav-active-fg:#fff;
+  --chart-grid:#F1F5F9;--chart-tick:#94A3B8;--chart-line:#2563EB;
+  --chart-fill-1:rgba(37,99,235,.16);--chart-fill-2:rgba(37,99,235,0);
   --chart-usage:#DC2626;--chart-usage-fill:rgba(220,38,38,.08);
   --shadow-xs:0 1px 2px rgba(15,23,42,.04);
   --shadow-sm:0 1px 3px rgba(15,23,42,.05),0 1px 2px rgba(15,23,42,.03);
@@ -53,6 +54,7 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --n-700:#d4d4d4;--n-800:#e5e5e5;--n-900:#fafafa;--n-950:#fff;
   --accent:#F87171;
   --accent-soft:rgba(248,113,113,.12);--accent-line:rgba(248,113,113,.28);
+  --primary:#3B82F6;--primary-hover:#60A5FA;--primary-soft:rgba(59,130,246,.14);--primary-line:rgba(59,130,246,.32);--primary-fg:#fff;
   --success:#34D399;--success-soft:rgba(52,211,153,.1);--success-line:rgba(52,211,153,.25);
   --warn:#FBBF24;--warn-soft:rgba(251,191,36,.12);--warn-line:rgba(251,191,36,.3);
   --info:#60A5FA;--info-soft:rgba(96,165,250,.1);--info-line:rgba(96,165,250,.25);
@@ -63,9 +65,9 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   --sidebar-bg:#050505;--topbar-bg:rgba(0,0,0,.9);
   --input-bg:#0f0f0f;--input-disabled:#050505;
   --hover-bg:#111;--hover-strong:#1a1a1a;
-  --nav-active-bg:#DC2626;--nav-active-fg:#fff;
-  --chart-grid:#141414;--chart-tick:#525252;--chart-line:#F87171;
-  --chart-fill-1:rgba(248,113,113,.2);--chart-fill-2:rgba(248,113,113,0);
+  --nav-active-bg:var(--primary);--nav-active-fg:#fff;
+  --chart-grid:#141414;--chart-tick:#525252;--chart-line:#3B82F6;
+  --chart-fill-1:rgba(59,130,246,.22);--chart-fill-2:rgba(59,130,246,0);
   --chart-usage:#FBBF24;--chart-usage-fill:rgba(251,191,36,.08);
   --shadow-xs:0 1px 2px rgba(0,0,0,.6);
   --shadow-sm:0 1px 3px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.6);
@@ -80,7 +82,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .sidebar{background:var(--sidebar-bg);border-right:1px solid var(--line);padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2px;overflow:hidden;transition:padding .25s ease}
 [data-sidebar="collapsed"] .sidebar{padding:20px 6px}
 .brand{display:flex;align-items:center;gap:10px;padding:6px 10px 20px;border-bottom:1px solid var(--line);margin-bottom:14px;position:relative}
-.brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--n-900) 0%,var(--n-700) 100%);display:grid;place-items:center;color:var(--n-0);font-weight:800;font-size:14px;box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.1);flex-shrink:0}
+.brand-mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#DC2626 0%,#991B1B 100%);display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.15);flex-shrink:0}
 [data-theme="dark"] .brand-mark{background:linear-gradient(135deg,#DC2626 0%,#7F1D1D 100%);color:#fff}
 .brand-mark::after{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;position:relative;top:-8px;right:-8px;box-shadow:0 0 0 2px var(--sidebar-bg)}
 .brand-text{display:flex;flex-direction:column;line-height:1.15;white-space:nowrap;overflow:hidden;transition:opacity .2s ease}
@@ -110,7 +112,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 [data-sidebar="collapsed"] .nav-item[data-tooltip]:hover::after{content:attr(data-tooltip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--n-900);color:var(--n-0);padding:5px 10px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:100;box-shadow:var(--shadow-md);pointer-events:none}
 .user-card{margin-top:auto;padding:12px;background:var(--hover-bg);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;gap:10px;transition:padding .25s ease}
 [data-sidebar="collapsed"] .user-card{padding:8px;justify-content:center}
-.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#DC2626,#0F172A);color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px;flex-shrink:0}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px;flex-shrink:0}
 .user-info{min-width:0;line-height:1.2;transition:opacity .2s ease}
 [data-sidebar="collapsed"] .user-info{opacity:0;width:0}
 .user-info .n{font-size:13px;font-weight:600;color:var(--n-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -122,7 +124,23 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .nav-hamburger:hover{color:var(--n-900);border-color:var(--n-400)}
 .nav-hamburger svg{width:18px;height:18px}
 .nav-backdrop{display:none;position:fixed;inset:0;background:rgba(2,6,23,.5);z-index:60;opacity:0;transition:opacity .25s ease}
-.topbar-left{display:flex;align-items:center;gap:10px;min-width:0}
+.topbar-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.global-search{position:relative;display:flex;align-items:center;width:100%;max-width:380px}
+.global-search svg{position:absolute;left:12px;width:16px;height:16px;color:var(--n-400);pointer-events:none}
+.global-search input{width:100%;height:38px;padding:0 44px 0 36px;border:1px solid var(--line);border-radius:10px;background:var(--hover-bg);font-family:inherit;font-size:13px;color:var(--n-900);box-shadow:none;transition:all .15s}
+.global-search input:focus{outline:none;background:var(--card);border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.gs-kbd{position:absolute;right:8px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--n-400);background:var(--card);border:1px solid var(--line);border-radius:5px;padding:2px 6px;pointer-events:none}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{position:relative;width:38px;height:38px;border:1px solid var(--line);background:var(--card);border-radius:10px;display:grid;place-items:center;cursor:pointer;color:var(--n-600);box-shadow:var(--shadow-xs);transition:all .15s;padding:0}
+.icon-btn:hover{color:var(--n-900);border-color:var(--n-300);background:var(--hover-bg)}
+.icon-btn svg{width:18px;height:18px}
+.notif-dot{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--accent);border:1.5px solid var(--card)}
+.topbar-cta{height:38px;white-space:nowrap}
+.user-chip{display:flex;align-items:center;gap:8px;height:38px;padding:0 10px 0 5px;border:1px solid var(--line);background:var(--card);border-radius:999px;cursor:pointer;box-shadow:var(--shadow-xs);font-family:inherit;transition:all .15s}
+.user-chip:hover{border-color:var(--n-300);background:var(--hover-bg)}
+.uc-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:#fff;display:grid;place-items:center;font-weight:700;font-size:11px;flex-shrink:0}
+.uc-name{font-size:13px;font-weight:600;color:var(--n-800);white-space:nowrap}
+.user-chip svg{width:14px;height:14px;color:var(--n-400)}
 .crumbs .home{color:var(--n-400)}.crumbs .sep{color:var(--n-300)}.crumbs .current{color:var(--n-900);font-weight:600}
 .topbar-actions{display:flex;align-items:center;gap:8px}
 .theme-toggle{display:inline-flex;align-items:center;gap:2px;background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:3px;box-shadow:var(--shadow-xs)}
@@ -138,11 +156,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .card-title h3{margin:0;font-size:14px;font-weight:600;color:var(--n-900);letter-spacing:-.005em}
 .card-title .meta{font-size:12px;color:var(--n-500);font-weight:500}
 .grid{display:grid;gap:20px}
-.g-kpi{grid-template-columns:repeat(4,1fr)}
+.g-kpi{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .g-2{grid-template-columns:1.4fr 1fr}.g-2-eq{grid-template-columns:1fr 1fr}
 .g-kpi>*,.g-2>*,.g-2-eq>*,.row>*{min-width:0}
 .chart-wrap canvas{max-width:100%}
-@media(max-width:1100px){.g-kpi{grid-template-columns:repeat(2,1fr)}.g-2,.g-2-eq{grid-template-columns:1fr}}
+@media(max-width:1100px){.g-2,.g-2-eq{grid-template-columns:1fr}}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;transition:all .2s}
 .kpi:hover{border-color:var(--n-300);box-shadow:var(--shadow-md)}
 .kpi-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -162,6 +180,36 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .kpi-arrow{position:absolute;right:14px;bottom:14px;color:var(--n-400);opacity:0;transform:translateX(-4px);transition:opacity .15s ease,transform .15s ease}
 .kpi-arrow svg{width:15px;height:15px;display:block}
 .kpi.kpi-link:hover .kpi-arrow,.kpi.kpi-link:focus-visible .kpi-arrow{opacity:1;transform:translateX(0)}
+.kpi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.kpi-value.na{font-size:22px;color:var(--n-400);font-weight:600}
+.kpi-trend{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;font-weight:600}
+.kpi-trend.up{color:var(--accent)}.kpi-trend.down{color:var(--success)}.kpi-trend.flat{color:var(--n-400)}
+.kpi-ring{width:44px;height:44px;flex-shrink:0}
+.kpi-ring .rt{fill:none;stroke:var(--line);stroke-width:4}
+.kpi-ring .rp{fill:none;stroke-width:4;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .5s ease}
+.kpi-ring.g .rp{stroke:var(--success)}
+.kpi-ring.a .rp{stroke:var(--warn)}
+.kpi-ring.r .rp{stroke:var(--accent)}
+.kpi-ring .rl{fill:var(--n-700);font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+/* Segmented toggle (chart range) */
+.seg-toggle{display:inline-flex;background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
+.seg-toggle button{width:auto;border:none;background:transparent;color:var(--n-500);font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;box-shadow:none;font-family:inherit}
+.seg-toggle button:hover{color:var(--n-800)}
+.seg-toggle button.active{background:var(--card);color:var(--primary);box-shadow:var(--shadow-xs)}
+/* Insights as a horizontal row */
+.insights-row{display:flex;gap:10px;flex-wrap:wrap}
+.insights-row .insight{flex:1 1 260px;min-width:230px;margin-bottom:0;align-items:flex-start}
+.insights-row:empty::after,#insights.insights-row .empty{width:100%}
+/* Upcoming as horizontal cards */
+.up-cards{display:flex;gap:10px;flex-wrap:wrap}
+.up-card{flex:1 1 130px;min-width:120px;border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:var(--card);cursor:pointer;transition:all .15s;position:relative}
+.up-card:hover{border-color:var(--n-300);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.up-card .uc-date{font-size:13px;font-weight:700;color:var(--n-800)}
+.up-card .uc-dow{font-size:11px;color:var(--n-500);font-weight:500}
+.up-card .uc-meta{margin-top:8px}
+.up-card .uc-time{font-size:11px;color:var(--n-500);margin-top:4px}
+.up-card .uc-flag{position:absolute;top:9px;right:9px;font-size:9px;font-weight:700;padding:1px 6px;border-radius:5px;background:var(--primary-soft);color:var(--primary);text-transform:uppercase;letter-spacing:.02em}
+.up-strip{border-left:3px solid var(--line);border-radius:11px}
 .insight-dismiss{flex-shrink:0;width:22px;height:22px;border:none;background:transparent;color:var(--n-400);border-radius:6px;cursor:pointer;display:grid;place-items:center;align-self:flex-start;box-shadow:none;padding:0;opacity:0;transition:opacity .15s}
 .insight:hover .insight-dismiss{opacity:1}
 .insight-dismiss:hover{background:var(--hover-strong);color:var(--n-700)}
@@ -234,9 +282,9 @@ tr.row-flash td{animation:rowFlash 1.2s ease}
 .chip.n{background:var(--hover-bg);color:var(--n-700);border-color:var(--line)}
 .chip.star{background:linear-gradient(135deg,#FEF3C7,#FDE68A);color:#78350F;border-color:#F59E0B}
 [data-theme="dark"] .chip.star{background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(251,191,36,.35));color:#FDE68A;border-color:rgba(251,191,36,.5)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;background:var(--n-900);color:var(--card);box-shadow:var(--shadow-sm)}
-.btn:hover{background:var(--n-800);transform:translateY(-1px);box-shadow:var(--shadow-md)}
-[data-theme="dark"] .btn{background:var(--n-900);color:var(--bg)}[data-theme="dark"] .btn:hover{background:var(--n-800)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid transparent;background:var(--primary);color:var(--primary-fg);box-shadow:var(--shadow-sm)}
+.btn:hover{background:var(--primary-hover);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+[data-theme="dark"] .btn{background:var(--primary);color:#fff}[data-theme="dark"] .btn:hover{background:var(--primary-hover)}
 .btn:active{transform:translateY(0)}
 .btn.ghost{background:var(--card);color:var(--n-800);border-color:var(--line);box-shadow:var(--shadow-xs)}
 .btn.ghost:hover{background:var(--hover-bg);border-color:var(--n-300)}
@@ -439,7 +487,11 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   [data-sidebar="collapsed"] .nav-label,[data-sidebar="collapsed"] .user-info{opacity:1;width:auto}
   [data-sidebar="collapsed"] .nav-item{justify-content:flex-start;padding:8px 10px}
   [data-sidebar="collapsed"] .user-card{justify-content:flex-start;padding:12px}
-  .topbar{padding:0 14px;gap:10px}
+  .topbar{padding:0 14px;gap:8px}
+  .global-search{display:none}
+  .uc-name{display:none}
+  .user-chip{padding:0;width:38px;justify-content:center}
+  .user-chip>svg{display:none}
   .content{padding:20px 16px 40px}
   .g-kpi{grid-template-columns:repeat(2,1fr)}
   .g-2,.g-2-eq{grid-template-columns:1fr}
@@ -455,6 +507,10 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 @media(max-width:560px){
   .content{padding:16px 12px 36px}
   .topbar{padding:0 12px}
+  .topbar-cta{padding:0;width:38px;justify-content:center}
+  .topbar-cta svg{margin:0}
+  .topbar-cta span{display:none}
+  .icon-btn{display:none}
   .page-head h1{font-size:22px}
   .g-kpi{grid-template-columns:1fr}
   .form-grid{grid-template-columns:1fr}
@@ -503,9 +559,9 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 <aside class="sidebar" id="appSidebar">
   <div class="brand">
     <div class="brand-mark">PT</div>
-    <div class="brand-text"><span class="t">PTO Command</span><span class="s">Personal workspace</span></div>
+    <div class="brand-text"><span class="t">PTO Command Center</span><span class="s">Time-off workspace</span></div>
   </div>
-  <div class="nav-section">Workspace</div>
+  <div class="nav-section">Overview</div>
   <button class="nav-item active" data-tab="dash" data-tooltip="Dashboard"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-label">Dashboard</span></button>
   <button class="nav-item" data-tab="cal" data-tooltip="Calendar"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-label">Calendar</span></button>
   <button class="nav-item" data-tab="log" data-tooltip="Time Off Log"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="nav-label">Time Off Log</span></button>
@@ -513,7 +569,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <button class="nav-item" data-tab="sug" data-tooltip="Smart Suggestions"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Smart Suggestions</span></button>
   <button class="nav-item" data-tab="fri" data-tooltip="Friday Planner"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Friday Planner</span></button>
   <button class="nav-item" data-tab="ann" data-tooltip="Anniversaries"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 .75-4.5 4.5L18 20l-6-3.5L6 20l1.5-6.75L3 8.75 9 8z"/></svg><span class="nav-label">Anniversaries</span></button>
-  <div class="nav-section">System</div>
+  <div class="nav-section">Configuration</div>
   <button class="nav-item" data-tab="cfg" data-tooltip="Settings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></button>
   <div class="user-card">
     <div class="avatar">JH</div>
@@ -529,46 +585,60 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="topbar">
     <div class="topbar-left">
     <button class="nav-hamburger" onclick="toggleNav()" title="Menu" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <div class="crumbs">
-      <span class="home"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
-      <span class="sep">/</span><span class="current" id="crumb">Dashboard</span>
+    <div class="global-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="globalSearch" placeholder="Search anything…" autocomplete="off" onkeydown="if(event.key==='Enter')globalSearchGo(this.value)"/>
+      <kbd class="gs-kbd">⌘K</kbd>
     </div>
     </div>
     <div class="topbar-actions">
+      <button class="icon-btn" onclick="switchTab('dash')" title="Notifications" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot"></span></button>
       <div class="theme-toggle">
         <button class="theme-btn" data-set-theme="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
         <button class="theme-btn" data-set-theme="dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
       </div>
-      <button class="btn ghost sm" onclick="exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+      <button class="btn topbar-cta" onclick="requestTimeOff()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Request Time Off</span></button>
+      <button class="user-chip" onclick="switchTab('cfg')" title="Account settings"><span class="uc-avatar">JH</span><span class="uc-name">Jazz Harris</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
     </div>
   </div>
   <div class="content">
 <div class="print-header"><strong>PTO Summary</strong> — <span id="printName">Jazz Harris</span> — <span id="printDate"></span></div>
 
 <div class="panel active" id="dash">
-  <div class="page-head"><h1>Welcome back, Jazz</h1><div class="sub" id="dash-sub">Here's your PTO snapshot</div></div>
+  <div class="page-head"><h1 id="dashGreeting">Welcome back, Jazz</h1><div class="sub" id="dash-sub"></div></div>
   <div class="grid g-kpi" id="kpis"></div>
+  <div style="height:20px"></div>
+  <div class="card">
+    <div class="card-title"><h3>Insights</h3>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="link-btn" id="showDismissedBtn" onclick="toggleShowDismissed()" style="display:none"></button>
+        <button class="link-btn" id="dismissAllBtn" onclick="dismissAllInsights()" style="display:none">Dismiss all</button>
+        <span class="chip n"><span id="insightCount">0</span> items</span>
+      </div>
+    </div>
+    <div id="insights" class="insights-row"></div>
+  </div>
   <div style="height:20px"></div>
   <div class="grid g-2">
     <div class="card">
-      <div class="card-title"><h3>Balance projection</h3><span class="meta">Next 12 months</span></div>
+      <div class="card-title"><h3>Vacation balance projection</h3>
+        <div class="seg-toggle" id="rangeToggle">
+          <button type="button" data-range="3" onclick="setChartRange(3)">3M</button>
+          <button type="button" data-range="6" onclick="setChartRange(6)">6M</button>
+          <button type="button" data-range="12" class="active" onclick="setChartRange(12)">1Y</button>
+          <button type="button" data-range="0" onclick="setChartRange(0)">All</button>
+        </div>
+      </div>
       <div class="chart-summary" id="chartSummary"></div>
       <div class="chart-wrap"><canvas id="balChart"></canvas></div>
     </div>
-    <div class="card">
-      <div class="card-title"><h3>Insights</h3><div style="display:flex;align-items:center;gap:6px"><button class="link-btn" id="showDismissedBtn" onclick="toggleShowDismissed()" style="display:none"></button><span class="chip n"><span id="insightCount">0</span> items</span></div></div>
-      <div id="insights"></div>
-    </div>
+    <div class="card"><div class="card-title"><h3>Usage breakdown</h3><span class="meta">Year to date</span></div><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
   </div>
   <div style="height:20px"></div>
   <div class="grid g-2-eq">
-    <div class="card"><div class="card-title"><h3>Upcoming time off</h3><span class="meta">Next 4 weeks</span></div><div id="upcoming"></div></div>
-    <div class="card"><div class="card-title"><h3>Upcoming Fridays</h3><span class="meta">WFH · appointments</span></div><div id="upcomingFridays"></div></div>
+    <div class="card"><div class="card-title"><h3>Upcoming time off</h3><button class="link-btn" onclick="switchTab('cal')">View calendar →</button></div><div id="upcoming"></div></div>
+    <div class="card"><div class="card-title"><h3>Upcoming Fridays</h3><button class="link-btn" onclick="switchTab('fri')">View all →</button></div><div id="upcomingFridays"></div></div>
   </div>
-  <div style="height:20px"></div>
-  <div class="card"><div class="card-title"><h3>Usage breakdown</h3><span class="meta">Year to date</span></div><div class="chart-wrap" style="max-width:520px;margin:0 auto"><canvas id="pieChart"></canvas></div></div>
-  <div style="height:20px"></div>
-  <div id="phStrip"></div>
 </div>
 
 <div class="panel" id="log">
@@ -819,7 +889,7 @@ const DEFAULTS = {
   holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
   entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {},
   logSearch: "", logType: "All", logYear: "All", logView: "list", collapsedMonths: {},
-  dismissedInsights: [], showDismissed: false, entryMode: "hours", sugFilters: {}
+  dismissedInsights: [], showDismissed: false, entryMode: "hours", sugFilters: {}, chartRange: 12
 };
 
 let state = load();
@@ -856,6 +926,7 @@ function load(){
         if (!s.entryMode) s.entryMode = "hours";
         if (!s.sugFilters) s.sugFilters = {};
         if (s.config && s.config.birthday === undefined) s.config.birthday = "";
+        if (!s.chartRange) s.chartRange = 12;
         return s;
       }
     }
@@ -1085,26 +1156,78 @@ function buildInsights(){
 
 let balChart, pieChart;
 
+function renderGreeting(){
+  const h = new Date().getHours();
+  const part = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+  const first = (state.config.name || "there").split(" ")[0];
+  const g = document.getElementById("dashGreeting"); if (g) g.innerHTML = `Good ${part}, ${first}! <span style="font-weight:400">👋</span>`;
+  const s = document.getElementById("dash-sub"); if (s) s.textContent = `Here's your time-off overview for ${fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"})}`;
+}
+function ringSVG(pct, cls){
+  const r = 17, c = 2*Math.PI*r, p = Math.min(100, Math.max(0, pct)), off = c*(1 - p/100);
+  return `<svg class="kpi-ring ${cls}" viewBox="0 0 44 44"><circle class="rt" cx="22" cy="22" r="${r}"/><circle class="rp" cx="22" cy="22" r="${r}" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/><text class="rl" x="22" y="22">${Math.round(p)}%</text></svg>`;
+}
+function usageThisVsLast(){
+  const t = today(), y = t.getFullYear(), m = t.getMonth();
+  const inMonth = (yy,mm) => state.entries.filter(e => e.type==="Vacation" && parseDate(e.date).getFullYear()===yy && parseDate(e.date).getMonth()===mm).reduce((s,e)=>s+Number(e.hours||0),0);
+  const cur = inMonth(y,m); const last = m===0 ? inMonth(y-1,11) : inMonth(y,m-1);
+  return { cur, last, diff: cur-last };
+}
 function renderKPIs(){
   const cfg = state.config; const bal = currentBalance();
   const uv = ytdUsage("Vacation", cfg.year); const us = ytdUsage("Sick", cfg.year);
   const allot = getAllotment(cfg.year); const daysToRefill = daysUntilNextRefill();
   const sickIsNA = allot.sick === null; const sickBal = sickIsNA ? null : allot.sick - us;
-  const arrow = `<span class="kpi-arrow">${ICO.arrowRight}</span>`;
-  const link = (fn, title) => `class="kpi kpi-link" role="button" tabindex="0" title="${title}" onclick="${fn}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}}"`;
+  const usedPct = allot.vacation ? Math.round(uv/allot.vacation*100) : 0;
+  const tr = usageThisVsLast();
+  const trendHtml = tr.diff !== 0 ? `<span class="kpi-trend ${tr.diff>0?'up':'down'}">${tr.diff>0?'▲':'▼'} ${Math.abs(tr.diff).toFixed(1)} hrs vs last month</span>` : `<span class="kpi-trend flat">No change vs last month</span>`;
+  const link = (fn, title) => `role="button" tabindex="0" title="${title}" onclick="${fn}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}}"`;
+  // Personal holiday
+  const y = cfg.year, ph = getPersonalHoliday(y), elig = isEligibleForPH();
+  let phVal, phSub, phAction = "";
+  if (!elig.eligible){ phVal = "Not eligible"; phSub = `Eligible ${fmt(elig.eligibleOn,{month:"short",day:"numeric"})}`; }
+  else if (ph.status==="Scheduled" || ph.status==="Taken"){ const d = parseDate(ph.date); phVal = fmt(d,{month:"short",day:"numeric"}); phSub = ph.status==="Taken" ? "Taken ✓" : fmt(d,{weekday:"long"}); phAction = `<button class="btn subtle sm" style="margin-top:8px;width:100%" onclick="viewInCalendar('${ph.date}')">View in calendar</button>`; }
+  else { phVal = "Not scheduled"; phSub = "1 day available"; phAction = `<input type="date" id="ph_date_${y}" min="${isoDate(today())}" max="${y}-12-31" style="width:100%;margin-top:8px"/><button class="btn sm" style="margin-top:6px;width:100%" onclick="schedulePersonalHoliday(${y})">Schedule</button>`; }
+  // Next anniversary
+  const nxt = nextMilestone(); let annVal, annSub;
+  if (nxt){ const du = nxt.daysUntil, yy = Math.floor(du/365), dd = du - yy*365; annVal = `${yy>0?yy+'y ':''}${dd}d`; annSub = `${nxt.label} · ${fmt(nxt.date,{month:"short",day:"numeric",year:"numeric"})}`; }
+  else { annVal = "Max"; annSub = "Top tier reached"; }
+
   document.getElementById("kpis").innerHTML = `
-    <div ${link("dashDrillLog('Vacation')","View vacation entries")}><div class="kpi-head"><span class="kpi-label">Vacation balance</span><div class="kpi-icon g">${ICO.vac}</div></div><div class="kpi-value">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days remaining</div>${arrow}</div>
-    <div ${link("dashDrillLogYear("+cfg.year+")","View this year's entries")}><div class="kpi-head"><span class="kpi-label">Used year to date</span><div class="kpi-icon r">${ICO.used}</div></div><div class="kpi-value">${uv.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(uv/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days used <span class="dot"></span> ${Math.round(uv/allot.vacation*100)}%</div>${arrow}</div>
-    ${sickIsNA ? `<div ${link("dashDrillLog('Sick')","View sick entries")}><div class="kpi-head"><span class="kpi-label">Sick balance</span><span class="na-badge">N/A</span></div><div class="kpi-value">Not set</div><div class="kpi-sub">Confirm accrual with HR</div>${arrow}</div>` : `<div ${link("dashDrillLog('Sick')","View sick entries")}><div class="kpi-head"><span class="kpi-label">Sick balance</span><div class="kpi-icon a">${ICO.sick}</div></div><div class="kpi-value">${sickBal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(sickBal/cfg.workday).toFixed(1)} of ${allot.sick/cfg.workday} days remaining</div>${arrow}</div>`}
-    <div ${link("switchTab('ann')","View anniversaries")}><div class="kpi-head"><span class="kpi-label">Next refill</span><div class="kpi-icon b">${ICO.refill}</div></div><div class="kpi-value">${daysToRefill}<span class="unit">days</span></div><div class="kpi-sub">Jan 1 · +${getAllotment(cfg.year+1).vacation} hrs incoming</div>${arrow}</div>`;
+    <div class="kpi kpi-link" ${link("dashDrillLog('Vacation')","View vacation entries")}>
+      <div class="kpi-head"><span class="kpi-label">Vacation balance</span>${ringSVG(usedPct, usedPct>=100?'r':usedPct>=70?'a':'g')}</div>
+      <div class="kpi-value">${bal.toFixed(1)}<span class="unit">hrs</span></div>
+      <div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days left · refill in ${daysToRefill}d</div>
+    </div>
+    <div class="kpi kpi-link" ${link("dashDrillLogYear("+cfg.year+")","View this year's entries")}>
+      <div class="kpi-head"><span class="kpi-label">Vacation used YTD</span><div class="kpi-icon r">${ICO.used}</div></div>
+      <div class="kpi-value">${uv.toFixed(1)}<span class="unit">hrs</span></div>
+      <div class="kpi-sub">${(uv/cfg.workday).toFixed(1)} of ${allot.vacation/cfg.workday} days · ${usedPct}%</div>
+      ${trendHtml}
+    </div>
+    ${sickIsNA
+      ? `<div class="kpi kpi-link" ${link("dashDrillLog('Sick')","View sick entries")}><div class="kpi-head"><span class="kpi-label">Sick balance</span><span class="na-badge">N/A</span></div><div class="kpi-value na">Not set</div><div class="kpi-sub">Confirm accrual with HR</div></div>`
+      : `<div class="kpi kpi-link" ${link("dashDrillLog('Sick')","View sick entries")}><div class="kpi-head"><span class="kpi-label">Sick balance</span><div class="kpi-icon a">${ICO.sick}</div></div><div class="kpi-value">${sickBal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(sickBal/cfg.workday).toFixed(1)} of ${allot.sick/cfg.workday} days remaining</div></div>`}
+    <div class="kpi">
+      <div class="kpi-head"><span class="kpi-label">Personal holiday</span><div class="kpi-icon p">${ICO.gift}</div></div>
+      <div class="kpi-value" style="font-size:19px">${phVal}</div>
+      <div class="kpi-sub">${phSub}</div>${phAction}
+    </div>
+    <div class="kpi kpi-link" ${link("switchTab('ann')","View anniversaries")}>
+      <div class="kpi-head"><span class="kpi-label">Next anniversary</span><div class="kpi-icon b">${ICO.celebrate}</div></div>
+      <div class="kpi-value">${annVal}</div>
+      <div class="kpi-sub">${annSub}</div>
+    </div>`;
 }
 function dashDrillLog(type){ state.logType = type||"All"; state.logYear = "All"; state.logSearch = ""; save(); switchTab("log"); renderLog(); }
 function dashDrillLogYear(year){ state.logType = "All"; state.logYear = String(year); state.logSearch = ""; save(); switchTab("log"); renderLog(); }
 function drillFriday(iso){ switchTab("fri"); setTimeout(() => { const row = document.getElementById("fri-"+iso); if (row){ row.scrollIntoView({block:"center"}); row.classList.add("row-flash"); setTimeout(()=>row.classList.remove("row-flash"), 1200); } }, 60); }
+function setChartRange(m){ state.chartRange = m; save(); document.querySelectorAll("#rangeToggle button").forEach(b => b.classList.toggle("active", Number(b.dataset.range) === m)); renderCharts(); }
 
 function renderPersonalHolidayStrip(){
-  const y = state.config.year; const ph = getPersonalHoliday(y); const elig = isEligibleForPH();
   const el = document.getElementById("phStrip");
+  if (!el) return; // PH now lives in a KPI card on the dashboard
+  const y = state.config.year; const ph = getPersonalHoliday(y); const elig = isEligibleForPH();
   let primary = "", actions = "";
   if (!elig.eligible){ const daysToEligible = daysBetween(today(), elig.eligibleOn); primary = `<span class="ph-primary muted">Eligible in ${daysToEligible} days · ${fmt(elig.eligibleOn,{month:"short",day:"numeric",year:"numeric"})}</span>`; }
   else if (ph.status === "Unscheduled"){ primary = `<span class="ph-primary muted">Not scheduled · ${y}</span>`; actions = `<input type="date" id="ph_date_${y}" style="width:170px" min="${isoDate(today())}" max="${y}-12-31"/><button class="btn sm" onclick="schedulePersonalHoliday(${y})">Schedule</button>`; }
@@ -1153,7 +1276,8 @@ function renderCharts(){
   const lineColor = cssVar('--chart-line'); const fill1 = cssVar('--chart-fill-1'); const fill2 = cssVar('--chart-fill-2');
   const usageColor = cssVar('--chart-usage'); const usageFill = cssVar('--chart-usage-fill');
   const tooltipBg = dark ? '#fff' : '#0F172A'; const tooltipText = dark ? '#000' : '#FFFFFF';
-  const displayPoints = points.slice(0, 13);
+  const range = state.chartRange || 12;
+  const displayPoints = points.slice(0, range === 0 ? points.length : Math.min(points.length, range + 1));
   const labels = displayPoints.map(p => p.shortLabel);
   const balances = displayPoints.map(p => p.balance); const usedYTD = displayPoints.map(p => p.usedYTD);
   const yearBoundaries = [];
@@ -1223,6 +1347,8 @@ function renderInsights(){
     if (hiddenOnes.length){ btn.style.display = ""; btn.textContent = state.showDismissed ? "Hide dismissed" : `Show dismissed (${hiddenOnes.length})`; }
     else { btn.style.display = "none"; }
   }
+  const dab = document.getElementById("dismissAllBtn");
+  if (dab) dab.style.display = visible.some(i => i.dismissable) ? "" : "none";
   let rows = visible.map(i => insightHtml(i, false));
   if (state.showDismissed) rows = rows.concat(hiddenOnes.map(i => insightHtml(i, true)));
   document.getElementById("insights").innerHTML = rows.length
@@ -1232,17 +1358,23 @@ function renderInsights(){
 function dismissInsight(id){ state.dismissedInsights = state.dismissedInsights || []; if (!state.dismissedInsights.includes(id)) state.dismissedInsights.push(id); save(); renderInsights(); }
 function restoreInsight(id){ state.dismissedInsights = (state.dismissedInsights || []).filter(x => x !== id); if (!(state.dismissedInsights.length)) state.showDismissed = false; save(); renderInsights(); }
 function toggleShowDismissed(){ state.showDismissed = !state.showDismissed; save(); renderInsights(); }
+function dismissAllInsights(){
+  const all = buildInsights().map(i => ({...i, id: insightId(i), dismissable: i.t !== "critical"}));
+  state.dismissedInsights = state.dismissedInsights || [];
+  all.filter(i => i.dismissable).forEach(i => { if (!state.dismissedInsights.includes(i.id)) state.dismissedInsights.push(i.id); });
+  save(); renderInsights();
+}
 
 function renderUpcoming(){
   const t = today();
   const up = state.entries.map(e=>({...e,d:parseDate(e.date)})).filter(e=>e.d>=t).sort((a,b)=>a.d-b.d).slice(0,6);
   if (!up.length){ document.getElementById("upcoming").innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>Nothing scheduled</h4><p>A good week to plan a trip.</p></div>`; return; }
-  document.getElementById("upcoming").innerHTML = `<table class="compact-table"><tbody>`+
-    up.map(e => {
-      let cls = 'a';
-      if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
-      return `<tr class="clickable" title="Open in calendar" onclick="viewInCalendar('${e.date}')"><td><b>${fmt(e.d,{month:"short",day:"numeric"})}</b> <span class="day">${DOWABBR[e.d.getDay()]}</span></td><td><span class="chip ${cls}">${e.type}</span></td><td><b>${e.hours}h</b></td><td class="arrow-cell">${ICO.chevRight}</td></tr>`;
-    }).join("")+`</tbody></table>`;
+  document.getElementById("upcoming").innerHTML = `<div class="up-cards">` + up.map(e => {
+    let cls = 'a';
+    if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
+    const soon = daysBetween(t, e.d) <= 6;
+    return `<div class="up-card" title="Open in calendar" onclick="viewInCalendar('${e.date}')">${soon?'<span class="uc-flag">Soon</span>':''}<div class="uc-date">${fmt(e.d,{month:"short",day:"numeric"})}</div><div class="uc-dow">${DAYNAMES[e.d.getDay()]}</div><div class="uc-meta"><span class="chip ${cls}">${e.type}</span></div><div class="uc-time">${e.hours}h</div></div>`;
+  }).join("") + `</div>`;
 }
 function renderUpcomingFridays(){
   const el = document.getElementById("upcomingFridays"); if (!el) return;
@@ -1250,18 +1382,20 @@ function renderUpcomingFridays(){
   const endOfYear = new Date(t.getFullYear(), 11, 31);
   let d = new Date(t); while (d.getDay() !== 5) d = addDays(d, 1); // next Friday (today if it's Friday)
   const sf = state.fridays || {};
-  const upcoming = [];
-  while (d <= endOfYear){ const iso = isoDate(d); const item = sf[iso]; if (item && item.purpose && item.status !== "Cancelled") upcoming.push({d:new Date(d), iso, item}); d = addDays(d, 7); }
-  const four = upcoming.slice(0, 4);
-  if (!four.length){
-    el.innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No Friday appointments scheduled</h4><p>Plan errands on WFH Fridays in the <a href="#" onclick="switchTab('fri');return false;" style="color:var(--cyan);font-weight:600">Friday Planner</a>.</p></div>`;
+  const fris = [];
+  while (d <= endOfYear && fris.length < 4){ fris.push(new Date(d)); d = addDays(d, 7); }
+  const anyAppt = fris.some(f => { const it = sf[isoDate(f)]; return it && it.purpose && it.status !== "Cancelled"; });
+  if (!anyAppt){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No Friday appointments scheduled</h4><p>Plan errands on WFH Fridays in the <a href="#" onclick="switchTab('fri');return false;" style="color:var(--primary);font-weight:600">Friday Planner</a>.</p></div>`;
     return;
   }
-  el.innerHTML = `<table class="compact-table"><tbody>` + four.map(({d, iso, item}) => {
-    const isThis = daysBetween(t, d) <= 6;
-    const hol = holidayName(d);
-    return `<tr class="clickable" title="Open Friday Planner" onclick="drillFriday('${iso}')"><td><b>${fmt(d,{month:"short",day:"numeric"})}</b> <span class="day">${DOWABBR[d.getDay()]}</span>${isThis?' <span class="chip r" style="margin-left:4px">This Friday</span>':''}</td><td><span class="chip c">${esc(item.purpose)}</span>${hol?` <span class="chip v">${esc(hol)}</span>`:''}</td><td class="arrow-cell">${ICO.chevRight}</td></tr>`;
-  }).join("") + `</tbody></table>`;
+  el.innerHTML = `<div class="up-cards">` + fris.map((f, i) => {
+    const iso = isoDate(f); const item = sf[iso]; const hol = holidayName(f);
+    const flag = i === 0 ? "Today" : i === 1 ? "Next" : `In ${i} wks`;
+    const purpose = item && item.purpose && item.status !== "Cancelled" ? esc(item.purpose) : (hol ? esc(hol) : "Open");
+    const isOpen = !(item && item.purpose && item.status !== "Cancelled");
+    return `<div class="up-card" title="Open Friday Planner" onclick="drillFriday('${iso}')"><span class="uc-flag">${flag}</span><div class="uc-date">${fmt(f,{month:"short",day:"numeric"})}</div><div class="uc-dow">Friday</div><div class="uc-meta"><span class="chip ${isOpen?'n':'c'}">${purpose}</span></div></div>`;
+  }).join("") + `</div>`;
 }
 
 // ============ EDITABLE LOG ============
@@ -1859,9 +1993,11 @@ function switchTab(id){
   const panel = document.getElementById(id);
   if (btn) btn.classList.add("active");
   if (panel) panel.classList.add("active");
-  document.getElementById("crumb").textContent = TAB_TITLES[id] || "";
+  const crumb = document.getElementById("crumb"); if (crumb) crumb.textContent = TAB_TITLES[id] || "";
   window.scrollTo(0,0);
 }
+function globalSearchGo(v){ state.logSearch = v || ""; save(); switchTab("log"); renderLog(); const el = document.getElementById("logSearch"); if (el) el.value = v || ""; }
+function requestTimeOff(){ switchTab("log"); const card = document.querySelector("#log .card.no-print"); if (card) card.scrollIntoView({behavior:"smooth", block:"center"}); const t = document.getElementById("e_type"); if (t) setTimeout(()=>t.focus(), 200); }
 function viewInCalendar(iso){ const d = parseDate(iso); calCursor = new Date(d.getFullYear(), d.getMonth(), 1); renderCalendar(); switchTab("cal"); }
 function navMonth(n){ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+n, 1); renderCalendar(); }
 function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); renderUpcomingFridays(); }
@@ -1918,10 +2054,10 @@ function exportCSV(){
   const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_entries_${isoDate(today())}.csv`; a.click(); URL.revokeObjectURL(url);
   toast(`Exported ${state.entries.length} row${state.entries.length===1?"":"s"} to CSV`);
 }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
 
-function refresh(){ renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
+function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
 
 const TAB_TITLES = {dash:"Dashboard", log:"Time Off Log", cal:"Calendar", sug:"Smart Suggestions", fri:"Friday Planner", ann:"Anniversaries", cfg:"Settings"};
 document.querySelectorAll(".nav-item").forEach(t => { t.addEventListener("click", () => { switchTab(t.dataset.tab); closeNav(); }); });
@@ -1940,8 +2076,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !e.defaultPrevented && document.documentElement.getAttribute('data-nav')==='open') closeNav();
   if ((e.ctrlKey || e.metaKey) && e.key === 'b'){ e.preventDefault(); toggleSidebar(); }
   if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')){
-    const logPanel = document.getElementById('log');
-    if (logPanel && logPanel.classList.contains('active')){ e.preventDefault(); const el = document.getElementById('logSearch'); if (el) el.focus(); }
+    e.preventDefault(); const gs = document.getElementById('globalSearch'); if (gs){ gs.focus(); gs.select(); }
   }
 });
 document.addEventListener('dragend', () => {
@@ -1952,7 +2087,6 @@ document.addEventListener('dragend', () => {
 
 dpSet("e_date", isoDate(today()));
 calCursor = new Date(state.config.year, today().getMonth(), 1);
-document.getElementById("dash-sub").textContent = `${fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"})}`;
 updateThemeToggle();
 refresh();
 updateEntryModeUI();

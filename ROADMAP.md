@@ -9,9 +9,9 @@
 
 | Metric | Value |
 |---|---|
-| Version | 1.15 (production) |
-| Features shipped | 36 |
-| File size | ~132 KB (single HTML) + icons + PWA |
+| Version | 2.0 (production) |
+| Features shipped | 37 |
+| File size | ~137 KB (single HTML) + icons + PWA |
 | Backlog items | 15 |
 | Est. total effort | ~10 weeks (part-time) |
 | Roadmap version | v2 (reconciled) |
@@ -151,6 +151,9 @@ Five new user-requested backlog items added based on real-world usage feedback:
 ---
 
 ## ✅ Shipped
+
+### v2.0 — Enterprise UI redesign (July 2026)
+- **UI/UX overhaul to match the provided mockup.** Blue primary accent (active nav, primary buttons, chart) with the red brand mark retained; new topbar with a global search ("Search anything… ⌘K" → Log search), notification bell, **Request Time Off** CTA, and a user chip; sidebar sections renamed Overview / Planning / Configuration with a blue active state and blue avatar. Dashboard rebuilt: time-aware greeting ("Good morning/afternoon/evening, Jazz 👋"), 5 KPI cards including a **usage progress ring** (green/amber/red) on Vacation Balance, a **month-over-month trend** on Used YTD, and promoted **Personal Holiday** (inline schedule) and **Next Anniversary** cards; insights moved to a **dismissible horizontal row** with "Dismiss all"; balance-projection chart gained a **3M/6M/1Y/All range toggle** beside the usage doughnut; Upcoming Time Off and Upcoming Fridays became **horizontal card rows**. Verified in Chromium across desktop/tablet/mobile and light/dark — no overflow, no errors; range toggle, dismiss-all, global search, and Request-Time-Off all functional.
 
 ### v1.15 — Print stylesheet (July 2026)
 - **PTO-202** — An `@media print` layer: hides the sidebar, topbar, toolbars, filter chips, buttons, and the add-entry form; prints only the active panel; forces a light palette even in dark mode; keeps cards from breaking across pages; and adds a "PTO Summary — [name] — [date]" header (hidden on screen). Verified via print-media emulation in Chromium.
