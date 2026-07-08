@@ -2071,7 +2071,17 @@ function renderLog(){
   const view = state.logView||"list";
   document.querySelectorAll("#logViewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
 
-  const filtered = getFilteredEntries().sort((a,b) => parseDate(b.date) - parseDate(a.date));
+  // Order from the current date, like the Friday Planner / Smart Suggestions:
+  // upcoming entries first (soonest → later), then past entries (most recent → older).
+  const t0 = today();
+  const fromToday = (a,b) => {
+    const da = parseDate(a.date), db = parseDate(b.date);
+    const au = da >= t0, bu = db >= t0;
+    if (au && bu) return da - db;      // both upcoming → soonest first
+    if (!au && !bu) return db - da;    // both past → most recent first
+    return au ? -1 : 1;                // upcoming before past
+  };
+  const filtered = getFilteredEntries().sort(fromToday);
   const total = state.entries.length;
   document.getElementById("logCount").textContent = logIsFiltered() ? `${filtered.length} of ${total} entries` : `${total} entries`;
 
@@ -2086,7 +2096,13 @@ function renderLog(){
   if (view === "month"){
     const groups = {};
     filtered.forEach(e => { const k = monthKey(parseDate(e.date)); (groups[k] = groups[k] || []).push(e); });
-    const keys = Object.keys(groups).sort((a,b) => b.localeCompare(a)); // newest first
+    const nowKey = monthKey(t0);
+    const keys = Object.keys(groups).sort((a,b) => {
+      const af = a >= nowKey, bf = b >= nowKey;    // current & future months first (ascending), then past (descending)
+      if (af && bf) return a.localeCompare(b);
+      if (!af && !bf) return b.localeCompare(a);
+      return af ? -1 : 1;
+    });
     tb.innerHTML = keys.map(k => {
       const items = groups[k];
       const [yy, mm] = k.split("-").map(Number);
