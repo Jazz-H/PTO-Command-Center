@@ -422,6 +422,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 tr.sug-cat td{background:var(--hover-bg);font-weight:700;color:var(--n-600);font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line)}
 .sug-cat-ic{display:inline-flex;vertical-align:middle;margin-right:6px;color:var(--n-500)}
 .sug-cat-ic svg{width:14px;height:14px}
+.sug-cat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;flex-shrink:0;vertical-align:middle}
 .sug-why{display:inline-flex;vertical-align:middle;color:var(--n-400);cursor:help}
 .sug-why svg{width:13px;height:13px}
 tr.row-flash td{animation:rowFlash 1.2s ease}
@@ -2033,47 +2034,47 @@ function renderSugSummary(all){
   const bestSub = best ? esc(best.occasion) : "Add holidays in Settings";
   kp.innerHTML =
     miniKpi("green", ICO.award, "Best Opportunity", bestVal, "v-green", bestSub) +
-    miniKpi("purple", ICO.bulb, "Bookable Ideas", `${bookable.length}`, "v-purple", "Across the year") +
-    miniKpi("cyan", ICO.calendar, "Long Weekends", `${longWk}`, "v-cyan", "4-day+ breaks available") +
+    miniKpi("purple", ICO.bulb, "Bookable Ideas", `${bookable.length}`, "v-purple", "Still to come this year") +
+    miniKpi("cyan", ICO.calendar, "Long Weekends", `${longWk}`, "v-cyan", "4-day+ breaks ahead") +
     miniKpi("amber", ICO.palm, "Balance to Deploy", `${bal.toFixed(0)}<span class="unit">hrs</span>`, "v-amber", `${balDays.toFixed(1)} days available now`);
 }
 function renderSuggestions(){
   const all = buildAllSuggestions(state.config.year);
   const eds = new Set(state.entries.map(e => e.date));
-  renderSugSummary(all);
   const filters = state.sugFilters || {};
-  const present = [...new Set(all.map(s => s.category))].sort((a,b) => SUG_CATS[a].order - SUG_CATS[b].order);
-  // Filter chips
+  const t0 = today();
+  const sortDate = s => (s.takeOn && s.takeOn.length ? s.takeOn[0] : (s.date || null));
+  const isUpcoming = s => { const d = sortDate(s); return d ? d >= t0 : true; };
+  const upcoming = all.filter(isUpcoming);
+  renderSugSummary(upcoming);
+  const present = [...new Set(upcoming.map(s => s.category))].sort((a,b) => SUG_CATS[a].order - SUG_CATS[b].order);
+  // Filter chips (counts reflect what's upcoming)
   const chipsEl = document.getElementById("sugFilters");
   if (chipsEl){
-    chipsEl.innerHTML = present.map(c => { const m = SUG_CATS[c]; const off = filters[c] === false; const n = all.filter(s => s.category === c).length;
+    chipsEl.innerHTML = present.map(c => { const m = SUG_CATS[c]; const off = filters[c] === false; const n = upcoming.filter(s => s.category === c).length;
       return `<button class="legend-item${off?' off':''}" onclick="toggleSugFilter('${c}')"><span class="legend-swatch" style="background:var(--${m.color})"></span><span>${m.label} (${n})</span></button>`; }).join("");
   }
   const tb = document.querySelector("#sugTable tbody");
-  if (!all.length){ tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.star}</div><h4>No suggestions</h4><p>Add holidays in Settings, or set your birthday, to see recommendations.</p></div></td></tr>`; return; }
-  const visibleCats = present.filter(c => filters[c] !== false);
-  if (!visibleCats.length){ tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.star}</div><h4>All categories hidden</h4><p>Turn a category chip back on to see suggestions.</p></div></td></tr>`; return; }
-  let html = "";
-  visibleCats.forEach(cat => {
-    const m = SUG_CATS[cat];
-    const items = all.filter(s => s.category === cat).sort((a,b) => b.roi - a.roi || ((a.date && b.date) ? a.date - b.date : 0));
-    html += `<tr class="sug-cat"><td colspan="7"><span class="sug-cat-ic">${m.icon}</span>${m.label}</td></tr>`;
-    html += items.map(s => {
-      const takeStr = s.takeOn.length ? s.takeOn.map(d => fmt(d,{weekday:"short",month:"short",day:"numeric"})).join(", ") : "—";
-      const roiB = s.roi >= 5 ? `<span class="chip star">★ ${s.roi}d</span>` : `<span class="chip v">${s.roi}-day</span>`;
-      const when = s.date ? `${fmt(s.date,{month:"short",day:"numeric"})} <span style="color:var(--n-400)">${s.dayName.slice(0,3)}</span>` : "—";
-      const why = `<span class="sug-why" title="${esc(s.reason)}">${ICO.info}</span>`;
-      let action = "";
-      if (s.bookable){
-        const bookedAll = s.takeOn.length && s.takeOn.every(d => eds.has(isoDate(d)));
-        action = bookedAll
-          ? `<button class="btn subtle sm" onclick="viewInCalendar('${isoDate(s.takeOn[0])}')" title="View in calendar"><span class="chip g" style="margin:0">${ICO.check} Booked</span></button>`
-          : `<button class="btn sm" onclick='bookSuggestion(${JSON.stringify(s.takeOn.map(isoDate))})'>Book</button>`;
-      }
-      return `<tr><td data-label="Occasion"><b>${esc(s.occasion)}</b></td><td data-label="When">${when}</td><td data-label="Take PTO on"><b>${takeStr}</b></td><td data-label="Outcome">${esc(s.result)} ${why}</td><td data-label="Hours" class="num">${s.hours}</td><td data-label="ROI">${roiB}</td><td class="cell-actions">${action}</td></tr>`;
-    }).join("");
-  });
-  tb.innerHTML = html;
+  if (!upcoming.length){ tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.star}</div><h4>No upcoming opportunities</h4><p>You're past this year's holidays and long weekends — check back in January, or add holidays in Settings.</p></div></td></tr>`; return; }
+  const items = upcoming.filter(s => filters[s.category] !== false)
+    .sort((a,b) => { const da = sortDate(a), db = sortDate(b); if (da && db) return da - db; if (da) return -1; if (db) return 1; return 0; });
+  if (!items.length){ tb.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">${ICO.star}</div><h4>All categories hidden</h4><p>Turn a category chip back on to see suggestions.</p></div></td></tr>`; return; }
+  tb.innerHTML = items.map(s => {
+    const m = SUG_CATS[s.category];
+    const takeStr = s.takeOn.length ? s.takeOn.map(d => fmt(d,{weekday:"short",month:"short",day:"numeric"})).join(", ") : "—";
+    const roiB = s.roi >= 5 ? `<span class="chip star">★ ${s.roi}d</span>` : `<span class="chip v">${s.roi}-day</span>`;
+    const when = s.date ? `${fmt(s.date,{month:"short",day:"numeric"})} <span style="color:var(--n-400)">${s.dayName.slice(0,3)}</span>` : "—";
+    const why = `<span class="sug-why" title="${esc(s.reason)}">${ICO.info}</span>`;
+    const catDot = `<span class="sug-cat-dot" style="background:var(--${m.color})" title="${m.label}"></span>`;
+    let action = "";
+    if (s.bookable){
+      const bookedAll = s.takeOn.length && s.takeOn.every(d => eds.has(isoDate(d)));
+      action = bookedAll
+        ? `<button class="btn subtle sm" onclick="viewInCalendar('${isoDate(s.takeOn[0])}')" title="View in calendar"><span class="chip g" style="margin:0">${ICO.check} Booked</span></button>`
+        : `<button class="btn sm" onclick='bookSuggestion(${JSON.stringify(s.takeOn.map(isoDate))})'>Book</button>`;
+    }
+    return `<tr><td data-label="Occasion"><b>${catDot}${esc(s.occasion)}</b></td><td data-label="When">${when}</td><td data-label="Take PTO on"><b>${takeStr}</b></td><td data-label="Outcome">${esc(s.result)} ${why}</td><td data-label="Hours" class="num">${s.hours}</td><td data-label="ROI">${roiB}</td><td class="cell-actions">${action}</td></tr>`;
+  }).join("");
 }
 
 function renderFridays(){
