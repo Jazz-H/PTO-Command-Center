@@ -174,6 +174,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .notif-udot{width:7px;height:7px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:11px}
 .notif-empty{padding:36px 18px;text-align:center;color:var(--n-500);font-size:13px}
 .notif-empty svg{width:26px;height:26px;color:var(--success);margin-bottom:8px}
+.notif-act{height:26px;padding:0 10px;font-size:11.5px;margin-top:8px}
 .topbar-cta{height:38px;white-space:nowrap}
 .btn.topbar-cta{background:var(--gradient-primary);border:none;box-shadow:var(--gradient-glow)}
 .btn.topbar-cta:hover{background:var(--gradient-primary);filter:brightness(1.06);box-shadow:var(--gradient-glow),var(--shadow-md)}
@@ -476,6 +477,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .insight-icon{flex-shrink:0;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;margin-top:1px}
 .insight-icon svg{width:12px;height:12px}
 .insight-body{flex:1;min-width:0;overflow-wrap:anywhere}
+.insight-actions{margin-top:9px}
+.insight-actions .btn{height:28px;padding:0 12px;font-size:12px}
 .insight strong{display:block;color:var(--n-900);font-size:13px;font-weight:600;margin-bottom:2px}
 .insight.good{border-color:var(--success-line);background:var(--success-soft)}
 .insight.good .insight-icon{background:var(--success);color:#fff}
@@ -1364,22 +1367,73 @@ function currentMilestone(asOf){ asOf = asOf || today(); const yos = yearsOfServ
 function anniversaryDates(){ return new Set(state.tiers.map(t => isoDate(anniversaryFor(t.years)))); }
 
 function buildInsights(){
-  const cfg = state.config; const bal = currentBalance();
-  const allot = getAllotment(cfg.year); const nextAllot = getAllotment(cfg.year+1);
+  const cfg = state.config; const t = today(); const y = cfg.year; const wd = cfg.workday || 8;
+  const bal = currentBalance(); const allot = getAllotment(y); const nextAllot = getAllotment(y+1);
   const daysToRefill = daysUntilNextRefill(); const ins = [];
-  if (allot.sick === null){ ins.push({t:"info", icon:ICO.info, h:"Sick allotment: N/A", b:"Set to <b>N/A</b> until you confirm the accrual amount with HR. Enter it in Settings when ready."}); }
-  const ph = getPersonalHoliday(cfg.year); const elig = isEligibleForPH();
-  if (ph.status === "Unscheduled" && daysToRefill < 120 && elig.eligible){ ins.push({t:"warn", icon:ICO.gift, h:"Personal holiday unscheduled", b:`Your <b>1 personal holiday</b> for ${cfg.year} isn't scheduled — <b>${daysToRefill} days</b> until it forfeits.`}); }
-  if (ph.status === "Scheduled" && ph.date){ ins.push({t:"good", icon:ICO.gift, h:"Personal holiday scheduled", b:`Your ${cfg.year} personal holiday is set for <b>${fmt(parseDate(ph.date),{weekday:"long",month:"long",day:"numeric"})}</b>.`}); }
-  if (daysToRefill < 120 && bal > allot.vacation*0.6){ ins.push({t:"warn", icon:ICO.warn, h:"You're under-using vacation", b:`<b>${(bal/cfg.workday).toFixed(1)} days</b> remaining with only ${Math.round(daysToRefill/30)} months until Jan 1. Vacation doesn't roll over.`}); }
-  if (daysToRefill < 60 && bal > 0){ ins.push({t:"critical", icon:ICO.warn, h:"Use-it-or-lose-it alert", b:`<b>${(bal/cfg.workday).toFixed(1)} days</b> expire Dec 31. Only <b>${daysToRefill} days</b> to burn them.`}); }
-  if (nextAllot.vacation > allot.vacation){ const bump = nextAllot.vacation - allot.vacation; ins.push({t:"good", icon:ICO.celebrate, h:"Vacation bump coming", b:`On Jan 1, ${cfg.year+1} you'll receive <b>${nextAllot.vacation} hrs (${nextAllot.vacation/cfg.workday} days)</b> — an extra ${bump/cfg.workday} days.`}); }
-  ins.push({t:"info", icon:ICO.refill, h:"Next vacation refill", b:`January 1, ${cfg.year+1} · <b>${daysToRefill} days</b> away · +${nextAllot.vacation} hrs incoming`});
-  const sug = buildSuggestions(cfg.year); const booked = new Set(state.entries.map(e => e.date));
+  const D = h => (h/wd);
+  // Forecasting: hours booked this year (incl. future) vs allotment -> what will forfeit
+  const vacUsedAll = ytdUsage("Vacation", y);
+  const atRiskHrs = Math.max(0, allot.vacation - vacUsedAll);
+  const atRiskDays = D(atRiskHrs);
+  const monthsLeft = Math.max(1, daysToRefill/30.44);
+  const perMonth = atRiskDays/monthsLeft;
+  const dated = state.entries.map(e => ({...e, d:parseDate(e.date)}));
+  const futureOff = dated.filter(e => e.d > t && e.d.getFullYear()===y).sort((a,b)=>a.d-b.d);
+  const nextOff = futureOff[0];
+  const pastVac = dated.filter(e => e.d <= t && e.type==="Vacation").sort((a,b)=>b.d-a.d)[0];
+
+  // ── Vacation forfeiture (highest value) ──
+  if (atRiskHrs > 0 && daysToRefill <= 45){
+    ins.push({t:"critical", priority:1, icon:ICO.warn, h:"Use-it-or-lose-it alert",
+      b:`<b>${atRiskDays.toFixed(1)} day${atRiskDays>=2?"s":""} (${atRiskHrs.toFixed(0)} hrs)</b> of vacation are still unbooked and forfeit on <b>Dec 31</b> — only ${daysToRefill} days left.`,
+      action:{label:"Plan them", fn:"switchTab('sug')"}});
+  } else if (atRiskHrs > 0 && daysToRefill <= 170){
+    ins.push({t:"warn", priority:3, icon:ICO.warn, h:"Unbooked vacation will forfeit",
+      b:`<b>${atRiskDays.toFixed(1)} days (${atRiskHrs.toFixed(0)} hrs)</b> aren't planned yet. Vacation doesn't roll over — pacing <b>~${perMonth.toFixed(1)} day${perMonth>=1.05?"s":""}/month</b> uses it all by Dec 31.`,
+      action:{label:"See suggestions", fn:"switchTab('sug')"}});
+  } else if (atRiskHrs <= 0 && allot.vacation > 0){
+    ins.push({t:"good", priority:6, icon:ICO.check, h:"Vacation fully planned",
+      b:`Every one of your <b>${D(allot.vacation).toFixed(0)} days</b> for ${y} is booked or used — nothing will be forfeited. Nice.`});
+  }
+  // ── Next / recent time off ──
+  if (nextOff){
+    const dd = daysBetween(t, nextOff.d);
+    ins.push({t:"info", priority:5, icon:ICO.calendar, h:"Next time off",
+      b:`<b>${nextOff.type}</b> on <b>${fmt(nextOff.d,{weekday:"long",month:"short",day:"numeric"})}</b> — ${dd===0?"today":dd===1?"tomorrow":"in "+dd+" days"}.`,
+      action:{label:"Calendar", fn:`viewInCalendar('${nextOff.date}')`}});
+  } else if (bal > 0){
+    ins.push({t:"warn", priority:4, icon:ICO.calendar, h:"Nothing on the calendar",
+      b:`You have no upcoming time off booked but <b>${D(bal).toFixed(1)} days</b> available. A long weekend does wonders.`,
+      action:{label:"Find a break", fn:"switchTab('sug')"}});
+  }
+  if (pastVac){ const since = daysBetween(pastVac.d, t); if (since >= 45) ins.push({t:"info", priority:5, icon:ICO.clock, h:"It's been a while", b:`<b>${since} days</b> since your last vacation day (${fmt(pastVac.d,{month:"short",day:"numeric"})}). Time to recharge?`, action:{label:"Plan one", fn:"switchTab('sug')"}}); }
+  // ── Top recommendation (book directly) ──
+  const sug = buildSuggestions(y); const booked = new Set(state.entries.map(e => e.date));
   const openSug = sug.filter(s => !s.takeOn.every(d => booked.has(isoDate(d))));
-  if (openSug.length){ const best = openSug[0]; ins.push({t:"good", icon:ICO.star, h:"Top recommendation", b:`Take <b>${fmt(best.takeOn[0],{weekday:"long",month:"short",day:"numeric"})}</b> off around ${best.holiday}. ${best.result}.`}); }
+  if (openSug.length){ const best = openSug[0]; ins.push({t:"good", priority:4, icon:ICO.star, h:"Top recommendation",
+    b:`Take <b>${fmt(best.takeOn[0],{weekday:"long",month:"short",day:"numeric"})}</b> off around ${best.holiday}. ${best.result}.`,
+    action:{label:"Book it", fn:`bookSuggestion(${JSON.stringify(best.takeOn.map(isoDate)).replace(/"/g,"'")})`}}); }
+  // ── Personal holiday ──
+  const ph = getPersonalHoliday(y); const elig = isEligibleForPH();
+  if (!elig.eligible){ ins.push({t:"info", priority:6, icon:ICO.gift, h:"Personal holiday not yet available", b:`You're eligible on <b>${fmt(elig.eligibleOn,{month:"long",day:"numeric"})}</b> (90 days of service).`}); }
+  else if (ph.status === "Unscheduled" && daysToRefill < 150){ ins.push({t:"warn", priority:2, icon:ICO.gift, h:"Personal holiday unscheduled", b:`Your <b>1 personal holiday</b> for ${y} isn't scheduled — <b>${daysToRefill} days</b> until it forfeits.`, action:{label:"Schedule", fn:"switchTab('dash')"}}); }
+  else if (ph.status === "Scheduled" && ph.date){ ins.push({t:"good", priority:7, icon:ICO.gift, h:"Personal holiday scheduled", b:`Set for <b>${fmt(parseDate(ph.date),{weekday:"long",month:"long",day:"numeric"})}</b>.`, action:{label:"View", fn:`viewInCalendar('${ph.date}')`}}); }
+  // ── Sick balance ──
+  if (allot.sick === null){ ins.push({t:"info", priority:6, icon:ICO.info, h:"Sick allotment: N/A", b:"Set to <b>N/A</b> until you confirm the accrual amount with HR.", action:{label:"Set in Settings", fn:"switchTab('cfg')"}}); }
+  else { const su = ytdUsage("Sick", y); const sb = allot.sick - su; if (allot.sick>0){ const pct = Math.round(su/allot.sick*100); ins.push({t:"info", priority:7, icon:ICO.sick, h:"Sick balance", b:`Used <b>${su.toFixed(0)} of ${allot.sick} hrs</b> (${pct}%) — <b>${D(sb).toFixed(1)} days</b> left this year.`}); } }
+  // ── Pending approvals ──
+  const pending = state.entries.filter(e => (e.status||"")==="Pending" && parseDate(e.date).getFullYear()===y);
+  if (pending.length){ ins.push({t:"warn", priority:5, icon:ICO.clock, h:`${pending.length} ${pending.length===1?"entry":"entries"} pending`, b:`${pending.length} request${pending.length===1?" is":"s are"} still marked <b>Pending</b> — confirm the status once approved.`, action:{label:"Review log", fn:"switchTab('log')"}}); }
+  // ── WFH Friday value ──
+  let openFri = 0, apptFri = 0; { let d = new Date(t); while (d.getDay()!==5) d = addDays(d,1); const eoy = new Date(y,11,31); const sf = state.fridays||{}; while (d <= eoy){ const it = sf[isoDate(d)]; const hol = holidayName(d); if (it && it.purpose && it.status!=="Cancelled") apptFri++; else if (!hol) openFri++; d = addDays(d,7); } }
+  if (openFri > 0 && apptFri === 0){ ins.push({t:"info", priority:6, icon:ICO.coffee, h:"WFH Fridays go unused", b:`<b>${openFri} work-from-home Friday${openFri===1?"":"s"}</b> left this year — book appointments/errands then to <b>save your PTO</b> for real trips.`, action:{label:"Plan Fridays", fn:"switchTab('fri')"}}); }
+  // ── Refill + bump ──
+  if (nextAllot.vacation > allot.vacation){ const bump = nextAllot.vacation - allot.vacation; ins.push({t:"good", priority:5, icon:ICO.celebrate, h:"Vacation bump coming", b:`On Jan 1, ${y+1} you'll receive <b>${nextAllot.vacation} hrs (${D(nextAllot.vacation).toFixed(0)} days)</b> — an extra ${D(bump).toFixed(0)} days.`}); }
+  ins.push({t:"info", priority:8, icon:ICO.refill, h:"Next vacation refill", b:`January 1, ${y+1} · <b>${daysToRefill} days</b> away · +${nextAllot.vacation} hrs incoming.`});
+  // ── Milestone ──
   const nxt = nextMilestone();
-  if (nxt && nxt.daysUntil <= 120){ ins.push({t:"good", icon:ICO.celebrate, h:`${nxt.label} milestone approaching`, b:`<b>${nxt.daysUntil} days</b> until ${fmt(nxt.date)}. See Anniversaries tab.`}); }
+  if (nxt && nxt.daysUntil <= 150){ ins.push({t:"good", priority:5, icon:ICO.award, h:`${nxt.label} milestone approaching`, b:`<b>${nxt.daysUntil} days</b> until ${fmt(nxt.date)} — vacation rises to <b>${nxt.vacDays} days/year</b>.`, action:{label:"View", fn:"switchTab('ann')"}}); }
+  ins.sort((a,b) => (a.priority||9) - (b.priority||9));
   return ins;
 }
 
@@ -1634,7 +1688,8 @@ function insightHtml(i, isDismissed){
   const btn = isDismissed
     ? `<button class="insight-dismiss" onclick="restoreInsight('${i.id}')" title="Restore insight" aria-label="Restore insight">${ICO.refill}</button>`
     : (i.dismissable ? `<button class="insight-dismiss" onclick="dismissInsight('${i.id}')" title="Dismiss insight" aria-label="Dismiss insight">${ICO.x}</button>` : "");
-  return `<div class="insight ${i.t}${isDismissed?" dismissed":""}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}</div>${btn}</div>`;
+  const act = (i.action && !isDismissed) ? `<div class="insight-actions"><button class="btn ghost sm" onclick="event.stopPropagation();${i.action.fn}">${i.action.label} →</button></div>` : "";
+  return `<div class="insight ${i.t}${isDismissed?" dismissed":""}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}${act}</div>${btn}</div>`;
 }
 function renderInsights(){
   const all = buildInsights().map(i => ({...i, id: insightId(i), dismissable: i.t !== "critical"}));
@@ -1679,7 +1734,8 @@ function renderNotifPanel(){
   list.innerHTML = all.map(i => {
     const unread = _notifUnread.has(i.id);
     const plain = i.b.replace(/<[^>]+>/g, "");
-    return `<div class="notif-item ${unread?'unread':''}" role="button" tabindex="0" onclick="openNotif('${i.id}','${notifTabFor(i)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNotif('${i.id}','${notifTabFor(i)}')}"><div class="notif-ic ${i.t}">${i.icon}</div><div class="notif-tbody"><div class="nt">${i.h}</div><div class="nb">${plain}</div></div>${unread?'<span class="notif-udot"></span>':''}</div>`;
+    const act = i.action ? `<button class="btn ghost sm notif-act" onclick="event.stopPropagation();closeNotifPanel();${i.action.fn}">${i.action.label} →</button>` : "";
+    return `<div class="notif-item ${unread?'unread':''}" role="button" tabindex="0" onclick="openNotif('${i.id}','${notifTabFor(i)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNotif('${i.id}','${notifTabFor(i)}')}"><div class="notif-ic ${i.t}">${i.icon}</div><div class="notif-tbody"><div class="nt">${i.h}</div><div class="nb">${plain}</div>${act}</div>${unread?'<span class="notif-udot"></span>':''}</div>`;
   }).join("");
 }
 function toggleNotifPanel(ev){
