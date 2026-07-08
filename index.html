@@ -1339,6 +1339,25 @@ function getPersonalHoliday(year){
 }
 function isEligibleForPH(){ const hire = parseDate(state.config.hire); const days = daysBetween(hire, today()); return {eligible: days >= 90, hireDate:hire, daysServed:days, eligibleOn: addDays(hire, 90)}; }
 function personalHolidayDates(){ return new Set(state.personalHolidays.filter(p => p.date).map(p => p.date)); }
+// Keep the Personal Holiday record in sync with any "Personal Holiday" log entry for that year,
+// so scheduling one from the Time Off Log updates the dashboard card (and vice-versa).
+function reconcilePersonalHolidays(){
+  getPersonalHoliday(state.config.year); // ensure current-year record exists
+  let changed = false;
+  (state.personalHolidays||[]).forEach(ph => {
+    if (ph.status === "Forfeited") return;
+    const ent = state.entries
+      .filter(e => e.type === "Personal Holiday" && parseDate(e.date).getFullYear() === ph.year)
+      .sort((a,b) => parseDate(a.date) - parseDate(b.date))[0];
+    if (ent){
+      const st = ent.status === "Taken" ? "Taken" : "Scheduled";
+      if (ph.date !== ent.date || ph.status !== st){ ph.date = ent.date; ph.status = st; if (!ph.notes) ph.notes = ent.notes || "Personal holiday"; changed = true; }
+    } else if (ph.status === "Scheduled" || ph.status === "Taken"){
+      ph.date = null; ph.status = "Unscheduled"; ph.notes = ""; changed = true;
+    }
+  });
+  return changed;
+}
 
 // FRIDAY APPOINTMENTS — get scheduled/done ones for calendar overlay
 function scheduledFridayAppts(){
@@ -1615,8 +1634,10 @@ function renderKPIs(){
   if (tr.diff > 0) k2foot = `<div class="kpi-foot neg"><span>▲</span> ${tr.diff.toFixed(1)} hrs vs last month</div>`;
   else if (tr.diff < 0) k2foot = `<div class="kpi-foot pos"><span>▼</span> ${Math.abs(tr.diff).toFixed(1)} hrs vs last month</div>`;
   else k2foot = `<div class="kpi-foot">No change vs last month</div>`;
-  // Personal holiday
-  const y = cfg.year, ph = getPersonalHoliday(y), elig = isEligibleForPH();
+  // Personal holiday (reflect any Personal Holiday entry logged elsewhere)
+  const y = cfg.year;
+  if (reconcilePersonalHolidays()) save();
+  const ph = getPersonalHoliday(y), elig = isEligibleForPH();
   let phLine, phSub, phAction = "";
   if (!elig.eligible){ phLine = `${calICO} Not eligible`; phSub = `Eligible ${fmt(elig.eligibleOn,{month:"short",day:"numeric"})}`; }
   else if (ph.status==="Scheduled" || ph.status==="Taken"){
@@ -1626,7 +1647,7 @@ function renderKPIs(){
       ? view + `<button class="btn ghost sm" style="margin-top:6px;width:100%;color:var(--accent)" onclick="unschedulePersonalHoliday(${y})">Reset</button>`
       : view + `<div style="display:flex;gap:6px;margin-top:6px"><button class="btn ghost sm" style="flex:1" onclick="markPersonalHolidayTaken(${y})">Mark taken</button><button class="btn ghost sm" style="flex:1;color:var(--accent)" onclick="unschedulePersonalHoliday(${y})">Unschedule</button></div>`;
   }
-  else { phLine = `${calICO} Not scheduled`; phSub = "1 day available"; phAction = `<label class="btn pink-cta">${calICO} Pick a date<input type="date" id="ph_date_${y}" min="${isoDate(today())}" max="${y}-12-31" onchange="schedulePersonalHoliday(${y})"/></label>`; }
+  else { phLine = `${calICO} Not scheduled`; phSub = "1 day available"; phAction = `<label class="btn pink-cta">${calICO} Pick a date<input type="date" id="ph_date_${y}" min="${isoDate(today())}" max="${y}-12-31" onclick="event.stopPropagation();try{this.showPicker()}catch(e){}" onchange="schedulePersonalHoliday(${y})"/></label>`; }
   // Next anniversary
   const nxt = nextMilestone(); let annVal, annSub, annFoot;
   if (nxt){ const du = nxt.daysUntil, yy = Math.floor(du/365), dd = du - yy*365; annVal = `${yy>0?yy+'y ':''}${dd}d`; annSub = nxt.label; annFoot = `${fmt(nxt.date,{month:"short",day:"numeric",year:"numeric"})} (${fmt(nxt.date,{weekday:"long"})})`; }
@@ -1803,10 +1824,18 @@ function insightHtml(i, isDismissed){
   const act = (i.action && !isDismissed) ? `<div class="insight-actions"><button class="btn ghost sm" onclick="event.stopPropagation();${i.action.fn}">${i.action.label} →</button></div>` : "";
   return `<div class="insight ${i.t}${isDismissed?" dismissed":""}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}${act}</div>${btn}</div>`;
 }
+const DASH_INSIGHT_MAX = 4;
+// All non-dismissed insights, sorted by priority (buildInsights already sorts).
+function liveInsights(){
+  const dismissed = new Set(state.dismissedInsights || []);
+  return buildInsights().map(i => ({...i, id: insightId(i), dismissable: i.t !== "critical"}))
+    .filter(i => !(i.dismissable && dismissed.has(i.id)));
+}
 function renderInsights(){
   const all = buildInsights().map(i => ({...i, id: insightId(i), dismissable: i.t !== "critical"}));
   const dismissed = new Set(state.dismissedInsights || []);
-  const visible = all.filter(i => !(i.dismissable && dismissed.has(i.id)));
+  // Dashboard shows only the top few; the rest live in the notifications tray (no duplication).
+  const visible = all.filter(i => !(i.dismissable && dismissed.has(i.id))).slice(0, DASH_INSIGHT_MAX);
   const hiddenOnes = all.filter(i => i.dismissable && dismissed.has(i.id));
   document.getElementById("insightCount").textContent = visible.length;
   const btn = document.getElementById("showDismissedBtn");
@@ -1843,7 +1872,9 @@ function notifTabFor(i){
   if (/personal holiday/i.test(i.h)) return 'cal';
   return 'dash';
 }
-function activeNotifs(){ return buildInsights().map(i => ({...i, id: insightId(i)})); }
+// Notifications = the insights beyond the top few shown on the dashboard, so the two
+// surfaces never show the same item twice.
+function activeNotifs(){ return liveInsights().slice(DASH_INSIGHT_MAX); }
 function renderNotifPanel(){
   const list = document.getElementById("notifList"); if (!list) return;
   const dismissed = new Set(state.dismissedInsights || []);
