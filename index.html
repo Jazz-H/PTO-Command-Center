@@ -165,10 +165,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .notif-close:hover{background:var(--hover-bg);color:var(--n-900)}
 .notif-close svg{width:16px;height:16px}
 .notif-list{max-height:min(440px,68vh);overflow-y:auto}
-.notif-item{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line-soft);cursor:pointer;transition:background .12s}
+.notif-item{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;background:var(--card);border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s,box-shadow .12s}
 .notif-item:last-child{border-bottom:none}
-.notif-item:hover{background:var(--hover-bg)}
-.notif-item.unread{background:var(--primary-soft)}
+.notif-item:hover{background:var(--primary-soft);box-shadow:inset 3px 0 0 var(--primary)}
+.notif-item.unread{background:var(--card)}
 .notif-item.unread:hover{background:var(--primary-soft)}
 .notif-ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
 .notif-ic svg{width:15px;height:15px}
