@@ -2230,18 +2230,17 @@ function renderSugSummary(all){
   const cfg = state.config, y = cfg.year;
   const eds = new Set(state.entries.map(e => e.date));
   const isBooked = s => s.takeOn && s.takeOn.length && s.takeOn.every(d => eds.has(isoDate(d)));
-  const sortDate = s => (s.takeOn && s.takeOn.length ? s.takeOn[0] : (s.date || null));
   // Counts reflect what's still OPEN (un-booked), so they drop live as you book.
   const openIdeas = all.filter(s => s.bookable && !isBooked(s));
   const longWk = all.filter(s => s.roi >= 4 && !isBooked(s)).length;
-  const next = all.filter(s => !isBooked(s) && sortDate(s)).sort((a,b) => sortDate(a) - sortDate(b))[0];
-  const nextVal = next ? fmt(sortDate(next),{month:"short",day:"numeric"}) : "—";
-  const nextSub = next ? `${esc(next.occasion)} · ${next.roi}-day` : "Nothing left to book";
+  // Aggregate payoff of booking every open idea — not something you can read off one table row.
+  const daysOff = openIdeas.reduce((s2,x) => s2 + (x.roi || 0), 0);
+  const ptoCostDays = openIdeas.reduce((s2,x) => s2 + (x.hours || 0), 0) / cfg.workday;
   // PTO still available to spend this year (unbooked allotment) — matches the rest of the app.
   const deployHrs = Math.max(0, (getAllotment(y).vacation || 0) - ytdUsage("PTO", y));
   const deployDays = deployHrs / cfg.workday;
   kp.innerHTML =
-    miniKpi("green", ICO.calendar, "Next Opportunity", `${nextVal}`, "v-green", nextSub) +
+    miniKpi("green", ICO.award, "Days Off Possible", `${daysOff}`, "v-green", `From ${ptoCostDays.toFixed(1)} PTO day${ptoCostDays===1?"":"s"}`) +
     miniKpi("purple", ICO.bulb, "Ideas to Book", `${openIdeas.length}`, "v-purple", "Still open this year") +
     miniKpi("cyan", ICO.star, "Long Weekends", `${longWk}`, "v-cyan", "4-day+ breaks open") +
     miniKpi("amber", ICO.palm, "PTO to Deploy", `${deployHrs.toFixed(0)}<span class="unit">hrs</span>`, "v-amber", `${deployDays.toFixed(1)} days unbooked`);
