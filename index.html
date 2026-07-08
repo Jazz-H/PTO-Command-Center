@@ -94,7 +94,11 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 [data-sidebar="collapsed"] .app{grid-template-columns:var(--sidebar-w-collapsed) 1fr}
 .sidebar{background:var(--sidebar-bg);border-right:1px solid var(--line);padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2px;overflow:hidden;transition:padding .25s ease}
 [data-sidebar="collapsed"] .sidebar{padding:20px 6px}
-.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 20px;border-bottom:1px solid var(--line);margin-bottom:14px;position:relative}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 20px;border-bottom:1px solid var(--line);margin-bottom:14px;position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.brand:focus-visible{outline:none}
+.brand:focus-visible .brand-mark{box-shadow:var(--gradient-glow),0 0 0 3px var(--ring)}
+.brand:hover .brand-mark{filter:brightness(1.08);transform:translateY(-1px);transition:transform .15s,filter .15s}
+.brand:hover .brand-text .t{color:var(--primary)}
 .brand-mark{width:32px;height:32px;border-radius:9px;background:var(--gradient-primary);display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;box-shadow:var(--gradient-glow),inset 0 1px 0 rgba(255,255,255,.2);flex-shrink:0}
 .brand-mark::after{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;position:relative;top:-8px;right:-8px;box-shadow:0 0 0 2px var(--sidebar-bg)}
 .brand-text{display:flex;flex-direction:column;line-height:1.15;white-space:nowrap;overflow:hidden;min-width:0;transition:opacity .2s ease}
@@ -756,7 +760,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 </head><body>
 <div class="app">
 <aside class="sidebar" id="appSidebar">
-  <div class="brand">
+  <div class="brand" role="button" tabindex="0" title="Go to Dashboard" onclick="switchTab('dash');closeNav()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('dash');closeNav()}">
     <div class="brand-mark">PT</div>
     <div class="brand-text"><span class="t">PTO Command Center</span><span class="s">Time-off workspace</span></div>
   </div>
