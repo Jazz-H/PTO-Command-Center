@@ -653,8 +653,17 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .empty p{margin:0;font-size:13px}
 .row{display:grid;gap:12px}.row-2{grid-template-columns:1fr 1fr}
 .hol-add-row{grid-template-columns:180px 1fr auto}
-.form-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr .9fr 2fr auto;gap:10px;align-items:end}
+.form-grid{display:grid;grid-template-columns:1.1fr 1fr .9fr auto .9fr 1.7fr auto;gap:10px;align-items:end}
 @media(max-width:900px){.form-grid{grid-template-columns:1fr 1fr}}
+.ad-cell{display:flex;flex-direction:column;justify-content:flex-end}
+.switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--n-700);font-weight:500;user-select:none;height:36px}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.switch .track{width:36px;height:20px;border-radius:999px;background:var(--n-300);position:relative;transition:background .15s;flex-shrink:0}
+.switch .track::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.switch input:checked + .track{background:var(--primary)}
+.switch input:checked + .track::after{transform:translateX(16px)}
+.switch input:focus-visible + .track{box-shadow:0 0 0 3px var(--ring)}
+.switch-lbl{white-space:nowrap}
 .panel{display:none;animation:fade .25s ease}.panel.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--n-900);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);z-index:100;transform:translateY(20px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px}
@@ -942,19 +951,13 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="page-head"><h1>Time off log</h1><div class="sub">Record, edit, and manage every PTO, sick, and holiday day</div></div>
   <div class="grid g-kpi no-print" id="logKpis" style="margin-bottom:20px"></div>
   <div class="card no-print" style="margin-bottom:20px">
-    <div class="card-title"><h3>Add entry</h3>
-      <div class="log-view-toggle" id="entryModeToggle">
-        <button type="button" data-mode="hours" onclick="setEntryMode('hours')">Hours</button>
-        <button type="button" data-mode="days" onclick="setEntryMode('days')">Days</button>
-        <button type="button" data-mode="range" onclick="setEntryMode('range')">Range</button>
-      </div>
-    </div>
+    <div class="card-title"><h3>Add time off</h3></div>
     <div class="form-grid">
-      <div id="f_date"><label class="field" id="e_date_label">Date</label><button type="button" class="dp-field" onclick="openDatePicker('e_date',this)"><span class="dp-text" id="e_date_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_date"/></div>
-      <div id="f_end" style="display:none"><label class="field">End date</label><button type="button" class="dp-field" onclick="openDatePicker('e_end',this)"><span class="dp-text" id="e_end_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_end"/></div>
+      <div id="f_start"><label class="field">Start date</label><button type="button" class="dp-field" onclick="openDatePicker('e_date',this)"><span class="dp-text" id="e_date_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_date"/></div>
+      <div id="f_end"><label class="field">End date</label><button type="button" class="dp-field" onclick="openDatePicker('e_end',this)"><span class="dp-text" id="e_end_text">Same day</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_end"/></div>
+      <div id="f_hours" style="display:none"><label class="field">Hours</label><input type="number" id="e_hours" value="4" step="0.5" min="0"/></div>
       <div><label class="field">Type</label><select id="e_type"><option>PTO</option><option>Sick</option><option>Personal Holiday</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
-      <div id="f_hours"><label class="field">Hours</label><input type="number" id="e_hours" value="8" step="0.5" min="0"/></div>
-      <div id="f_days" style="display:none"><label class="field">Days</label><input type="number" id="e_days" value="1" step="0.5" min="0"/></div>
+      <div class="ad-cell"><label class="field">&nbsp;</label><label class="switch"><input type="checkbox" id="e_allday" checked onchange="setAllDay(this.checked)"><span class="track"></span><span class="switch-lbl">All day</span></label></div>
       <div><label class="field">Status</label><select id="e_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
       <div><label class="field">Notes</label><input type="text" id="e_notes" placeholder="Optional"/></div>
       <button class="btn" onclick="addEntry()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
@@ -2576,7 +2579,7 @@ function dpSet(fieldId, iso){
 }
 function dpDisabled(fieldId, iso){
   if (fieldId === "e_end") return false;                                   // range end — any day
-  if (fieldId === "e_date" && (state.entryMode||"hours") === "range") return false; // range start — any day
+  if (fieldId === "e_date" && state.entryAllDay !== false) return false;    // all-day range start — any day
   const editingDate = (fieldId === "edit_date" && editingIdx >= 0 && state.entries[editingIdx]) ? state.entries[editingIdx].date : null;
   if (iso === editingDate) return false;                                   // the entry's own date is fine
   return state.entries.some(e => e.date === iso);                          // otherwise block already-booked days
@@ -2686,51 +2689,47 @@ function businessDaysInRange(startIso, endIso){
   }
   return out;
 }
-function setEntryMode(m){ state.entryMode = m; save(); updateEntryModeUI(); }
-function updateEntryModeUI(){
-  const m = state.entryMode || "hours";
-  document.querySelectorAll("#entryModeToggle button").forEach(b => b.classList.toggle("active", b.dataset.mode === m));
+function setAllDay(on){ state.entryAllDay = !!on; save(); updateEntryFormUI(); }
+function updateEntryFormUI(){
+  const allDay = state.entryAllDay !== false;
+  const cb = document.getElementById("e_allday"); if (cb) cb.checked = allDay;
   const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? "" : "none"; };
-  show("f_end", m === "range");
-  show("f_hours", m === "hours");
-  show("f_days", m === "days");
-  const lbl = document.getElementById("e_date_label"); if (lbl) lbl.textContent = m === "range" ? "Start date" : "Date";
-  const rp = document.getElementById("rangePreview"); if (rp) rp.style.display = m === "range" ? "" : "none";
-  if (m === "range") updateRangePreview();
+  show("f_end", allDay);     // multi-day range only makes sense for all-day entries
+  show("f_hours", !allDay);  // partial hours only when it's not an all-day entry
+  const rp = document.getElementById("rangePreview"); if (rp) rp.style.display = allDay ? "" : "none";
+  if (allDay) updateRangePreview();
 }
 function updateRangePreview(){
-  if ((state.entryMode || "hours") !== "range") return;
+  if (state.entryAllDay === false) return;
   const rp = document.getElementById("rangePreview"); if (!rp) return;
-  const s = document.getElementById("e_date").value, e = document.getElementById("e_end").value;
-  if (!s || !e){ rp.className = "range-preview"; rp.textContent = "Pick a start and end date — weekends, company holidays, and days that already have an entry are skipped."; return; }
+  const s = document.getElementById("e_date").value, e = document.getElementById("e_end").value || s;
+  if (!s){ rp.className = "range-preview"; rp.textContent = "Pick a start date. Add an end date to book a multi-day range — weekends, company holidays, and already-booked days are skipped."; return; }
   const days = businessDaysInRange(s, e); const wd = state.config.workday || 8;
   if (!days.length){ rp.className = "range-preview warn"; rp.textContent = "No business days to add in that range (all weekends, holidays, or already booked)."; return; }
   const span = days.length === 1 ? fmt(parseDate(days[0]),{month:"short",day:"numeric"}) : `${fmt(parseDate(days[0]),{month:"short",day:"numeric"})} – ${fmt(parseDate(days[days.length-1]),{month:"short",day:"numeric"})}`;
   rp.className = "range-preview";
-  rp.innerHTML = `This will create <b>${days.length} ${days.length===1?"entry":"entries"}</b> totaling <b>${days.length*wd} hours</b> across ${span}. Weekends &amp; company holidays skipped.`;
+  rp.innerHTML = `This will add <b>${days.length} ${days.length===1?"day":"days"}</b> (<b>${days.length*wd} hrs</b>) across ${span}. Weekends &amp; company holidays skipped.`;
 }
 function addEntry(){
-  const mode = state.entryMode || "hours";
+  const allDay = state.entryAllDay !== false;
   const type = document.getElementById("e_type").value;
   const status = document.getElementById("e_status").value;
   const notes = document.getElementById("e_notes").value;
   const wd = state.config.workday || 8;
-  if (mode === "range"){
-    const s = document.getElementById("e_date").value, e = document.getElementById("e_end").value;
-    if (!s || !e){ toast("Pick a start and end date"); return; }
-    const days = businessDaysInRange(s, e);
+  const start = document.getElementById("e_date").value;
+  if (!start){ toast("Pick a start date"); return; }
+  if (allDay){
+    const end = document.getElementById("e_end").value || start;
+    const days = businessDaysInRange(start, end);
     if (!days.length){ toast("No business days to add in that range"); return; }
-    const batchId = uid();
-    days.forEach(iso => state.entries.push({date:iso, type, hours:wd, status, notes, batchId}));
-    save(); document.getElementById("e_notes").value=""; refresh(); toast(`Added ${days.length} ${days.length===1?"entry":"entries"}`);
+    if (days.length === 1){ state.entries.push({date:days[0], type, hours:wd, status, notes}); }
+    else { const batchId = uid(); days.forEach(iso => state.entries.push({date:iso, type, hours:wd, status, notes, batchId})); }
+    save(); document.getElementById("e_notes").value=""; dpSet("e_end",""); refresh(); toast(`Added ${days.length} ${days.length===1?"entry":"entries"}`);
     return;
   }
-  const date = document.getElementById("e_date").value;
-  if (!date){ toast("Pick a date first"); return; }
-  let hours;
-  if (mode === "days"){ const dn = Number(document.getElementById("e_days").value) || 0; if (dn <= 0){ toast("Enter a number of days"); return; } hours = dn * wd; }
-  else { hours = Number(document.getElementById("e_hours").value) || wd; }
-  state.entries.push({date, type, hours, status, notes});
+  const hours = Number(document.getElementById("e_hours").value) || wd;
+  if (hours <= 0){ toast("Enter a number of hours"); return; }
+  state.entries.push({date:start, type, hours, status, notes});
   save(); document.getElementById("e_notes").value=""; refresh(); toast("Entry added");
 }
 function detachPH(entry){
@@ -2877,7 +2876,7 @@ dpSet("e_date", isoDate(today()));
 calCursor = new Date(state.config.year, today().getMonth(), 1);
 updateThemeToggle();
 refresh();
-updateEntryModeUI();
+updateEntryFormUI();
 updateSidebarToggleA11y();
 document.getElementById("printName").textContent = state.config.name || "";
 document.getElementById("printDate").textContent = fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"});
