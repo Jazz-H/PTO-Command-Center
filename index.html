@@ -632,12 +632,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 @media(max-width:560px){
   .content{padding:16px 12px 36px}
   .topbar{padding:0 12px}
-  .topbar-cta{padding:0;width:38px;justify-content:center}
-  .topbar-cta svg{margin:0}
-  .topbar-cta span{display:none}
-  .icon-btn{display:none}
+  .topbar-add{display:none}
   .page-head h1{font-size:22px}
-  .g-kpi{grid-template-columns:1fr}
   .form-grid{grid-template-columns:1fr}
   .log-toolbar select{flex:1 1 100%;min-width:0}
   .log-view-toggle{flex:1 1 100%;justify-content:center}
@@ -645,6 +641,41 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   .hol-add-row{grid-template-columns:1fr}
   .year-row{grid-template-columns:1fr}
   .insight-dismiss{opacity:.55}
+  .dash-head{gap:12px}.dash-cta{width:100%;justify-content:center}
+  .kpi{padding:14px}
+  .kpi-body{flex-wrap:wrap;gap:8px}
+  .kpi-sparkbox{width:100%;order:3;margin-top:2px}
+  .kpi-ring.lg{width:52px;height:52px}
+  .kpi-top .kpi-icon{width:28px;height:28px}
+  .kpi-value{font-size:23px}
+  .kpi-value.sm{font-size:16px}
+}
+/* Responsive tables -> stacked cards on phones */
+@media(max-width:640px){
+  .table-wrap:has(.rtable){border:none;background:transparent;overflow:visible;border-radius:0}
+  .table-wrap .rtable{min-width:0!important}
+  .rtable thead{display:none}
+  .rtable, .rtable tbody{display:block;width:100%}
+  .rtable tr{display:block;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:10px;background:var(--card);position:relative}
+  .rtable tr.row-selected{border-color:var(--primary);background:var(--primary-soft)}
+  .rtable td{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:6px 0;text-align:right;border:none!important;max-width:none;white-space:normal}
+  .rtable td::before{content:attr(data-label);font-weight:600;color:var(--n-500);font-size:11px;text-transform:uppercase;letter-spacing:.03em;text-align:left;flex:0 0 auto}
+  .rtable td:not([data-label]){justify-content:flex-end;padding-top:2px}
+  .rtable td:not([data-label])::before{display:none}
+  .rtable td.cell-check{position:absolute;top:11px;right:12px;padding:0;width:auto}
+  #logTable td[data-label="Date"]{padding-right:28px}
+  .rtable td.cell-actions{border-top:1px solid var(--line-soft)!important;margin-top:4px;padding-top:10px}
+  .rtable td input[type=text],.rtable td input[type=number],.rtable td select{max-width:62%;flex:0 0 auto}
+  .rtable td .num,.rtable td.num{text-align:right}
+  /* group/category header rows become plain headings */
+  .rtable tr.log-group,.rtable tr.sug-cat{background:transparent;border:none;padding:14px 2px 2px;margin:0}
+  .rtable tr.log-group td,.rtable tr.sug-cat td{display:block;padding:0;text-align:left;justify-content:flex-start}
+  .rtable tr.log-group td::before,.rtable tr.sug-cat td::before{display:none}
+  .rtable td[colspan]{display:block;text-align:left}
+  .rtable td[colspan] .empty{text-align:center}
+  .log-group-head{justify-content:flex-start}
+  /* Chart heights trimmed for small screens */
+  .g-dash-2>.card .chart-wrap{min-height:200px}
 }
 .modal-grid .full{grid-column:1/-1}
 .modal-actions{display:flex;justify-content:space-between;gap:10px;padding-top:16px;border-top:1px solid var(--line-soft)}
@@ -716,7 +747,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     </div>
     </div>
     <div class="topbar-actions">
-      <button class="icon-btn" onclick="requestTimeOff()" title="Add time off (N)" aria-label="Add time off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <button class="icon-btn topbar-add" onclick="requestTimeOff()" title="Add time off (N)" aria-label="Add time off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
       <button class="icon-btn" onclick="openNotifications()" title="Notifications" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>
       <div class="theme-toggle">
         <button class="theme-btn" data-set-theme="light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
@@ -818,7 +849,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
         <button type="button" data-view="month" onclick="setLogView('month')">By month</button>
       </div>
     </div>
-    <div class="table-wrap"><table id="logTable"><thead><tr><th style="width:34px" class="no-print"><input type="checkbox" id="logSelectAll" onchange="toggleLogSelectAll(this.checked)" title="Select all" aria-label="Select all entries"></th><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
+    <div class="table-wrap"><table id="logTable" class="rtable"><thead><tr><th style="width:34px" class="no-print"><input type="checkbox" id="logSelectAll" onchange="toggleLogSelectAll(this.checked)" title="Select all" aria-label="Select all entries"></th><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
   </div>
 </div>
 
@@ -859,7 +890,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="grid g-kpi" id="sugKpis" style="margin-bottom:20px"></div>
   <div class="card">
     <div class="sug-filters" id="sugFilters"></div>
-    <div class="table-wrap"><table id="sugTable"><thead><tr><th>Occasion</th><th>When</th><th>Take PTO on</th><th>Outcome</th><th style="text-align:right">Hours</th><th>ROI</th><th style="width:100px"></th></tr></thead><tbody></tbody></table></div>
+    <div class="table-wrap"><table id="sugTable" class="rtable"><thead><tr><th>Occasion</th><th>When</th><th>Take PTO on</th><th>Outcome</th><th style="text-align:right">Hours</th><th>ROI</th><th style="width:100px"></th></tr></thead><tbody></tbody></table></div>
   </div>
 </div>
 
@@ -867,7 +898,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="page-head"><h1>Friday planner</h1><div class="sub">Schedule appointments on WFH Fridays — save PTO for actual trips. Scheduled items show on your calendar.</div></div>
   <div class="grid g-kpi" id="friKpis"></div>
   <div style="height:20px"></div>
-  <div class="card"><div class="card-title"><h3>Remaining Fridays this year</h3><span class="meta" id="friMeta"></span></div><div class="table-wrap"><table id="friTable"><thead><tr><th>Friday</th><th>Week</th><th>Holiday?</th><th>Purpose</th><th style="width:150px">Status</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="card"><div class="card-title"><h3>Remaining Fridays this year</h3><span class="meta" id="friMeta"></span></div><div class="table-wrap"><table id="friTable" class="rtable"><thead><tr><th>Friday</th><th>Week</th><th>Holiday?</th><th>Purpose</th><th style="width:150px">Status</th></tr></thead><tbody></tbody></table></div></div>
 </div>
 
 <div class="panel" id="ann">
@@ -883,7 +914,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div style="height:20px"></div>
   <div class="card">
     <div class="card-title"><h3>Vacation tier reference</h3><span class="meta">Edit to match HR policy</span></div>
-    <div class="table-wrap"><table id="tierTable"><thead><tr><th>Milestone</th><th>Anniversary date</th><th>Year</th><th style="width:110px">Vacation days</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+    <div class="table-wrap"><table id="tierTable" class="rtable"><thead><tr><th>Milestone</th><th>Anniversary date</th><th>Year</th><th style="width:110px">Vacation days</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
   </div>
 </div>
 
@@ -1761,8 +1792,8 @@ function logRowHtml(e){
   const idx = state.entries.indexOf(e); const d = parseDate(e.date);
   let cls = 'a';
   if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
-  const chk = `<td class="no-print"><input type="checkbox" class="log-check" data-idx="${idx}" ${selectedLog.has(idx)?'checked':''} onchange="onLogCheck(${idx},this.checked)" aria-label="Select entry"></td>`;
-  return `<tr${selectedLog.has(idx)?' class="row-selected"':''}>${chk}<td><b>${fmt(d)}</b></td><td style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td><span class="chip ${cls}">${e.type}</span></td><td class="num">${e.hours}</td><td><span class="chip n">${e.status||"-"}</span></td><td style="color:var(--n-500)">${e.notes||"—"}</td><td><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
+  const chk = `<td class="no-print cell-check"><input type="checkbox" class="log-check" data-idx="${idx}" ${selectedLog.has(idx)?'checked':''} onchange="onLogCheck(${idx},this.checked)" aria-label="Select entry"></td>`;
+  return `<tr${selectedLog.has(idx)?' class="row-selected"':''}>${chk}<td data-label="Date"><b>${fmt(d)}</b></td><td data-label="Day" style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td data-label="Type"><span class="chip ${cls}">${e.type}</span></td><td data-label="Hours" class="num">${e.hours}</td><td data-label="Status"><span class="chip n">${e.status||"-"}</span></td><td data-label="Notes" style="color:var(--n-500)">${e.notes||"—"}</td><td class="cell-actions"><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
 }
 function onLogCheck(idx, checked){ if (checked) selectedLog.add(idx); else selectedLog.delete(idx); const tr = document.querySelector(`.log-check[data-idx="${idx}"]`)?.closest('tr'); if (tr) tr.classList.toggle('row-selected', checked); updateLogBulkBar(); }
 function toggleLogSelectAll(checked){ document.querySelectorAll('#logTable .log-check').forEach(cb => { const idx = Number(cb.dataset.idx); cb.checked = checked; if (checked) selectedLog.add(idx); else selectedLog.delete(idx); cb.closest('tr').classList.toggle('row-selected', checked); }); updateLogBulkBar(); }
@@ -1875,7 +1906,7 @@ function renderSuggestions(){
           ? `<button class="btn subtle sm" onclick="viewInCalendar('${isoDate(s.takeOn[0])}')" title="View in calendar"><span class="chip g" style="margin:0">${ICO.check} Booked</span></button>`
           : `<button class="btn sm" onclick='bookSuggestion(${JSON.stringify(s.takeOn.map(isoDate))})'>Book</button>`;
       }
-      return `<tr><td><b>${esc(s.occasion)}</b></td><td>${when}</td><td><b>${takeStr}</b></td><td>${esc(s.result)} ${why}</td><td class="num">${s.hours}</td><td>${roiB}</td><td>${action}</td></tr>`;
+      return `<tr><td data-label="Occasion"><b>${esc(s.occasion)}</b></td><td data-label="When">${when}</td><td data-label="Take PTO on"><b>${takeStr}</b></td><td data-label="Outcome">${esc(s.result)} ${why}</td><td data-label="Hours" class="num">${s.hours}</td><td data-label="ROI">${roiB}</td><td class="cell-actions">${action}</td></tr>`;
     }).join("");
   });
   tb.innerHTML = html;
@@ -1899,7 +1930,7 @@ function renderFridays(){
     if (hol) nHol++;
     else if (st.status === "Scheduled") nBooked++;
     else if (st.status === "Open") nOpen++;
-    return `<tr id="fri-${iso}"><td>${isThisWeek?'<span class="chip r" style="margin-right:6px">This week</span>':''}<b>${fmt(f,{month:"short",day:"numeric"})}</b> <span class="day" style="color:var(--n-500)">${fmt(f,{year:"numeric"})}</span></td><td class="mono">W${weekNum(f)}</td><td>${hol?`<span class="chip v">${hol}</span>`:'<span style="color:var(--n-400)">—</span>'}</td><td><input type="text" value="${st.purpose.replace(/"/g,'&quot;')}" placeholder="e.g. Dentist" onchange="updateFri('${iso}','purpose',this.value)"/></td><td><select onchange="updateFri('${iso}','status',this.value)">${["Open","Scheduled","Done","Cancelled"].map(s=>`<option ${s===st.status?'selected':''}>${s}</option>`).join("")}</select></td></tr>`;
+    return `<tr id="fri-${iso}"><td data-label="Friday">${isThisWeek?'<span class="chip r" style="margin-right:6px">This week</span>':''}<b>${fmt(f,{month:"short",day:"numeric"})}</b> <span class="day" style="color:var(--n-500)">${fmt(f,{year:"numeric"})}</span></td><td data-label="Week" class="mono">W${weekNum(f)}</td><td data-label="Holiday?">${hol?`<span class="chip v">${hol}</span>`:'<span style="color:var(--n-400)">—</span>'}</td><td data-label="Purpose"><input type="text" value="${st.purpose.replace(/"/g,'&quot;')}" placeholder="e.g. Dentist" onchange="updateFri('${iso}','purpose',this.value)"/></td><td data-label="Status"><select onchange="updateFri('${iso}','status',this.value)">${["Open","Scheduled","Done","Cancelled"].map(s=>`<option ${s===st.status?'selected':''}>${s}</option>`).join("")}</select></td></tr>`;
   }).join("");
   const metaEl = document.getElementById("friMeta"); if (metaEl) metaEl.textContent = `${fri.length} Friday${fri.length===1?"":"s"} left`;
   const kp = document.getElementById("friKpis");
@@ -1938,7 +1969,7 @@ function renderAnniversaries(){
   document.getElementById("annInsights").innerHTML = ins.length ? ins.map(i => `<div class="insight ${i.t}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}</div></div>`).join("") : `<div class="empty"><div class="empty-icon">${ICO.info}</div><h4>No alerts</h4><p>You're on track.</p></div>`;
   const tb = document.querySelector("#tierTable tbody");
   tb.innerHTML = state.tiers.map((tier, idx) => { const date = anniversaryFor(tier.years);
-    return `<tr><td><b>${tier.label}</b></td><td>${fmt(date,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}</td><td class="mono">Year ${tier.years}</td><td><input type="number" value="${tier.vacDays}" step="1" min="0" onchange="updateTier(${idx},'vacDays',this.value)"/></td><td><input type="text" value="${(tier.notes||'').replace(/"/g,'&quot;')}" onchange="updateTier(${idx},'notes',this.value)"/></td></tr>`;
+    return `<tr><td data-label="Milestone"><b>${tier.label}</b></td><td data-label="Anniversary">${fmt(date,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}</td><td data-label="Year" class="mono">Year ${tier.years}</td><td data-label="Vacation days"><input type="number" value="${tier.vacDays}" step="1" min="0" onchange="updateTier(${idx},'vacDays',this.value)"/></td><td data-label="Notes"><input type="text" value="${(tier.notes||'').replace(/"/g,'&quot;')}" onchange="updateTier(${idx},'notes',this.value)"/></td></tr>`;
   }).join("");
   renderTierChart();
 }
