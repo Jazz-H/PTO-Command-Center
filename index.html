@@ -960,6 +960,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     <div class="card"><div class="card-title"><h3>Upcoming Fridays (WFH)</h3><button class="link-btn" onclick="switchTab('fri')">View all Fridays →</button></div><div id="upcomingFridays"></div></div>
     <div class="card"><div class="card-title"><h3>Usage Breakdown (YTD)</h3></div><div class="usage-wrap"><div class="usage-donut"><canvas id="pieChart"></canvas></div><div id="usageLegend" class="usage-legend"></div></div></div>
   </div>
+  <div style="height:20px"></div>
+  <div class="card"><div class="card-title"><h3>History</h3><button class="link-btn" onclick="switchTab('log')">View log →</button></div><div id="history"></div></div>
 </div>
 
 <div class="panel" id="log">
@@ -1997,6 +1999,25 @@ function renderUpcoming(){
     return `<div class="up-row" onclick="${onclick}"><span class="up-dot ${e.dot}"></span><span class="up-date">${fmt(e.d,{weekday:"short",month:"short",day:"numeric"})}</span><span class="up-label">${e.label}</span><span class="up-right">${e.right}</span></div>`;
   }).join("") + `</div><a class="up-viewall" onclick="switchTab('cal')">View all →</a>`;
 }
+function renderHistory(){
+  const el = document.getElementById("history"); if (!el) return;
+  const t = today(); const items = [];
+  const dotFor = ty => ty==='PTO'?'green':ty==='Sick'?'red':ty==='Personal Holiday'?'magenta':'blue';
+  // Past time-off entries
+  state.entries.forEach(e => { const d = parseDate(e.date); if (d < t) items.push({d, date:e.date, dot:dotFor(e.type), label:e.type, right:`<span class="chip b">${Number(e.hours).toFixed(1)} hrs</span>`}); });
+  // Completed Friday appointments
+  const sf = state.fridays || {};
+  Object.keys(sf).forEach(iso => { const it = sf[iso]; if (it && it.purpose && it.status === "Done"){ const d = parseDate(iso); if (d < t) items.push({d, date:iso, dot:'blue', label:esc(it.purpose), right:`<span class="chip c">Friday</span>`, fri:true}); } });
+  // Past company holidays
+  (state.holidays || []).forEach(h => { const d = parseDate(h.date); if (d < t) items.push({d, date:h.date, dot:'purple', label:esc(h.name), right:`<span class="chip v">Holiday</span>`}); });
+  items.sort((a,b) => b.d - a.d);   // most recent first
+  const past = items.slice(0, 8);
+  if (!past.length){ el.innerHTML = `<div class="empty"><div class="empty-icon">${ICO.clock}</div><h4>No past events yet</h4><p>Time off you've taken will show up here.</p></div>`; return; }
+  el.innerHTML = `<div class="up-list">` + past.map(e => {
+    const onclick = e.fri ? `drillFriday('${e.date}')` : `viewInCalendar('${e.date}')`;
+    return `<div class="up-row" onclick="${onclick}"><span class="up-dot ${e.dot}"></span><span class="up-date">${fmt(e.d,{weekday:"short",month:"short",day:"numeric"})}</span><span class="up-label">${e.label}</span><span class="up-right">${e.right}</span></div>`;
+  }).join("") + `</div><a class="up-viewall" onclick="switchTab('log')">View all in log →</a>`;
+}
 function renderUpcomingFridays(){
   const el = document.getElementById("upcomingFridays"); if (!el) return;
   const t = today();
@@ -2988,7 +3009,7 @@ function importSpreadsheet(ev){
 function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); ptoMigrate(state); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
 
-function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
+function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderHistory(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
 
 const TAB_TITLES = {dash:"Dashboard", log:"Time Off Log", cal:"Calendar", sug:"Smart Suggestions", fri:"Friday Planner", ann:"Anniversaries", cfg:"Settings"};
 document.querySelectorAll(".nav-item").forEach(t => { t.addEventListener("click", () => { switchTab(t.dataset.tab); closeNav(); }); });
