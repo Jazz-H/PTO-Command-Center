@@ -1760,13 +1760,19 @@ function renderInsights(){
   document.getElementById("insights").innerHTML = rows.length
     ? rows.join("")
     : `<div class="empty"><div class="empty-icon">${ICO.info}</div><h4>No insights yet</h4><p>Add some time-off entries to see recommendations.</p></div>`;
-  updateNotifDot(visible);
+  refreshNotifDot();
 }
-function updateNotifDot(visible){
-  const dot = document.getElementById("notifDot"); if (!dot) return;
+function notifUnreadCount(){
+  const dismissed = new Set(state.dismissedInsights || []);
   const seen = new Set(state.notificationsSeen || []);
-  const unread = (visible || []).filter(i => !seen.has(i.id)).length;
-  dot.style.display = unread > 0 ? "" : "none";
+  // Notifications actually sitting in the tray (un-dismissed) that haven't been marked read.
+  return activeNotifs()
+    .filter(i => !((i.t !== "critical") && dismissed.has(i.id)))
+    .filter(i => !seen.has(i.id)).length;
+}
+function refreshNotifDot(){
+  const dot = document.getElementById("notifDot"); if (!dot) return;
+  dot.style.display = notifUnreadCount() > 0 ? "" : "none";
 }
 let _notifUnread = new Set();
 function notifTabFor(i){
@@ -1796,7 +1802,7 @@ function renderNotifPanel(){
 function dismissNotif(id){
   state.dismissedInsights = state.dismissedInsights || [];
   if (!state.dismissedInsights.includes(id)) state.dismissedInsights.push(id);
-  save(); renderNotifPanel(); if (typeof renderInsights === "function") renderInsights();
+  save(); renderNotifPanel(); refreshNotifDot(); if (typeof renderInsights === "function") renderInsights();
 }
 function toggleNotifPanel(ev){
   if (ev) ev.stopPropagation();
@@ -1807,12 +1813,11 @@ function toggleNotifPanel(ev){
   _notifUnread = new Set(activeNotifs().map(i => i.id).filter(id => !seen.has(id)));
   renderNotifPanel();
   p.classList.add("open"); if (btn) btn.setAttribute("aria-expanded","true");
-  // Opening acknowledges the badge, but the panel keeps highlighting what was new
-  state.notificationsSeen = activeNotifs().map(i => i.id); save();
-  const dot = document.getElementById("notifDot"); if (dot) dot.style.display = "none";
+  // The dot stays until items are dismissed or "Mark all read" is used — so the bell
+  // keeps flagging pending, unread notifications rather than clearing on a single glance.
 }
 function closeNotifPanel(){ const p = document.getElementById("notifPanel"); const btn = document.getElementById("notifBtn"); if (p) p.classList.remove("open"); if (btn) btn.setAttribute("aria-expanded","false"); }
-function markAllNotifsRead(){ state.notificationsSeen = activeNotifs().map(i => i.id); save(); _notifUnread = new Set(); renderNotifPanel(); const dot = document.getElementById("notifDot"); if (dot) dot.style.display = "none"; }
+function markAllNotifsRead(){ state.notificationsSeen = activeNotifs().map(i => i.id); save(); _notifUnread = new Set(); renderNotifPanel(); refreshNotifDot(); }
 function toggleUserMenu(ev){
   if (ev) ev.stopPropagation();
   const w = document.querySelector(".user-wrap"); const m = document.getElementById("userMenu"); const btn = document.getElementById("userChipBtn");
