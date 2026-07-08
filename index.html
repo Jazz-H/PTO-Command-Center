@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PTO Command Center</title>
+<title>PTO Pilot</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
@@ -99,8 +99,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .brand:focus-visible .brand-mark{box-shadow:var(--gradient-glow),0 0 0 3px var(--ring)}
 .brand:hover .brand-mark{filter:brightness(1.08);transform:translateY(-1px);transition:transform .15s,filter .15s}
 .brand:hover .brand-text .t{color:var(--primary)}
-.brand-mark{width:32px;height:32px;border-radius:9px;background:var(--gradient-primary);display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;box-shadow:var(--gradient-glow),inset 0 1px 0 rgba(255,255,255,.2);flex-shrink:0}
-.brand-mark::after{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;position:relative;top:-8px;right:-8px;box-shadow:0 0 0 2px var(--sidebar-bg)}
+.brand-mark{width:32px;height:32px;border-radius:9px;background:var(--gradient-primary);display:grid;place-items:center;color:#fff;box-shadow:var(--gradient-glow),inset 0 1px 0 rgba(255,255,255,.2);flex-shrink:0}
+.brand-mark svg{width:17px;height:17px;display:block}
 .brand-text{display:flex;flex-direction:column;line-height:1.15;white-space:nowrap;overflow:hidden;min-width:0;transition:opacity .2s ease}
 [data-sidebar="collapsed"] .brand-text{opacity:0;width:0}
 .brand-text .t{font-weight:700;font-size:13.5px;color:var(--n-900);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -623,7 +623,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .pwa-banner{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:90;display:none;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);max-width:460px;margin:0 auto}
 .pwa-banner.show{display:flex;animation:pwaSlide .3s ease}
 @keyframes pwaSlide{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
-.pwa-banner .pwa-icon{width:40px;height:40px;border-radius:11px;background:var(--gradient-primary);display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0;box-shadow:var(--gradient-glow),inset 0 1px 0 rgba(255,255,255,.2)}
+.pwa-banner .pwa-icon{width:40px;height:40px;border-radius:11px;background:var(--gradient-primary);display:grid;place-items:center;color:#fff;flex-shrink:0;box-shadow:var(--gradient-glow),inset 0 1px 0 rgba(255,255,255,.2)}
+.pwa-banner .pwa-icon svg{width:22px;height:22px;display:block}
 .pwa-banner .pwa-text{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.32}
 .pwa-banner .pwa-text strong{font-size:13.5px;color:var(--n-900);letter-spacing:-.01em}
 .pwa-banner .pwa-text span{font-size:12px;color:var(--n-500)}
@@ -796,8 +797,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 <div class="app">
 <aside class="sidebar" id="appSidebar">
   <div class="brand" role="button" tabindex="0" title="Go to Dashboard" onclick="switchTab('dash');closeNav()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('dash');closeNav()}">
-    <div class="brand-mark">PT</div>
-    <div class="brand-text"><span class="t">PTO Command Center</span><span class="s">Time-off workspace</span></div>
+    <div class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 2 15 22 11 13 2 9" fill="#fff"/><polygon points="22 2 11 13 15 22" fill="#0a2540" fill-opacity=".2"/></svg></div>
+    <div class="brand-text"><span class="t">PTO Pilot</span><span class="s">Your time-off copilot</span></div>
   </div>
   <div class="nav-section">Overview</div>
   <button class="nav-item active" data-tab="dash" data-tooltip="Dashboard" style="--nav-c:var(--data-purple);--nav-cs:var(--data-purple-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-label">Dashboard</span></button>
@@ -1102,8 +1103,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 
 <div class="toast" id="toast"></div>
 <div class="pwa-banner" id="pwaBanner" role="dialog" aria-label="Install app">
-  <div class="pwa-icon">PT</div>
-  <div class="pwa-text"><strong id="pwaTitle">Install PTO Command Center</strong><span id="pwaDesc">Add it to your home screen for one-tap, offline access.</span></div>
+  <div class="pwa-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 2 15 22 11 13 2 9" fill="#fff"/><polygon points="22 2 11 13 15 22" fill="#0a2540" fill-opacity=".2"/></svg></div>
+  <div class="pwa-text"><strong id="pwaTitle">Install PTO Pilot</strong><span id="pwaDesc">Add it to your home screen for one-tap, offline access.</span></div>
   <div class="pwa-actions">
     <button class="btn dash-cta pwa-install" id="pwaInstallBtn" onclick="installPwa()">Install</button>
     <button class="icon-btn pwa-dismiss" id="pwaDismissBtn" onclick="dismissPwaBanner()" aria-label="Dismiss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -2607,7 +2608,7 @@ function exportICS(){
   const holEl = document.getElementById("ics_holidays");
   const includeHol = !!(holEl && holEl.checked);
   const stamp = new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
-  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Jazz Harris//PTO Command Center//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:PTO Command Center"];
+  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Jazz Harris//PTO Pilot//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:PTO Pilot"];
   let seq = 0;
   const add = (iso, summary, category, desc) => {
     const endIso = isoDate(addDays(parseDate(iso), 1)); // all-day DTEND is exclusive (next day)

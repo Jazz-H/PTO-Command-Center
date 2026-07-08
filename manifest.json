@@ -1,7 +1,7 @@
 {
-  "name": "PTO Command Center",
-  "short_name": "PTO",
-  "description": "Personal PTO, vacation, and sick-time tracker with smart suggestions.",
+  "name": "PTO Pilot",
+  "short_name": "PTO Pilot",
+  "description": "Your time-off copilot — track PTO, vacation, and sick time with smart suggestions.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
