@@ -350,6 +350,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cal-stat{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--n-500)}
 .cal-stat b{font-size:15px;font-weight:700;color:var(--n-900);font-variant-numeric:tabular-nums}
 .cal-stat .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.show-more-wrap{margin-top:14px;display:flex;justify-content:center}
+.show-more-wrap:empty{display:none}
+.show-more-wrap .btn svg{width:15px;height:15px}
 /* Calendar split layout + side panel */
 .cal-split{display:grid;grid-template-columns:minmax(0,1fr) 336px;gap:20px;align-items:start}
 .cal-main{min-width:0}
@@ -1053,7 +1056,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="page-head"><h1>Friday planner</h1><div class="sub">Schedule appointments on WFH Fridays — save PTO for actual trips. Scheduled items show on your calendar.</div></div>
   <div class="grid g-kpi" id="friKpis"></div>
   <div style="height:20px"></div>
-  <div class="card"><div class="card-title"><h3>Remaining Fridays this year</h3><span class="meta" id="friMeta"></span></div><div class="table-wrap"><table id="friTable" class="rtable"><thead><tr><th>Friday</th><th>Week</th><th>Holiday?</th><th>Purpose</th><th style="width:150px">Status</th></tr></thead><tbody></tbody></table></div></div>
+  <div class="card"><div class="card-title"><h3>Remaining Fridays this year</h3><span class="meta" id="friMeta"></span></div><div class="table-wrap"><table id="friTable" class="rtable"><thead><tr><th>Friday</th><th>Week</th><th>Holiday?</th><th>Purpose</th><th style="width:150px">Status</th></tr></thead><tbody></tbody></table></div><div id="friMoreWrap" class="show-more-wrap"></div></div>
 </div>
 
 <div class="panel" id="ann">
@@ -1187,6 +1190,7 @@ const ICO = {
   search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
   chevDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
+  chevUp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>',
   chevRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
   arrowRight:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
   palm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 12a11.05 11.05 0 0 0-22 0z"/><path d="M12 12v10"/><path d="M9 22h6"/></svg>',
@@ -2251,18 +2255,35 @@ function renderFridays(){
   while (d <= endOfYear){ fri.push(new Date(d)); d = addDays(d, 7); }
   const sf = state.fridays || {};
   const tb = document.querySelector("#friTable tbody");
-  if (!fri.length){ tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No more Fridays this year</h4><p>Come back after Jan 1 for the next year's schedule.</p></div></td></tr>`; return; }
+  const moreWrap = document.getElementById("friMoreWrap");
+  if (!fri.length){ tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No more Fridays this year</h4><p>Come back after Jan 1 for the next year's schedule.</p></div></td></tr>`; if (moreWrap) moreWrap.innerHTML = ""; return; }
+  // Only render the next ~3 months by default to keep the page short; the rest are behind "Show more".
+  const cutoff = new Date(t.getFullYear(), t.getMonth() + 3, t.getDate());
+  const showAll = state.friShowAll === true;
+  const visible = showAll ? fri : fri.filter(f => f <= cutoff);
+  const rows = visible.length ? visible : fri.slice(0, 1);
+  const hiddenCount = fri.length - rows.length;
   let nBooked = 0, nHol = 0, nOpen = 0;
-  tb.innerHTML = fri.map(f => {
+  fri.forEach(f => {                       // counts (and KPIs) always reflect the full year
+    const st = sf[isoDate(f)] || {purpose:"", status:"Open"};
+    if (holidayName(f)) nHol++;
+    else if (st.status === "Scheduled") nBooked++;
+    else if (st.status === "Open") nOpen++;
+  });
+  tb.innerHTML = rows.map(f => {
     const iso = isoDate(f); const hol = holidayName(f);
     const st = sf[iso] || {purpose:"", status:"Open"};
     const isThisWeek = daysBetween(t, f) <= 6;
-    if (hol) nHol++;
-    else if (st.status === "Scheduled") nBooked++;
-    else if (st.status === "Open") nOpen++;
     return `<tr id="fri-${iso}"><td data-label="Friday">${isThisWeek?'<span class="chip r" style="margin-right:6px">This week</span>':''}<b>${fmt(f,{month:"short",day:"numeric"})}</b> <span class="day" style="color:var(--n-500)">${fmt(f,{year:"numeric"})}</span></td><td data-label="Week" class="mono">W${weekNum(f)}</td><td data-label="Holiday?">${hol?`<span class="chip v">${hol}</span>`:'<span style="color:var(--n-400)">—</span>'}</td><td data-label="Purpose"><input type="text" value="${st.purpose.replace(/"/g,'&quot;')}" placeholder="e.g. Dentist" onchange="updateFri('${iso}','purpose',this.value)"/></td><td data-label="Status"><select onchange="updateFri('${iso}','status',this.value)">${["Open","Scheduled","Done","Cancelled"].map(s=>`<option ${s===st.status?'selected':''}>${s}</option>`).join("")}</select></td></tr>`;
   }).join("");
-  const metaEl = document.getElementById("friMeta"); if (metaEl) metaEl.textContent = `${fri.length} Friday${fri.length===1?"":"s"} left`;
+  if (moreWrap){
+    if (!showAll && hiddenCount > 0){
+      moreWrap.innerHTML = `<button class="btn ghost" onclick="toggleFriShowAll()">${ICO.chevDown}<span>Show ${hiddenCount} more Friday${hiddenCount===1?"":"s"} through Dec 31</span></button>`;
+    } else if (showAll && fri.length > visible.filter(f => f <= cutoff).length){
+      moreWrap.innerHTML = `<button class="btn ghost" onclick="toggleFriShowAll()">${ICO.chevUp}<span>Show fewer</span></button>`;
+    } else { moreWrap.innerHTML = ""; }
+  }
+  const metaEl = document.getElementById("friMeta"); if (metaEl) metaEl.textContent = showAll ? `${fri.length} Friday${fri.length===1?"":"s"} left` : `Showing ${rows.length} of ${fri.length}`;
   const kp = document.getElementById("friKpis");
   if (kp) kp.innerHTML =
     miniKpi("cyan", ICO.calendar, "WFH Fridays Left", `${fri.length}`, "v-cyan", `Through Dec 31, ${t.getFullYear()}`) +
@@ -2790,6 +2811,7 @@ function requestTimeOff(){ switchTab("log"); const card = document.querySelector
 function viewInCalendar(iso){ const d = parseDate(iso); calCursor = new Date(d.getFullYear(), d.getMonth(), 1); renderCalendar(); switchTab("cal"); }
 function navMonth(n){ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+n, 1); renderCalendar(); }
 function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); renderUpcomingFridays(); }
+function toggleFriShowAll(){ state.friShowAll = !state.friShowAll; save(); renderFridays(); }
 function updateAllot(i, field, val){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx][field] = field==="notes" ? val : Number(val); save(); }
 function toggleNA(i, checked){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx].sick = checked ? null : 0; save(); refresh(); toast(checked?"Marked as N/A":"N/A removed"); }
 function saveConfig(){ const c = state.config; c.name = document.getElementById("c_name").value; c.hire = document.getElementById("c_hire").value; c.year = Number(document.getElementById("c_year").value); c.workday = Number(document.getElementById("c_workday").value); c.birthday = document.getElementById("c_birthday").value; save(); refresh(); toast("Settings saved"); }
