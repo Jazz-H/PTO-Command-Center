@@ -356,7 +356,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cal-picker{height:32px;padding:0 26px 0 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--n-900);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;box-shadow:none;min-width:0}
 .cal-picker:hover{border-color:var(--n-300);background:var(--hover-bg)}
 .cal-picker:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)}
-.cal-side{align-self:stretch}
+.cal-side{align-self:start}
 .cal-side-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .cal-side-head h3{margin:0;font-size:15px;font-weight:700;color:var(--n-900);letter-spacing:-.01em}
 .cal-side-head .card-sub{font-size:11.5px;color:var(--n-500)}
@@ -367,6 +367,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cal-side.collapsed .cal-side-body{display:none}
 .cal-side-body{margin-top:14px;display:flex;flex-direction:column;gap:14px}
 .cal-side-body .cal-stats{gap:14px 18px;padding:0 0 14px;margin:0}
+.cal-sec-head{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--n-500);margin-bottom:8px}
 .cal-insights{display:flex;flex-direction:column;gap:8px}
 .cal-ins{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--n-700);line-height:1.35}
 .cal-ins .cal-ins-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;background:var(--hover-bg)}
@@ -378,8 +379,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cal-ev{display:flex;gap:10px;align-items:flex-start;padding:8px 8px;border-radius:9px;cursor:pointer;transition:background .12s;text-align:left;border:none;background:transparent;width:100%;font-family:inherit}
 .cal-ev:hover{background:var(--hover-bg)}
 .cal-ev-date{width:42px;flex-shrink:0;text-align:center;line-height:1.05}
-.cal-ev-date .d{font-size:15px;font-weight:700;color:var(--n-900);font-variant-numeric:tabular-nums}
-.cal-ev-date .w{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--n-500)}
+.cal-ev-date .d{display:block;font-size:15px;font-weight:700;color:var(--n-900);font-variant-numeric:tabular-nums}
+.cal-ev-date .w{display:block;margin-top:2px;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--n-500)}
 .cal-ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
 .cal-ev-body{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
 .cal-ev-title{font-size:12.5px;font-weight:600;color:var(--n-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1022,6 +1023,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     </div>
     <div class="cal-side-body" id="calSideBody">
       <div class="cal-stats" id="calStats"></div>
+      <div class="cal-sec-head">Insights</div>
       <div class="cal-insights" id="calInsights"></div>
       <div class="cal-events-head">Events this month</div>
       <div class="cal-events" id="calEvents"></div>
