@@ -2263,12 +2263,12 @@ function renderFridays(){
   const visible = showAll ? fri : fri.filter(f => f <= cutoff);
   const rows = visible.length ? visible : fri.slice(0, 1);
   const hiddenCount = fri.length - rows.length;
-  let nBooked = 0, nHol = 0, nOpen = 0;
+  let nBooked = 0, nHol = 0, nDone = 0;
   fri.forEach(f => {                       // counts (and KPIs) always reflect the full year
     const st = sf[isoDate(f)] || {purpose:"", status:"Open"};
     if (holidayName(f)) nHol++;
     else if (st.status === "Scheduled") nBooked++;
-    else if (st.status === "Open") nOpen++;
+    else if (st.status === "Done") nDone++;
   });
   tb.innerHTML = rows.map(f => {
     const iso = isoDate(f); const hol = holidayName(f);
@@ -2284,12 +2284,15 @@ function renderFridays(){
     } else { moreWrap.innerHTML = ""; }
   }
   const metaEl = document.getElementById("friMeta"); if (metaEl) metaEl.textContent = showAll ? `${fri.length} Friday${fri.length===1?"":"s"} left` : `Showing ${rows.length} of ${fri.length}`;
+  const wd = state.config.workday || 8;
+  const usedFri = nBooked + nDone;
+  const savedHrs = usedFri * wd;
   const kp = document.getElementById("friKpis");
   if (kp) kp.innerHTML =
     miniKpi("cyan", ICO.calendar, "WFH Fridays Left", `${fri.length}`, "v-cyan", `Through Dec 31, ${t.getFullYear()}`) +
     miniKpi("purple", ICO.check, "Fridays Booked", `${nBooked}`, "v-purple", "Marked Scheduled") +
     miniKpi("magenta", ICO.gift, "Holiday Fridays", `${nHol}`, "v-magenta", "Paid days off — no PTO needed") +
-    miniKpi("teal", ICO.info, "Open Fridays", `${nOpen}`, "v-teal", "Available to plan around");
+    miniKpi("green", ICO.palm, "PTO Saved", `${savedHrs}<span class="unit">hrs</span>`, "v-green", `${usedFri} Friday${usedFri===1?"":"s"} used for errands`);
 }
 
 function renderAnniversaries(){
@@ -2810,7 +2813,7 @@ function globalSearchGo(v){ state.logSearch = v || ""; save(); switchTab("log");
 function requestTimeOff(){ switchTab("log"); const card = document.querySelector("#log .card.no-print"); if (card) card.scrollIntoView({behavior:"smooth", block:"center"}); const t = document.getElementById("e_type"); if (t) setTimeout(()=>t.focus(), 200); }
 function viewInCalendar(iso){ const d = parseDate(iso); calCursor = new Date(d.getFullYear(), d.getMonth(), 1); renderCalendar(); switchTab("cal"); }
 function navMonth(n){ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+n, 1); renderCalendar(); }
-function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); renderUpcomingFridays(); }
+function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); renderUpcomingFridays(); renderFridays(); }
 function toggleFriShowAll(){ state.friShowAll = !state.friShowAll; save(); renderFridays(); }
 function updateAllot(i, field, val){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx][field] = field==="notes" ? val : Number(val); save(); }
 function toggleNA(i, checked){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx].sick = checked ? null : 0; save(); refresh(); toast(checked?"Marked as N/A":"N/A removed"); }
