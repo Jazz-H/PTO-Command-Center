@@ -2257,8 +2257,8 @@ function renderFridays(){
   const tb = document.querySelector("#friTable tbody");
   const moreWrap = document.getElementById("friMoreWrap");
   if (!fri.length){ tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>No more Fridays this year</h4><p>Come back after Jan 1 for the next year's schedule.</p></div></td></tr>`; if (moreWrap) moreWrap.innerHTML = ""; return; }
-  // Only render the next ~3 months by default to keep the page short; the rest are behind "Show more".
-  const cutoff = new Date(t.getFullYear(), t.getMonth() + 3, t.getDate());
+  // Only render the next ~2 months by default to keep the page short; the rest are behind "Show more".
+  const cutoff = new Date(t.getFullYear(), t.getMonth() + 2, t.getDate());
   const showAll = state.friShowAll === true;
   const visible = showAll ? fri : fri.filter(f => f <= cutoff);
   const rows = visible.length ? visible : fri.slice(0, 1);
