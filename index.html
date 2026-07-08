@@ -350,6 +350,44 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cal-stat{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--n-500)}
 .cal-stat b{font-size:15px;font-weight:700;color:var(--n-900);font-variant-numeric:tabular-nums}
 .cal-stat .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* Calendar split layout + side panel */
+.cal-split{display:grid;grid-template-columns:minmax(0,1fr) 336px;gap:20px;align-items:start}
+.cal-main{min-width:0}
+.cal-picker{height:32px;padding:0 26px 0 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--n-900);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;box-shadow:none;min-width:0}
+.cal-picker:hover{border-color:var(--n-300);background:var(--hover-bg)}
+.cal-picker:focus-visible{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)}
+.cal-side{align-self:stretch}
+.cal-side-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cal-side-head h3{margin:0;font-size:15px;font-weight:700;color:var(--n-900);letter-spacing:-.01em}
+.cal-side-head .card-sub{font-size:11.5px;color:var(--n-500)}
+.cal-side-head:focus-visible{outline:none}
+.cal-side-chev{width:26px;height:26px;display:grid;place-items:center;color:var(--n-500);flex-shrink:0;transition:transform .2s ease}
+.cal-side-chev svg{width:16px;height:16px}
+.cal-side.collapsed .cal-side-chev{transform:rotate(-90deg)}
+.cal-side.collapsed .cal-side-body{display:none}
+.cal-side-body{margin-top:14px;display:flex;flex-direction:column;gap:14px}
+.cal-side-body .cal-stats{gap:14px 18px;padding:0 0 14px;margin:0}
+.cal-insights{display:flex;flex-direction:column;gap:8px}
+.cal-ins{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--n-700);line-height:1.35}
+.cal-ins .cal-ins-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;background:var(--hover-bg)}
+.cal-ins .cal-ins-ic svg{width:14px;height:14px}
+.cal-ins b{color:var(--n-900);font-weight:700}
+.cal-ins.tip{color:var(--n-600)}
+.cal-events-head{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--n-500);padding-top:4px;border-top:1px solid var(--line-soft)}
+.cal-events{display:flex;flex-direction:column;gap:1px;max-height:min(46vh,420px);overflow-y:auto;margin:0 -6px}
+.cal-ev{display:flex;gap:10px;align-items:flex-start;padding:8px 8px;border-radius:9px;cursor:pointer;transition:background .12s;text-align:left;border:none;background:transparent;width:100%;font-family:inherit}
+.cal-ev:hover{background:var(--hover-bg)}
+.cal-ev-date{width:42px;flex-shrink:0;text-align:center;line-height:1.05}
+.cal-ev-date .d{font-size:15px;font-weight:700;color:var(--n-900);font-variant-numeric:tabular-nums}
+.cal-ev-date .w{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--n-500)}
+.cal-ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.cal-ev-body{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
+.cal-ev-title{font-size:12.5px;font-weight:600;color:var(--n-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-ev-meta{font-size:11px;color:var(--n-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-ev.today .cal-ev-date .d{color:var(--primary)}
+.cal-events-empty{padding:22px 8px;text-align:center;color:var(--n-500);font-size:12.5px}
+@media(max-width:980px){.cal-split{grid-template-columns:1fr}.cal-side{order:2}}
+@media(max-width:560px){.cal-nav-group{flex-wrap:wrap;width:100%}.cal-picker{flex:1 1 40%}.cal-toolbar .btn.ghost.sm{flex:0 0 auto}}
 .bulk-bar{display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;margin-bottom:14px;background:var(--primary-soft);border:1px solid var(--primary-line);border-radius:10px}
 .bulk-bar.show{display:flex}
 .bulk-count{font-size:13px;font-weight:600;color:var(--primary)}
@@ -952,14 +990,16 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 
 <div class="panel" id="cal">
   <div class="page-head"><h1>Calendar</h1><div class="sub">Visual view of holidays, time off, anniversaries, Friday appointments, and suggestions</div></div>
-  <div class="card">
+  <div class="cal-split">
+   <div class="card cal-main">
     <div class="cal-toolbar">
       <div class="cal-nav-group">
-        <button class="btn ghost sm" onclick="navMonth(-1)" title="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <button class="btn ghost sm" onclick="navMonth(-1)" title="Previous month" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <select id="calMonthPicker" class="cal-picker" onchange="setCalMonth(this.value)" aria-label="Month"></select>
+        <select id="calYearPicker" class="cal-picker" onchange="setCalYear(this.value)" aria-label="Year"></select>
+        <button class="btn ghost sm" onclick="navMonth(1)" title="Next month" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
         <button class="btn ghost sm" onclick="goToToday()">Today</button>
-        <button class="btn ghost sm" onclick="navMonth(1)" title="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
       </div>
-      <h4 class="cal-title" id="monthLabel"></h4>
       <div class="cal-legend-top" id="calLegend">
         <button class="legend-item" data-filter="vac"><span class="legend-swatch" style="background:var(--success)"></span><span>PTO</span></button>
         <button class="legend-item" data-filter="sick"><span class="legend-swatch" style="background:var(--accent)"></span><span>Sick</span></button>
@@ -971,10 +1011,22 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
         <button class="legend-item" data-filter="fri"><span class="legend-swatch" style="background:var(--info-soft); border-top:2px solid var(--info)"></span><span>WFH Fri</span></button>
       </div>
     </div>
-    <div class="cal-stats" id="calStats"></div>
     <div class="cal-grid" id="calHead"></div>
     <div style="height:6px"></div>
     <div class="cal-grid" id="calBody"></div>
+   </div>
+   <div class="card cal-side" id="calSide">
+    <div class="cal-side-head" role="button" tabindex="0" onclick="toggleCalList()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCalList()}" aria-label="Toggle month details">
+      <div><h3 id="calSideTitle">This month</h3><span class="card-sub" id="calSideSub">Events &amp; insights</span></div>
+      <span class="cal-side-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+    <div class="cal-side-body" id="calSideBody">
+      <div class="cal-stats" id="calStats"></div>
+      <div class="cal-insights" id="calInsights"></div>
+      <div class="cal-events-head">Events this month</div>
+      <div class="cal-events" id="calEvents"></div>
+    </div>
+   </div>
   </div>
 </div>
 
@@ -2212,7 +2264,7 @@ function updateTier(i, field, val){ state.tiers[i][field] = field==="notes" ? va
 // REDESIGNED CALENDAR with Friday appointments
 function renderCalendar(){
   const y = calCursor.getFullYear(), m = calCursor.getMonth();
-  document.getElementById("monthLabel").textContent = `${MONTHNAMES[m]} ${y}`;
+  syncCalPickers(y, m);
   document.getElementById("calHead").innerHTML = DOWABBR.map(d => `<div class="cal-dow">${d}</div>`).join("");
   const first = new Date(y,m,1); const pad = first.getDay(); const dim = new Date(y,m+1,0).getDate();
   const cells = []; for (let i=0;i<pad;i++) cells.push(null); for (let d=1;d<=dim;d++) cells.push(new Date(y,m,d));
@@ -2258,7 +2310,91 @@ function renderCalendar(){
     return `<div class="${c.join(' ')}" data-iso="${iso}" ondragover="dragOver(event,'${iso}')" ondragleave="dragLeave(event)" ondrop="dropOnDay(event,'${iso}')"><div class="dnum">${d.getDate()}</div><div class="cal-tags">${tags.join('')}</div></div>`;
   }).join("");
   renderCalStats(y, m);
+  renderCalSide(y, m);
   updateLegendUI();
+}
+function syncCalPickers(y, m){
+  const mp = document.getElementById("calMonthPicker");
+  if (mp){
+    if (!mp.options.length) mp.innerHTML = MONTHNAMES.map((n,i) => `<option value="${i}">${n}</option>`).join("");
+    mp.value = String(m);
+  }
+  const yp = document.getElementById("calYearPicker");
+  if (yp){
+    const years = new Set([y, today().getFullYear()]);
+    (state.entries||[]).forEach(e => years.add(parseDate(e.date).getFullYear()));
+    (state.allotments||[]).forEach(a => years.add(a.year));
+    (state.holidays||[]).forEach(h => years.add(parseDate(h.date).getFullYear()));
+    const arr = [...years]; const lo = Math.min(...arr) - 1, hi = Math.max(...arr) + 1;
+    const opts = []; for (let yr = lo; yr <= hi; yr++) opts.push(yr);
+    yp.innerHTML = opts.map(yr => `<option value="${yr}">${yr}</option>`).join("");
+    yp.value = String(y);
+  }
+  const st = document.getElementById("calSideTitle"); if (st) st.textContent = `${MONTHNAMES[m]} ${y}`;
+}
+function setCalMonth(m){ calCursor = new Date(calCursor.getFullYear(), Number(m), 1); renderCalendar(); }
+function setCalYear(y){ calCursor = new Date(Number(y), calCursor.getMonth(), 1); renderCalendar(); }
+function toggleCalList(){ state.calListCollapsed = !state.calListCollapsed; save(); applyCalListCollapsed(); }
+function applyCalListCollapsed(){ const side = document.getElementById("calSide"); if (side) side.classList.toggle("collapsed", !!state.calListCollapsed); }
+function calJumpDay(iso){ if (state.calListCollapsed){ state.calListCollapsed = false; save(); applyCalListCollapsed(); } flashCalDay(iso); const cell = document.querySelector(`.cal-day[data-iso="${iso}"]`); if (cell) cell.scrollIntoView({block:"nearest", behavior:"smooth"}); }
+function renderCalSide(y, m){
+  applyCalListCollapsed();
+  renderCalInsights(y, m);
+  renderCalEvents(y, m);
+}
+function renderCalInsights(y, m){
+  const el = document.getElementById("calInsights"); if (!el) return;
+  const inMonth = d => d.getFullYear()===y && d.getMonth()===m;
+  const f = state.calFilters || {};
+  const ents = state.entries.filter(e => inMonth(parseDate(e.date)));
+  const rows = [];
+  // Opportunities (suggested long-weekend days) this month
+  const sug = suggestedDates(); let sugCount = 0; sug.forEach(iso => { const d = parseDate(iso); if (inMonth(d) && !state.entries.some(e => e.date===iso)) sugCount++; });
+  if (sugCount > 0 && f.sug!==false){
+    rows.push({ic:ICO.star, cls:"", html:`<span><b>${sugCount}</b> long-weekend ${sugCount===1?"opportunity":"opportunities"} this month — drag <b>💡 Try PTO</b> onto a day to book.</span>`});
+  }
+  // Pending approvals this month
+  const pend = ents.filter(e => (e.status||"")==="Pending").length;
+  if (pend > 0) rows.push({ic:ICO.clock, cls:"", html:`<span><b>${pend}</b> ${pend===1?"entry":"entries"} still <b>Pending</b> approval.</span>`});
+  // Anniversary this month
+  const annivs = anniversaryDates();
+  const monthAnniv = [...annivs].find(iso => inMonth(parseDate(iso)));
+  if (monthAnniv){ const tier = state.tiers.find(tr => isoDate(anniversaryFor(tr.years))===monthAnniv); if (tier) rows.push({ic:ICO.award, cls:"", html:`<span><b>${tier.label}</b> work anniversary on <b>${fmt(parseDate(monthAnniv),{month:"short",day:"numeric"})}</b>.`}); }
+  // Next upcoming event overall (if this month has none upcoming, still useful)
+  if (!rows.length){
+    rows.push({ic:ICO.info, cls:"tip", html:`<span>No opportunities or pending items this month. Use the picker above to plan ahead.</span>`});
+  }
+  el.innerHTML = rows.map(r => `<div class="cal-ins ${r.cls}"><span class="cal-ins-ic">${r.ic}</span>${r.html}</div>`).join("");
+}
+function renderCalEvents(y, m){
+  const el = document.getElementById("calEvents"); if (!el) return;
+  const inMonth = d => d.getFullYear()===y && d.getMonth()===m;
+  const f = state.calFilters || {};
+  const evs = [];
+  // Time-off entries
+  state.entries.forEach(e => { const d = parseDate(e.date); if (!inMonth(d)) return;
+    let color = "var(--n-400)", title = `${e.type} · ${e.hours}h`;
+    if (e.type==="PTO"){ if (f.vac===false) return; color = "var(--success)"; title = `PTO · ${e.hours}h`; }
+    else if (e.type==="Sick"){ if (f.sick===false) return; color = "var(--accent)"; title = `Sick · ${e.hours}h`; }
+    else if (e.type==="Personal Holiday"){ if (f.personal===false) return; color = "var(--pink)"; title = "Personal Holiday"; }
+    evs.push({d, iso:isoDate(d), color, title, meta:(e.status||"") + (e.notes?` · ${e.notes}`:"")});
+  });
+  // Company holidays
+  (state.holidays||[]).forEach(h => { const d = parseDate(h.date); if (!inMonth(d) || f.hol===false) return; evs.push({d, iso:h.date, color:"var(--violet)", title:h.name, meta:"Company holiday"}); });
+  // Personal holiday (scheduled, no entry)
+  state.personalHolidays.filter(p => p.date).forEach(p => { const d = parseDate(p.date); if (!inMonth(d) || f.personal===false) return; if (state.entries.some(e => e.date===p.date)) return; evs.push({d, iso:p.date, color:"var(--pink)", title:"Personal Holiday", meta:p.status||"Scheduled"}); });
+  // Anniversaries
+  anniversaryDates().forEach(iso => { const d = parseDate(iso); if (!inMonth(d) || f.anniv===false) return; const tier = state.tiers.find(tr => isoDate(anniversaryFor(tr.years))===iso); evs.push({d, iso, color:"var(--warn)", title:(tier?tier.label+" ":"")+"anniversary", meta:"Work milestone"}); });
+  // Friday appointments
+  const friAppts = scheduledFridayAppts();
+  Object.keys(friAppts).forEach(iso => { const d = parseDate(iso); if (!inMonth(d) || f.friAppt===false) return; evs.push({d, iso, color:"var(--cyan)", title:friAppts[iso].purpose||"Friday appointment", meta:"Friday appt · "+(friAppts[iso].status||"Scheduled")}); });
+  evs.sort((a,b) => a.d - b.d || a.title.localeCompare(b.title));
+  const t = today();
+  if (!evs.length){ el.innerHTML = `<div class="cal-events-empty">Nothing scheduled this month.</div>`; return; }
+  el.innerHTML = evs.map(ev => {
+    const isToday = ev.d.getTime()===t.getTime();
+    return `<button type="button" class="cal-ev${isToday?" today":""}" onclick="calJumpDay('${ev.iso}')" title="${esc(ev.title)}"><span class="cal-ev-date"><span class="d">${ev.d.getDate()}</span><span class="w">${DAYNAMES[ev.d.getDay()].slice(0,3)}</span></span><span class="cal-ev-dot" style="background:${ev.color}"></span><span class="cal-ev-body"><span class="cal-ev-title">${esc(ev.title)}</span>${ev.meta?`<span class="cal-ev-meta">${esc(ev.meta)}</span>`:""}</span></button>`;
+  }).join("");
 }
 function renderCalStats(y, m){
   const el = document.getElementById("calStats"); if (!el) return;
