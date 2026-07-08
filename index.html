@@ -652,6 +652,15 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .banner-close{margin-left:auto;flex-shrink:0;width:26px;height:26px;border:none;background:transparent;color:var(--n-500);cursor:pointer;display:grid;place-items:center;border-radius:7px;padding:0;box-shadow:none;align-self:flex-start}
 .banner-close:hover{background:var(--hover-strong);color:var(--n-900)}
 .banner-close svg{width:15px;height:15px}
+.cfg-actions{margin-bottom:20px}
+.cfg-actions-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line-soft)}
+.cfg-actions-grid{display:flex;gap:24px;flex-wrap:wrap}
+.cfg-actions-group{display:flex;flex-direction:column;gap:7px}
+.cfg-actions-lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--n-500)}
+.cfg-actions-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cfg-actions-btns .btn svg{width:15px;height:15px}
+.btn.ghost.cfg-danger{color:var(--accent);border-color:var(--accent-line)}
+.btn.ghost.cfg-danger:hover{background:var(--accent-soft);border-color:var(--accent)}
 .empty{text-align:center;padding:32px 20px;color:var(--n-500)}
 .empty-icon{width:44px;height:44px;border-radius:12px;background:var(--hover-bg);color:var(--n-400);display:inline-grid;place-items:center;margin-bottom:10px}
 .empty-icon svg{width:20px;height:20px}
@@ -1082,9 +1091,41 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 
 <div class="panel" id="cfg">
   <div class="page-head"><h1>Settings</h1><div class="sub">Configure your policy, allotments, holidays, and preferences</div></div>
-  <div class="banner info">
+  <div class="banner info" id="cfgTip">
     <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     <div><strong>CCCI policy.</strong> PTO is awarded Jan 1 based on service date (10 days year 1 → 15 days at 2-yr mark). 2026 offers <b>9 paid holidays</b>: 8 scheduled + 1 personal holiday (teammate-scheduled after 90 days of service). Unused holidays are forfeited Dec 31.</div>
+    <button class="banner-close" onclick="dismissCfgTip()" title="Dismiss" aria-label="Dismiss tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="card cfg-actions">
+    <div class="cfg-actions-head">
+      <button class="btn" onclick="saveConfig()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save settings</button>
+      <button class="btn ghost cfg-danger" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Reset all data</button>
+    </div>
+    <div class="cfg-actions-grid">
+      <div class="cfg-actions-group">
+        <span class="cfg-actions-lbl">Spreadsheet (Excel)</span>
+        <div class="cfg-actions-btns">
+          <button class="btn ghost" onclick="exportExcel()" title="Download your entries as an Excel-compatible spreadsheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Export to Excel</button>
+          <button class="btn ghost" onclick="document.getElementById('xlsxFile').click()" title="Import entries from an Excel/CSV file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import from Excel</button>
+          <input type="file" id="xlsxFile" accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel" style="display:none" onchange="importSpreadsheet(event)"/>
+        </div>
+      </div>
+      <div class="cfg-actions-group">
+        <span class="cfg-actions-lbl">Full backup</span>
+        <div class="cfg-actions-btns">
+          <button class="btn ghost" onclick="exportData()" title="Download a complete JSON backup of everything"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export JSON</button>
+          <button class="btn ghost" onclick="document.getElementById('importFile').click()" title="Restore from a JSON backup (replaces everything)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import JSON</button>
+          <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)"/>
+        </div>
+      </div>
+      <div class="cfg-actions-group">
+        <span class="cfg-actions-lbl">Calendar</span>
+        <div class="cfg-actions-btns">
+          <button class="btn ghost" onclick="exportICS()" title="Download an .ics file for Outlook / Google / Apple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Export .ics</button>
+          <label class="na-toggle" style="cursor:pointer"><input type="checkbox" id="ics_holidays"/> Incl. holidays</label>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="grid g-2-eq">
     <div class="card">
@@ -1112,17 +1153,6 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
       <input type="text" id="new_hol_name" placeholder="Holiday name"/>
       <button class="btn ghost" onclick="addHoliday()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add holiday</button>
     </div>
-  </div>
-  <div style="height:20px"></div>
-  <div style="display:flex; gap:10px; flex-wrap:wrap">
-    <button class="btn" onclick="saveConfig()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save settings</button>
-    <button class="btn ghost" onclick="exportData()">Export backup</button>
-    <button class="btn ghost" onclick="document.getElementById('importFile').click()">Import backup</button>
-    <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)"/>
-    <button class="btn ghost" onclick="exportICS()" title="Download an .ics calendar file for Outlook / Google / Apple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Export to calendar (.ics)</button>
-    <label class="na-toggle" style="cursor:pointer"><input type="checkbox" id="ics_holidays"/> Include company holidays</label>
-    <button class="btn ghost" onclick="exportCSV()" title="Download entries as a CSV spreadsheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Export CSV</button>
-    <button class="btn ghost" onclick="resetAll()" style="color:var(--accent); border-color:var(--accent-line)">Reset all data</button>
   </div>
 </div>
 
@@ -2703,7 +2733,9 @@ document.addEventListener("keydown", e => {
 window.addEventListener("scroll", () => { if (datePickerOpen()) closeDatePicker(); }, true);
 window.addEventListener("resize", () => { if (datePickerOpen()) closeDatePicker(); });
 
+function dismissCfgTip(){ state.cfgTipDismissed = true; save(); const el = document.getElementById("cfgTip"); if (el) el.style.display = "none"; }
 function renderSettings(){
+  const tipEl = document.getElementById("cfgTip"); if (tipEl) tipEl.style.display = state.cfgTipDismissed ? "none" : "";
   const c = state.config;
   document.getElementById("c_name").value = c.name;
   document.getElementById("c_hire").value = c.hire;
@@ -2879,6 +2911,79 @@ function exportCSV(){
   const blob = new Blob(["﻿" + csv], {type:"text/csv;charset=utf-8"}); // BOM so Excel reads UTF-8
   const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_entries_${isoDate(today())}.csv`; a.click(); URL.revokeObjectURL(url);
   toast(`Exported ${state.entries.length} row${state.entries.length===1?"":"s"} to CSV`);
+}
+// ── Excel (spreadsheet) export/import — no external libraries ──
+// Export writes an HTML-table .xls that Excel/Sheets/Numbers open natively.
+function exportExcel(){
+  const head = ["Date","Day","Type","Hours","Status","Notes"];
+  const rows = [...state.entries].sort((a,b) => a.date.localeCompare(b.date)).map(e => { const d = parseDate(e.date); return [e.date, DAYNAMES[d.getDay()], e.type, e.hours, e.status||"", e.notes||""]; });
+  const th = head.map(h => `<th style="background:#2563EB;color:#fff;font-weight:bold;text-align:left;padding:5px 9px;border:1px solid #bbb">${esc(h)}</th>`).join("");
+  const trs = rows.map(r => `<tr>${r.map(c => `<td style="padding:4px 9px;border:1px solid #ddd">${esc(c)}</td>`).join("")}</tr>`).join("");
+  const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>PTO Entries</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>${"<thead><tr>"+th+"</tr></thead>"}<tbody>${trs}</tbody></table></body></html>`;
+  const blob = new Blob(["﻿" + html], {type:"application/vnd.ms-excel"});
+  const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_entries_${isoDate(today())}.xls`; a.click(); URL.revokeObjectURL(url);
+  toast(`Exported ${state.entries.length} row${state.entries.length===1?"":"s"} to Excel`);
+}
+function parseCSVText(text){
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++){ const ch = text[i];
+    if (q){ if (ch === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else q = false; } else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ','){ row.push(cell); cell = ""; }
+    else if (ch === '\n'){ row.push(cell); rows.push(row); row = []; cell = ""; }
+    else if (ch === '\r'){ /* skip */ }
+    else cell += ch;
+  }
+  if (cell.length || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ""));
+}
+function parseHtmlTable(html){
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return [...doc.querySelectorAll("tr")].map(tr => [...tr.querySelectorAll("th,td")].map(td => td.textContent.trim()));
+}
+function normImportDate(s){ s = String(s||"").trim(); if (!s) return null; if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; const d = new Date(s); if (isNaN(d)) return null; return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function normImportType(s){ const k = String(s||"").trim().toLowerCase(); const map = {pto:"PTO", vacation:"PTO", vac:"PTO", personal:"PTO", sick:"Sick", "personal holiday":"Personal Holiday", holiday:"Personal Holiday", ph:"Personal Holiday", bereavement:"Bereavement", jury:"Jury Duty", "jury duty":"Jury Duty", unpaid:"Unpaid"}; return map[k] || (s ? String(s).trim() : "PTO"); }
+function ingestEntryRows(rows){
+  if (!rows || !rows.length) return -1;
+  const header = rows[0].map(h => String(h||"").trim().toLowerCase());
+  const col = n => header.indexOf(n);
+  let iDate = col("date"), iType = col("type"), iHours = col("hours"), iStatus = col("status"), iNotes = col("notes");
+  let start = 1;
+  if (iDate < 0 && iType < 0){ // no recognizable header → assume positional Date,[Day],Type,Hours,Status,Notes
+    if (rows[0].length >= 5){ const hasDay = rows[0].length >= 6; iDate = 0; iType = hasDay?2:1; iHours = hasDay?3:2; iStatus = hasDay?4:3; iNotes = hasDay?5:4; start = 0; }
+    else return -1;
+  }
+  if (iDate < 0) return -1;
+  const wd = state.config.workday || 8;
+  const existing = new Set(state.entries.map(e => `${e.date}|${e.type}|${e.hours}`));
+  let added = 0;
+  for (let r = start; r < rows.length; r++){
+    const row = rows[r]; const date = normImportDate(row[iDate]); if (!date) continue;
+    const type = normImportType(iType >= 0 ? row[iType] : "PTO");
+    let hours = iHours >= 0 ? parseFloat(row[iHours]) : wd; if (!(hours > 0)) hours = wd;
+    const status = (iStatus >= 0 && row[iStatus] ? String(row[iStatus]).trim() : "Approved");
+    const notes = iNotes >= 0 ? String(row[iNotes]||"").trim() : "";
+    const key = `${date}|${type}|${hours}`; if (existing.has(key)) continue;
+    existing.add(key); state.entries.push({date, type, hours, status, notes}); added++;
+  }
+  return added;
+}
+function importSpreadsheet(ev){
+  const f = ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    const text = String(e.target.result || "");
+    ev.target.value = "";
+    if (text.slice(0,4) === "PK\x03\x04" || /\.xlsx$/i.test(f.name)){ toast("Binary .xlsx isn't supported — in Excel use File → Save As → CSV, then import that."); return; }
+    let rows;
+    try { rows = /<table/i.test(text) ? parseHtmlTable(text) : parseCSVText(text); }
+    catch(err){ toast("Couldn't read that file"); return; }
+    const added = ingestEntryRows(rows);
+    if (added < 0){ toast("Unrecognized format — expected columns: Date, Type, Hours, Status, Notes"); return; }
+    if (added === 0){ toast("No new entries to import (duplicates skipped)"); return; }
+    save(); refresh(); toast(`Imported ${added} entr${added===1?"y":"ies"} from spreadsheet`);
+  };
+  r.readAsText(f);
 }
 function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); ptoMigrate(state); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
