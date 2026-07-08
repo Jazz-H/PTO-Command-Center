@@ -649,6 +649,9 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .banner-icon{width:20px;height:20px;flex-shrink:0;margin-top:1px}
 .banner.info{background:var(--info-soft);border-color:var(--info-line);color:var(--info)}
 .banner.info strong{color:var(--n-900)}
+.banner-close{margin-left:auto;flex-shrink:0;width:26px;height:26px;border:none;background:transparent;color:var(--n-500);cursor:pointer;display:grid;place-items:center;border-radius:7px;padding:0;box-shadow:none;align-self:flex-start}
+.banner-close:hover{background:var(--hover-strong);color:var(--n-900)}
+.banner-close svg{width:15px;height:15px}
 .empty{text-align:center;padding:32px 20px;color:var(--n-500)}
 .empty-icon{width:44px;height:44px;border-radius:12px;background:var(--hover-bg);color:var(--n-400);display:inline-grid;place-items:center;margin-bottom:10px}
 .empty-icon svg{width:20px;height:20px}
@@ -1041,9 +1044,10 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 
 <div class="panel" id="sug">
   <div class="page-head"><h1>Smart suggestions</h1><div class="sub">Maximize time off with strategic PTO placement — WFH Fridays give you an edge</div></div>
-  <div class="banner info">
+  <div class="banner info" id="sugTip">
     <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
     <div><strong>How this works.</strong> The engine weighs company holidays, federal long weekends, ordinary weekends, your personal dates, and your remaining balance against your WFH-Friday edge. Toggle categories below; hover the ⓘ on any row to see why it's suggested.</div>
+    <button class="banner-close" onclick="dismissSugTip()" title="Dismiss" aria-label="Dismiss tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div class="grid g-kpi" id="sugKpis" style="margin-bottom:20px"></div>
   <div class="card">
@@ -2193,20 +2197,28 @@ function saveEditEntry(){
 
 function renderSugSummary(all){
   const kp = document.getElementById("sugKpis"); if (!kp) return;
-  const cfg = state.config;
-  const bookable = all.filter(s => s.bookable);
-  const best = all.reduce((a,b) => (b.roi > (a ? a.roi : -1) ? b : a), null);
-  const longWk = all.filter(s => s.roi >= 4).length;
-  const bal = currentBalance(); const balDays = bal / cfg.workday;
-  const bestVal = best ? `${best.roi}<span class="unit">days off</span>` : "—";
-  const bestSub = best ? esc(best.occasion) : "Add holidays in Settings";
+  const cfg = state.config, y = cfg.year;
+  const eds = new Set(state.entries.map(e => e.date));
+  const isBooked = s => s.takeOn && s.takeOn.length && s.takeOn.every(d => eds.has(isoDate(d)));
+  const sortDate = s => (s.takeOn && s.takeOn.length ? s.takeOn[0] : (s.date || null));
+  // Counts reflect what's still OPEN (un-booked), so they drop live as you book.
+  const openIdeas = all.filter(s => s.bookable && !isBooked(s));
+  const longWk = all.filter(s => s.roi >= 4 && !isBooked(s)).length;
+  const next = all.filter(s => !isBooked(s) && sortDate(s)).sort((a,b) => sortDate(a) - sortDate(b))[0];
+  const nextVal = next ? fmt(sortDate(next),{month:"short",day:"numeric"}) : "—";
+  const nextSub = next ? `${esc(next.occasion)} · ${next.roi}-day` : "Nothing left to book";
+  // PTO still available to spend this year (unbooked allotment) — matches the rest of the app.
+  const deployHrs = Math.max(0, (getAllotment(y).vacation || 0) - ytdUsage("PTO", y));
+  const deployDays = deployHrs / cfg.workday;
   kp.innerHTML =
-    miniKpi("green", ICO.award, "Best Opportunity", bestVal, "v-green", bestSub) +
-    miniKpi("purple", ICO.bulb, "Bookable Ideas", `${bookable.length}`, "v-purple", "Still to come this year") +
-    miniKpi("cyan", ICO.calendar, "Long Weekends", `${longWk}`, "v-cyan", "4-day+ breaks ahead") +
-    miniKpi("amber", ICO.palm, "Balance to Deploy", `${bal.toFixed(0)}<span class="unit">hrs</span>`, "v-amber", `${balDays.toFixed(1)} days available now`);
+    miniKpi("green", ICO.calendar, "Next Opportunity", `${nextVal}`, "v-green", nextSub) +
+    miniKpi("purple", ICO.bulb, "Ideas to Book", `${openIdeas.length}`, "v-purple", "Still open this year") +
+    miniKpi("cyan", ICO.star, "Long Weekends", `${longWk}`, "v-cyan", "4-day+ breaks open") +
+    miniKpi("amber", ICO.palm, "PTO to Deploy", `${deployHrs.toFixed(0)}<span class="unit">hrs</span>`, "v-amber", `${deployDays.toFixed(1)} days unbooked`);
 }
+function dismissSugTip(){ state.sugTipDismissed = true; save(); const el = document.getElementById("sugTip"); if (el) el.style.display = "none"; }
 function renderSuggestions(){
+  const tipEl = document.getElementById("sugTip"); if (tipEl) tipEl.style.display = state.sugTipDismissed ? "none" : "";
   const all = buildAllSuggestions(state.config.year);
   const eds = new Set(state.entries.map(e => e.date));
   const filters = state.sugFilters || {};
