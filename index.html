@@ -423,6 +423,8 @@ tr.sug-cat td{background:var(--hover-bg);font-weight:700;color:var(--n-600);font
 .sug-cat-ic{display:inline-flex;vertical-align:middle;margin-right:6px;color:var(--n-500)}
 .sug-cat-ic svg{width:14px;height:14px}
 .sug-cat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;flex-shrink:0;vertical-align:middle}
+.sug-occ{display:flex;flex-direction:column;gap:2px}
+.sug-cat-label{font-size:11px;font-weight:500;color:var(--n-500);margin-left:16px}
 .sug-why{display:inline-flex;vertical-align:middle;color:var(--n-400);cursor:help}
 .sug-why svg{width:13px;height:13px}
 tr.row-flash td{animation:rowFlash 1.2s ease}
@@ -2066,6 +2068,7 @@ function renderSuggestions(){
     const when = s.date ? `${fmt(s.date,{month:"short",day:"numeric"})} <span style="color:var(--n-400)">${s.dayName.slice(0,3)}</span>` : "—";
     const why = `<span class="sug-why" title="${esc(s.reason)}">${ICO.info}</span>`;
     const catDot = `<span class="sug-cat-dot" style="background:var(--${m.color})" title="${m.label}"></span>`;
+    const catLabel = `<span class="sug-cat-label">${m.label}</span>`;
     let action = "";
     if (s.bookable){
       const bookedAll = s.takeOn.length && s.takeOn.every(d => eds.has(isoDate(d)));
@@ -2073,7 +2076,7 @@ function renderSuggestions(){
         ? `<button class="btn subtle sm" onclick="viewInCalendar('${isoDate(s.takeOn[0])}')" title="View in calendar"><span class="chip g" style="margin:0">${ICO.check} Booked</span></button>`
         : `<button class="btn sm" onclick='bookSuggestion(${JSON.stringify(s.takeOn.map(isoDate))})'>Book</button>`;
     }
-    return `<tr><td data-label="Occasion"><b>${catDot}${esc(s.occasion)}</b></td><td data-label="When">${when}</td><td data-label="Take PTO on"><b>${takeStr}</b></td><td data-label="Outcome">${esc(s.result)} ${why}</td><td data-label="Hours" class="num">${s.hours}</td><td data-label="ROI">${roiB}</td><td class="cell-actions">${action}</td></tr>`;
+    return `<tr><td data-label="Occasion"><div class="sug-occ"><b>${catDot}${esc(s.occasion)}</b>${catLabel}</div></td><td data-label="When">${when}</td><td data-label="Take PTO on"><b>${takeStr}</b></td><td data-label="Outcome">${esc(s.result)} ${why}</td><td data-label="Hours" class="num">${s.hours}</td><td data-label="ROI">${roiB}</td><td class="cell-actions">${action}</td></tr>`;
   }).join("");
 }
 
