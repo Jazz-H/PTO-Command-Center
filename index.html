@@ -867,7 +867,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div style="height:20px"></div>
   <div class="grid g-dash-2">
     <div class="card">
-      <div class="card-title"><div><h3>Vacation Balance Projection</h3><div class="card-sub">Next 12 months</div></div>
+      <div class="card-title"><div><h3>PTO Balance Projection</h3><div class="card-sub">Next 12 months</div></div>
         <div class="seg-toggle" id="rangeToggle">
           <button type="button" data-range="3" onclick="setChartRange(3)">3M</button>
           <button type="button" data-range="6" onclick="setChartRange(6)">6M</button>
@@ -899,7 +899,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 </div>
 
 <div class="panel" id="log">
-  <div class="page-head"><h1>Time off log</h1><div class="sub">Record, edit, and manage every vacation, sick, personal, and holiday day</div></div>
+  <div class="page-head"><h1>Time off log</h1><div class="sub">Record, edit, and manage every PTO, sick, and holiday day</div></div>
   <div class="grid g-kpi no-print" id="logKpis" style="margin-bottom:20px"></div>
   <div class="card no-print" style="margin-bottom:20px">
     <div class="card-title"><h3>Add entry</h3>
@@ -912,7 +912,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     <div class="form-grid">
       <div id="f_date"><label class="field" id="e_date_label">Date</label><button type="button" class="dp-field" onclick="openDatePicker('e_date',this)"><span class="dp-text" id="e_date_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_date"/></div>
       <div id="f_end" style="display:none"><label class="field">End date</label><button type="button" class="dp-field" onclick="openDatePicker('e_end',this)"><span class="dp-text" id="e_end_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_end"/></div>
-      <div><label class="field">Type</label><select id="e_type"><option>Vacation</option><option>Sick</option><option>Personal Holiday</option><option>Personal</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
+      <div><label class="field">Type</label><select id="e_type"><option>PTO</option><option>Sick</option><option>Personal Holiday</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
       <div id="f_hours"><label class="field">Hours</label><input type="number" id="e_hours" value="8" step="0.5" min="0"/></div>
       <div id="f_days" style="display:none"><label class="field">Days</label><input type="number" id="e_days" value="1" step="0.5" min="0"/></div>
       <div><label class="field">Status</label><select id="e_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
@@ -933,10 +933,9 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
       </div>
       <select id="logTypeFilter" onchange="onLogFilter('logType',this.value)" title="Filter by type">
         <option value="All">All types</option>
-        <option value="Vacation">Vacation</option>
+        <option value="PTO">PTO</option>
         <option value="Sick">Sick</option>
         <option value="Personal Holiday">Personal Holiday</option>
-        <option value="Personal">Personal</option>
         <option value="Bereavement">Bereavement</option>
         <option value="Jury Duty">Jury Duty</option>
         <option value="Unpaid">Unpaid</option>
@@ -962,7 +961,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
       </div>
       <h4 class="cal-title" id="monthLabel"></h4>
       <div class="cal-legend-top" id="calLegend">
-        <button class="legend-item" data-filter="vac"><span class="legend-swatch" style="background:var(--success)"></span><span>Vacation</span></button>
+        <button class="legend-item" data-filter="vac"><span class="legend-swatch" style="background:var(--success)"></span><span>PTO</span></button>
         <button class="legend-item" data-filter="sick"><span class="legend-swatch" style="background:var(--accent)"></span><span>Sick</span></button>
         <button class="legend-item" data-filter="personal"><span class="legend-swatch" style="background:var(--pink)"></span><span>Personal Hol.</span></button>
         <button class="legend-item" data-filter="hol"><span class="legend-swatch" style="background:var(--violet)"></span><span>Company Hol.</span></button>
@@ -1000,7 +999,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 </div>
 
 <div class="panel" id="ann">
-  <div class="page-head"><h1>Service anniversaries</h1><div class="sub">Career milestones and vacation tier progression at CCCI</div></div>
+  <div class="page-head"><h1>Service anniversaries</h1><div class="sub">Career milestones and PTO tier progression at CCCI</div></div>
   <div class="grid g-kpi" id="annKpis"></div>
   <div style="height:20px"></div>
   <div class="grid g-2">
@@ -1008,11 +1007,11 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     <div class="card"><div class="card-title"><h3>Insights</h3></div><div id="annInsights"></div></div>
   </div>
   <div style="height:20px"></div>
-  <div class="card"><div class="card-title"><h3>Vacation growth over tenure</h3><span class="meta">Days/year at each milestone</span></div><div class="chart-wrap" style="height:220px"><canvas id="tierChart"></canvas></div></div>
+  <div class="card"><div class="card-title"><h3>PTO growth over tenure</h3><span class="meta">Days/year at each milestone</span></div><div class="chart-wrap" style="height:220px"><canvas id="tierChart"></canvas></div></div>
   <div style="height:20px"></div>
   <div class="card">
-    <div class="card-title"><h3>Vacation tier reference</h3><span class="meta">Edit to match HR policy</span></div>
-    <div class="table-wrap"><table id="tierTable" class="rtable"><thead><tr><th>Milestone</th><th>Anniversary date</th><th>Year</th><th style="width:110px">Vacation days</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+    <div class="card-title"><h3>PTO tier reference</h3><span class="meta">Edit to match HR policy</span></div>
+    <div class="table-wrap"><table id="tierTable" class="rtable"><thead><tr><th>Milestone</th><th>Anniversary date</th><th>Year</th><th style="width:110px">PTO days</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
   </div>
 </div>
 
@@ -1020,7 +1019,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   <div class="page-head"><h1>Settings</h1><div class="sub">Configure your policy, allotments, holidays, and preferences</div></div>
   <div class="banner info">
     <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    <div><strong>CCCI policy.</strong> Vacation is awarded Jan 1 based on service date (10 days year 1 → 15 days at 2-yr mark). 2026 offers <b>9 paid holidays</b>: 8 scheduled + 1 personal holiday (teammate-scheduled after 90 days of service). Unused holidays are forfeited Dec 31.</div>
+    <div><strong>CCCI policy.</strong> PTO is awarded Jan 1 based on service date (10 days year 1 → 15 days at 2-yr mark). 2026 offers <b>9 paid holidays</b>: 8 scheduled + 1 personal holiday (teammate-scheduled after 90 days of service). Unused holidays are forfeited Dec 31.</div>
   </div>
   <div class="grid g-2-eq">
     <div class="card">
@@ -1035,7 +1034,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     <div class="card">
       <div class="card-title"><h3>Annual allotments</h3><span class="meta">Front-loaded Jan 1</span></div>
       <div style="background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--n-600);line-height:1.5"><b style="color:var(--n-800)">Sick allotment:</b> Set to N/A until confirmed with HR. Uncheck N/A and enter the number of hours once you know your annual sick benefit.</div>
-      <div class="year-row header"><div>Year</div><div>Vacation (hrs)</div><div>Sick (hrs)</div><div>Notes</div></div>
+      <div class="year-row header"><div>Year</div><div>PTO (hrs)</div><div>Sick (hrs)</div><div>Notes</div></div>
       <div id="allotList"></div>
     </div>
   </div>
@@ -1075,7 +1074,7 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
     </div>
     <div class="modal-grid">
       <div><label class="field">Date</label><button type="button" class="dp-field" onclick="openDatePicker('edit_date',this)"><span class="dp-text" id="edit_date_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="edit_date"/></div>
-      <div><label class="field">Type</label><select id="edit_type"><option>Vacation</option><option>Sick</option><option>Personal Holiday</option><option>Personal</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
+      <div><label class="field">Type</label><select id="edit_type"><option>PTO</option><option>Sick</option><option>Personal Holiday</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
       <div><label class="field">Hours</label><input type="number" id="edit_hours" step="0.5" min="0"/></div>
       <div><label class="field">Status</label><select id="edit_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
       <div class="full"><label class="field">Notes</label><input type="text" id="edit_notes"/></div>
@@ -1149,7 +1148,7 @@ const DEFAULTS = {
   config: { name:"Jazz Harris", hire:"2025-07-28", year:2026, workday:8, birthday:"" },
   allotments: [
     {year:2025, vacation:32, sick:null, notes:"Partial — hired 7/28/2025"},
-    {year:2026, vacation:80, sick:null, notes:"10 days vacation"},
+    {year:2026, vacation:80, sick:null, notes:"10 days PTO"},
     {year:2027, vacation:120, sick:null, notes:"2-year mark — 15 days"},
     {year:2028, vacation:120, sick:null, notes:"15 days"},
     {year:2029, vacation:120, sick:null, notes:"15 days"},
@@ -1176,6 +1175,12 @@ let state = load();
 let calCursor = new Date();
 let editingIdx = -1;
 
+// Fold legacy "Vacation" and "Personal" entry types into the unified "PTO" bucket.
+// Personal Holiday stays a separate category. Safe + idempotent (only relabels the type field).
+function ptoMigrate(st){
+  if (st && Array.isArray(st.entries)) st.entries.forEach(e => { if (e && (e.type === "Vacation" || e.type === "Personal")) e.type = "PTO"; });
+  return st;
+}
 function load(){
   try{
     const r = localStorage.getItem("pto_state");
@@ -1208,11 +1213,12 @@ function load(){
         if (s.config && s.config.birthday === undefined) s.config.birthday = "";
         if (!s.chartRange) s.chartRange = 12;
         if (!s.notificationsSeen) s.notificationsSeen = [];
+        ptoMigrate(s);
         return s;
       }
     }
   }catch(e){}
-  return JSON.parse(JSON.stringify(DEFAULTS));
+  return ptoMigrate(JSON.parse(JSON.stringify(DEFAULTS)));
 }
 function save(){ localStorage.setItem("pto_state", JSON.stringify(state)); }
 function toast(msg){ const t = document.getElementById("toast"); t.innerHTML = ICO.check + '<span>'+msg+'</span>'; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2400); }
@@ -1266,7 +1272,7 @@ function getAllotment(year){ const a = state.allotments.find(a => a.year === yea
 function ytdUsage(type, year){ return state.entries.filter(e => e.type===type && parseDate(e.date).getFullYear()===year).reduce((s,e) => s+Number(e.hours||0), 0); }
 function currentBalance(asOf){
   asOf = asOf || today(); const y = asOf.getFullYear(); const allot = getAllotment(y);
-  const used = state.entries.filter(e => e.type==="Vacation" && parseDate(e.date).getFullYear()===y && parseDate(e.date)<=asOf).reduce((s,e) => s+Number(e.hours||0), 0);
+  const used = state.entries.filter(e => e.type==="PTO" && parseDate(e.date).getFullYear()===y && parseDate(e.date)<=asOf).reduce((s,e) => s+Number(e.hours||0), 0);
   return allot.vacation - used;
 }
 function daysUntilNextRefill(){ const t = today(); return daysBetween(t, new Date(t.getFullYear()+1, 0, 1)); }
@@ -1302,8 +1308,8 @@ function buildChartData(){
     const monthEnd = new Date(yr, mo + 1, 0);
     const monthStart = new Date(yr, mo, 1);
     const allot = getAllotment(yr);
-    const usedThisMonth = state.entries.filter(e => e.type === "Vacation" && parseDate(e.date) >= monthStart && parseDate(e.date) <= monthEnd).reduce((s,e) => s + Number(e.hours||0), 0);
-    const usedToDate = state.entries.filter(e => e.type === "Vacation" && parseDate(e.date).getFullYear() === yr && parseDate(e.date) <= monthEnd).reduce((s,e) => s + Number(e.hours||0), 0);
+    const usedThisMonth = state.entries.filter(e => e.type === "PTO" && parseDate(e.date) >= monthStart && parseDate(e.date) <= monthEnd).reduce((s,e) => s + Number(e.hours||0), 0);
+    const usedToDate = state.entries.filter(e => e.type === "PTO" && parseDate(e.date).getFullYear() === yr && parseDate(e.date) <= monthEnd).reduce((s,e) => s + Number(e.hours||0), 0);
     points.push({label: `${MONTHNAMES[mo].slice(0,3)} '${String(yr).slice(2)}`, shortLabel: MONTHNAMES[mo].slice(0,3), balance: Math.max(0, allot.vacation - usedToDate), usedYTD: usedToDate, usedThisMonth, monthDate, year: yr, month: mo, allotment: allot.vacation});
   }
   return points;
@@ -1400,7 +1406,7 @@ function buildAllSuggestions(year){
   });
   // S5 — balance plan (informational)
   { const bal = currentBalance(); const daysLeft = bal / wd; const mLeft = Math.max(1, 12 - t.getMonth());
-    if (daysLeft >= 1){ out.push({category:"balance", occasion:"Use your remaining balance", date:null, dayName:"", takeOn:[], result:`${daysLeft.toFixed(1)} days over ~${mLeft} mo (≈${(daysLeft/mLeft).toFixed(1)}/mo)`, hours:bal, roi:Math.round(daysLeft), reason:"Vacation doesn't roll over on Dec 31 — spread the rest across the remaining months so you don't forfeit any.", bookable:false}); }
+    if (daysLeft >= 1){ out.push({category:"balance", occasion:"Use your remaining balance", date:null, dayName:"", takeOn:[], result:`${daysLeft.toFixed(1)} days over ~${mLeft} mo (≈${(daysLeft/mLeft).toFixed(1)}/mo)`, hours:bal, roi:Math.round(daysLeft), reason:"PTO doesn't roll over on Dec 31 — spread the rest across the remaining months so you don't forfeit any.", bookable:false}); }
   }
   return out;
 }
@@ -1424,7 +1430,7 @@ function buildInsights(){
   const daysToRefill = daysUntilNextRefill(); const ins = [];
   const D = h => (h/wd);
   // Forecasting: hours booked this year (incl. future) vs allotment -> what will forfeit
-  const vacUsedAll = ytdUsage("Vacation", y);
+  const vacUsedAll = ytdUsage("PTO", y);
   const atRiskHrs = Math.max(0, allot.vacation - vacUsedAll);
   const atRiskDays = D(atRiskHrs);
   const monthsLeft = Math.max(1, daysToRefill/30.44);
@@ -1432,19 +1438,19 @@ function buildInsights(){
   const dated = state.entries.map(e => ({...e, d:parseDate(e.date)}));
   const futureOff = dated.filter(e => e.d > t && e.d.getFullYear()===y).sort((a,b)=>a.d-b.d);
   const nextOff = futureOff[0];
-  const pastVac = dated.filter(e => e.d <= t && e.type==="Vacation").sort((a,b)=>b.d-a.d)[0];
+  const pastVac = dated.filter(e => e.d <= t && e.type==="PTO").sort((a,b)=>b.d-a.d)[0];
 
   // ── Vacation forfeiture (highest value) ──
   if (atRiskHrs > 0 && daysToRefill <= 45){
     ins.push({t:"critical", priority:1, icon:ICO.warn, h:"Use-it-or-lose-it alert",
-      b:`<b>${atRiskDays.toFixed(1)} day${atRiskDays>=2?"s":""} (${atRiskHrs.toFixed(0)} hrs)</b> of vacation are still unbooked and forfeit on <b>Dec 31</b> — only ${daysToRefill} days left.`,
+      b:`<b>${atRiskDays.toFixed(1)} day${atRiskDays>=2?"s":""} (${atRiskHrs.toFixed(0)} hrs)</b> of PTO are still unbooked and forfeit on <b>Dec 31</b> — only ${daysToRefill} days left.`,
       action:{label:"Plan them", fn:"switchTab('sug')"}});
   } else if (atRiskHrs > 0 && daysToRefill <= 170){
-    ins.push({t:"warn", priority:3, icon:ICO.warn, h:"Unbooked vacation will forfeit",
-      b:`<b>${atRiskDays.toFixed(1)} days (${atRiskHrs.toFixed(0)} hrs)</b> aren't planned yet. Vacation doesn't roll over — pacing <b>~${perMonth.toFixed(1)} day${perMonth>=1.05?"s":""}/month</b> uses it all by Dec 31.`,
+    ins.push({t:"warn", priority:3, icon:ICO.warn, h:"Unbooked PTO will forfeit",
+      b:`<b>${atRiskDays.toFixed(1)} days (${atRiskHrs.toFixed(0)} hrs)</b> aren't planned yet. PTO doesn't roll over — pacing <b>~${perMonth.toFixed(1)} day${perMonth>=1.05?"s":""}/month</b> uses it all by Dec 31.`,
       action:{label:"See suggestions", fn:"switchTab('sug')"}});
   } else if (atRiskHrs <= 0 && allot.vacation > 0){
-    ins.push({t:"good", priority:6, icon:ICO.check, h:"Vacation fully planned",
+    ins.push({t:"good", priority:6, icon:ICO.check, h:"PTO fully planned",
       b:`Every one of your <b>${D(allot.vacation).toFixed(0)} days</b> for ${y} is booked or used — nothing will be forfeited. Nice.`});
   }
   // ── Next / recent time off ──
@@ -1458,7 +1464,7 @@ function buildInsights(){
       b:`You have no upcoming time off booked but <b>${D(bal).toFixed(1)} days</b> available. A long weekend does wonders.`,
       action:{label:"Find a break", fn:"switchTab('sug')"}});
   }
-  if (pastVac){ const since = daysBetween(pastVac.d, t); if (since >= 45) ins.push({t:"info", priority:5, icon:ICO.clock, h:"It's been a while", b:`<b>${since} days</b> since your last vacation day (${fmt(pastVac.d,{month:"short",day:"numeric"})}). Time to recharge?`, action:{label:"Plan one", fn:"switchTab('sug')"}}); }
+  if (pastVac){ const since = daysBetween(pastVac.d, t); if (since >= 45) ins.push({t:"info", priority:5, icon:ICO.clock, h:"It's been a while", b:`<b>${since} days</b> since your last PTO day (${fmt(pastVac.d,{month:"short",day:"numeric"})}). Time to recharge?`, action:{label:"Plan one", fn:"switchTab('sug')"}}); }
   // ── Top recommendation (book directly) ──
   const sug = buildSuggestions(y); const booked = new Set(state.entries.map(e => e.date));
   const openSug = sug.filter(s => !s.takeOn.every(d => booked.has(isoDate(d))));
@@ -1480,11 +1486,11 @@ function buildInsights(){
   let openFri = 0, apptFri = 0; { let d = new Date(t); while (d.getDay()!==5) d = addDays(d,1); const eoy = new Date(y,11,31); const sf = state.fridays||{}; while (d <= eoy){ const it = sf[isoDate(d)]; const hol = holidayName(d); if (it && it.purpose && it.status!=="Cancelled") apptFri++; else if (!hol) openFri++; d = addDays(d,7); } }
   if (openFri > 0 && apptFri === 0){ ins.push({t:"info", priority:6, icon:ICO.coffee, h:"WFH Fridays go unused", b:`<b>${openFri} work-from-home Friday${openFri===1?"":"s"}</b> left this year — book appointments/errands then to <b>save your PTO</b> for real trips.`, action:{label:"Plan Fridays", fn:"switchTab('fri')"}}); }
   // ── Refill + bump ──
-  if (nextAllot.vacation > allot.vacation){ const bump = nextAllot.vacation - allot.vacation; ins.push({t:"good", priority:5, icon:ICO.celebrate, h:"Vacation bump coming", b:`On Jan 1, ${y+1} you'll receive <b>${nextAllot.vacation} hrs (${D(nextAllot.vacation).toFixed(0)} days)</b> — an extra ${D(bump).toFixed(0)} days.`}); }
-  ins.push({t:"info", priority:8, icon:ICO.refill, h:"Next vacation refill", b:`January 1, ${y+1} · <b>${daysToRefill} days</b> away · +${nextAllot.vacation} hrs incoming.`});
+  if (nextAllot.vacation > allot.vacation){ const bump = nextAllot.vacation - allot.vacation; ins.push({t:"good", priority:5, icon:ICO.celebrate, h:"PTO bump coming", b:`On Jan 1, ${y+1} you'll receive <b>${nextAllot.vacation} hrs (${D(nextAllot.vacation).toFixed(0)} days)</b> — an extra ${D(bump).toFixed(0)} days.`}); }
+  ins.push({t:"info", priority:8, icon:ICO.refill, h:"Next PTO refill", b:`January 1, ${y+1} · <b>${daysToRefill} days</b> away · +${nextAllot.vacation} hrs incoming.`});
   // ── Milestone ──
   const nxt = nextMilestone();
-  if (nxt && nxt.daysUntil <= 150){ ins.push({t:"good", priority:5, icon:ICO.award, h:`${nxt.label} milestone approaching`, b:`<b>${nxt.daysUntil} days</b> until ${fmt(nxt.date)} — vacation rises to <b>${nxt.vacDays} days/year</b>.`, action:{label:"View", fn:"switchTab('ann')"}}); }
+  if (nxt && nxt.daysUntil <= 150){ ins.push({t:"good", priority:5, icon:ICO.award, h:`${nxt.label} milestone approaching`, b:`<b>${nxt.daysUntil} days</b> until ${fmt(nxt.date)} — PTO rises to <b>${nxt.vacDays} days/year</b>.`, action:{label:"View", fn:"switchTab('ann')"}}); }
   ins.sort((a,b) => (a.priority||9) - (b.priority||9));
   return ins;
 }
@@ -1512,7 +1518,7 @@ function miniKpi(colorCls, icon, title, value, valueCls, sub){
 }
 function usageThisVsLast(){
   const t = today(), y = t.getFullYear(), m = t.getMonth();
-  const inMonth = (yy,mm) => state.entries.filter(e => e.type==="Vacation" && parseDate(e.date).getFullYear()===yy && parseDate(e.date).getMonth()===mm).reduce((s,e)=>s+Number(e.hours||0),0);
+  const inMonth = (yy,mm) => state.entries.filter(e => e.type==="PTO" && parseDate(e.date).getFullYear()===yy && parseDate(e.date).getMonth()===mm).reduce((s,e)=>s+Number(e.hours||0),0);
   const cur = inMonth(y,m); const last = m===0 ? inMonth(y-1,11) : inMonth(y,m-1);
   return { cur, last, diff: cur-last };
 }
@@ -1532,14 +1538,14 @@ function vacCumulativeByMonth(year){
   const out = []; let run = 0;
   const t = today(); const upto = (t.getFullYear()===year) ? t.getMonth() : 11;
   for (let mo=0; mo<=upto; mo++){
-    run += state.entries.filter(e => e.type==="Vacation" && parseDate(e.date).getFullYear()===year && parseDate(e.date).getMonth()===mo).reduce((s,e)=>s+Number(e.hours||0),0);
+    run += state.entries.filter(e => e.type==="PTO" && parseDate(e.date).getFullYear()===year && parseDate(e.date).getMonth()===mo).reduce((s,e)=>s+Number(e.hours||0),0);
     out.push(run);
   }
   return out.length >= 2 ? out : [0, run];
 }
 function renderKPIs(){
   const cfg = state.config; const bal = currentBalance();
-  const uv = ytdUsage("Vacation", cfg.year); const us = ytdUsage("Sick", cfg.year);
+  const uv = ytdUsage("PTO", cfg.year); const us = ytdUsage("Sick", cfg.year);
   const allot = getAllotment(cfg.year); const daysToRefill = daysUntilNextRefill();
   const sickIsNA = allot.sick === null; const sickBal = sickIsNA ? null : allot.sick - us;
   const usedPct = allot.vacation ? Math.round(uv/allot.vacation*100) : 0;
@@ -1572,7 +1578,7 @@ function renderKPIs(){
   else { annVal = "Max"; annSub = "Top tier reached"; annFoot = ""; }
 
   document.getElementById("kpis").innerHTML = `
-    <div class="kpi kpi-link" ${link("dashDrillLog('Vacation')","View vacation entries")}>
+    <div class="kpi kpi-link" ${link("dashDrillLog('PTO')","View PTO entries")}>
       <div class="kpi-top"><div class="kpi-icon green">${ICO.palm}</div><span class="kpi-title">PTO Balance</span></div>
       <div class="kpi-body">
         <div class="kpi-main"><div class="kpi-value v-green">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} days of ${allot.vacation} hrs</div></div>
@@ -1676,7 +1682,7 @@ function renderCharts(){
       yearBoundaries.push({index: i - 0.5, year: displayPoints[i].year, allotment: displayPoints[i].allotment});
     }
   }
-  const bal = currentBalance(); const usedYTDCurrent = ytdUsage("Vacation", cfg.year);
+  const bal = currentBalance(); const usedYTDCurrent = ytdUsage("PTO", cfg.year);
   const nextAllot = getAllotment(cfg.year+1); const daysToRefill = daysUntilNextRefill();
   document.getElementById("chartSummary").innerHTML = `
     <div class="chart-stat balance"><span class="lbl">Current balance</span><span class="val">${bal.toFixed(0)}<span class="unit">hrs</span></span></div>
@@ -1705,15 +1711,15 @@ function renderCharts(){
       scales:{y:{beginAtZero:true, grid:{color:gridColor, drawTicks:false}, ticks:{font:{size:10}, color:tickColor, padding:8, callback: (v) => v+' hrs'}, border:{display:false}}, x:{grid:{display:false}, ticks:{font:{size:10}, color:tickColor, maxRotation:0, autoSkip:false, padding:6}, border:{display:false}}}
     }
   });
-  const uv = ytdUsage("Vacation",cfg.year), us = ytdUsage("Sick",cfg.year), up = ytdUsage("Personal",cfg.year), uph = ytdUsage("Personal Holiday",cfg.year);
+  const uv = ytdUsage("PTO",cfg.year), us = ytdUsage("Sick",cfg.year), uph = ytdUsage("Personal Holiday",cfg.year);
   const allot = getAllotment(cfg.year); const rem = Math.max(0, allot.vacation - uv);
-  const donutColors = dark ? ['#34D399','#F87171','#F472B6','#FBBF24','#2a2a2a'] : ['#059669','#DC2626','#DB2777','#D97706','#E2E8F0'];
+  const donutColors = dark ? ['#34D399','#F87171','#F472B6','#2a2a2a'] : ['#059669','#DC2626','#DB2777','#E2E8F0'];
   const donutBorder = dark ? '#0a0a0a' : '#FFFFFF';
-  const totalUsed = uv + us + uph + up;
+  const totalUsed = uv + us + uph;
   if (pieChart) pieChart.destroy();
   pieChart = new Chart(document.getElementById("pieChart"), {
     type:"doughnut",
-    data:{labels:["Vacation used","Sick used","Personal Holiday","Personal used","Vacation remaining"], datasets:[{data:[uv,us,uph,up,rem], backgroundColor:donutColors, borderWidth:2, borderColor:donutBorder}]},
+    data:{labels:["PTO used","Sick used","Personal Holiday","PTO remaining"], datasets:[{data:[uv,us,uph,rem], backgroundColor:donutColors, borderWidth:2, borderColor:donutBorder}]},
     options:{responsive:true, maintainAspectRatio:false, cutout:"70%", plugins:{legend:{display:false}, tooltip:{backgroundColor:tooltipBg, titleColor:tooltipText, bodyColor:tooltipText, padding:10, cornerRadius:8}}}
   });
   // Center label + custom legend
@@ -1723,12 +1729,11 @@ function renderCharts(){
   if (legEl){
     const denom = allot.vacation || (totalUsed + rem) || 1;
     const rows = [
-      {n:"Vacation", v:uv, c:donutColors[0]},
+      {n:"PTO", v:uv, c:donutColors[0]},
       {n:"Personal Holiday", v:uph, c:donutColors[2]},
       {n:"Sick", v:us, c:donutColors[1]},
-      {n:"Personal", v:up, c:donutColors[3]},
-      {n:"Remaining", v:rem, c:donutColors[4]}
-    ].filter(r => r.v > 0 || r.n === "Vacation" || r.n === "Remaining");
+      {n:"Remaining", v:rem, c:donutColors[3]}
+    ].filter(r => r.v > 0 || r.n === "PTO" || r.n === "Remaining");
     legEl.innerHTML = rows.map(r => `<div class="ul-row"><span class="ul-dot" style="background:${r.c}"></span><span class="ul-name">${r.n}</span><span class="ul-val">${r.v.toFixed(1)} hrs (${Math.round(r.v/denom*100)}%)</span></div>`).join("");
   }
 }
@@ -1845,7 +1850,7 @@ function dismissAllInsights(){
 
 function renderUpcoming(){
   const t = today(); const items = [];
-  const dotFor = ty => ty==='Vacation'?'green':ty==='Sick'?'red':ty==='Personal Holiday'?'magenta':ty==='Personal'?'amber':'blue';
+  const dotFor = ty => ty==='PTO'?'green':ty==='Sick'?'red':ty==='Personal Holiday'?'magenta':'blue';
   // Time-off entries
   state.entries.forEach(e => { const d = parseDate(e.date); if (d >= t) items.push({d, date:e.date, dot:dotFor(e.type), label:e.type, right:`<span class="chip b">${Number(e.hours).toFixed(1)} hrs</span>`}); });
   // Friday appointments
@@ -1891,7 +1896,7 @@ function parseLogQuery(raw){
     if (tok[0] === "/" && tok.length > 1){
       const c = tok.slice(1).toLowerCase();
       if (/^\d{4}$/.test(c)){ out.year = c; return; }
-      const typeMap = { vac:"Vacation", vacation:"Vacation", sick:"Sick", holiday:"Personal Holiday", ph:"Personal Holiday", personal:"Personal", bereavement:"Bereavement", jury:"Jury Duty", unpaid:"Unpaid" };
+      const typeMap = { pto:"PTO", vac:"PTO", vacation:"PTO", personal:"PTO", sick:"Sick", holiday:"Personal Holiday", ph:"Personal Holiday", bereavement:"Bereavement", jury:"Jury Duty", unpaid:"Unpaid" };
       if (typeMap[c]){ out.type = typeMap[c]; return; }
       const mi = MONTHNAMES.findIndex(m => m.toLowerCase() === c || m.toLowerCase().slice(0,3) === c);
       if (mi >= 0){ out.month = mi; return; }
@@ -1923,25 +1928,25 @@ function getFilteredEntries(){
 function renderLogSummary(){
   const kp = document.getElementById("logKpis"); if (!kp) return;
   const cfg = state.config, y = cfg.year;
-  const uv = ytdUsage("Vacation", y), us = ytdUsage("Sick", y);
-  const uph = ytdUsage("Personal Holiday", y), upe = ytdUsage("Personal", y);
-  const otherHrs = uph + upe;
+  const uv = ytdUsage("PTO", y), us = ytdUsage("Sick", y);
+  const uph = ytdUsage("Personal Holiday", y);
   const total = state.entries.length;
   const totalHrs = state.entries.filter(e => parseDate(e.date).getFullYear()===y).reduce((s,e)=>s+Number(e.hours||0),0);
+  const otherHrs = Math.max(0, totalHrs - uv - us);
   kp.innerHTML =
     miniKpi("blue", ICO.calendar, "Total Entries", `${total}`, "v-blue", `${totalHrs.toFixed(0)} hrs logged in ${y}`) +
-    miniKpi("green", ICO.palm, "Vacation Used YTD", `${uv.toFixed(1)}<span class="unit">hrs</span>`, "v-green", `${(uv/cfg.workday).toFixed(1)} days in ${y}`) +
+    miniKpi("green", ICO.palm, "PTO Used YTD", `${uv.toFixed(1)}<span class="unit">hrs</span>`, "v-green", `${(uv/cfg.workday).toFixed(1)} days in ${y}`) +
     miniKpi("magenta", ICO.sick, "Sick Used YTD", `${us.toFixed(1)}<span class="unit">hrs</span>`, "v-magenta", `${(us/cfg.workday).toFixed(1)} days in ${y}`) +
-    miniKpi("amber", ICO.gift, "Personal / Other", `${otherHrs.toFixed(1)}<span class="unit">hrs</span>`, "v-amber", `${(otherHrs/cfg.workday).toFixed(1)} days in ${y}`);
+    miniKpi("amber", ICO.gift, "Personal Hol. / Other", `${otherHrs.toFixed(1)}<span class="unit">hrs</span>`, "v-amber", `${(otherHrs/cfg.workday).toFixed(1)} days in ${y}`);
 }
 function renderLogChart(){
   const cvs = document.getElementById("logMonthChart"); if (!cvs || typeof Chart === "undefined") return;
   const y = state.config.year; const dark = getTheme()==='dark';
   const labels = MONTHNAMES.map(m => m.slice(0,3));
-  const series = {Vacation:new Array(12).fill(0), Sick:new Array(12).fill(0), "Personal Holiday":new Array(12).fill(0), Other:new Array(12).fill(0)};
+  const series = {PTO:new Array(12).fill(0), Sick:new Array(12).fill(0), "Personal Holiday":new Array(12).fill(0), Other:new Array(12).fill(0)};
   state.entries.forEach(e => { const d = parseDate(e.date); if (d.getFullYear()!==y) return; const mo = d.getMonth(); const h = Number(e.hours||0);
-    if (e.type==="Vacation") series.Vacation[mo]+=h; else if (e.type==="Sick") series.Sick[mo]+=h; else if (e.type==="Personal Holiday") series["Personal Holiday"][mo]+=h; else series.Other[mo]+=h; });
-  const col = {Vacation:cssVar('--data-green'), Sick:cssVar('--accent'), "Personal Holiday":cssVar('--data-magenta'), Other:cssVar('--data-amber')};
+    if (e.type==="PTO") series.PTO[mo]+=h; else if (e.type==="Sick") series.Sick[mo]+=h; else if (e.type==="Personal Holiday") series["Personal Holiday"][mo]+=h; else series.Other[mo]+=h; });
+  const col = {PTO:cssVar('--data-green'), Sick:cssVar('--accent'), "Personal Holiday":cssVar('--data-magenta'), Other:cssVar('--data-amber')};
   const meta = document.getElementById("logChartMeta"); if (meta) meta.textContent = `${y} · hours per month`;
   const tick = cssVar('--chart-tick'), grid = cssVar('--chart-grid');
   if (logChart) logChart.destroy();
@@ -2006,7 +2011,7 @@ function renderLog(){
 function logRowHtml(e){
   const idx = state.entries.indexOf(e); const d = parseDate(e.date);
   let cls = 'a';
-  if (e.type==='Vacation') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
+  if (e.type==='PTO') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
   const chk = `<td class="no-print cell-check"><input type="checkbox" class="log-check" data-idx="${idx}" ${selectedLog.has(idx)?'checked':''} onchange="onLogCheck(${idx},this.checked)" aria-label="Select entry"></td>`;
   return `<tr${selectedLog.has(idx)?' class="row-selected"':''}>${chk}<td data-label="Date"><b>${fmt(d)}</b></td><td data-label="Day" style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td data-label="Type"><span class="chip ${cls}">${e.type}</span></td><td data-label="Hours" class="num">${e.hours}</td><td data-label="Status"><span class="chip n">${e.status||"-"}</span></td><td data-label="Notes" style="color:var(--n-500)">${e.notes||"—"}</td><td class="cell-actions"><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
 }
@@ -2175,17 +2180,17 @@ function renderAnniversaries(){
     return `<div class="milestone ${cls}"><div class="mile-circle">${tier.years}yr</div><div class="mile-body"><div class="mile-title">${tier.label} ${tag}</div><div class="mile-sub">${fmt(date,{weekday:"short",month:"short",day:"numeric",year:"numeric"})} · ${passed ? Math.abs(daysAway)+" days ago" : "in "+daysAway+" days ("+yearsAway+" yrs)"}</div></div><div class="mile-days"><div class="num">${tier.vacDays}</div><div class="lbl">days</div></div></div>`;
   }).join("");
   const ins = [];
-  if (nxt && nxt.daysUntil <= 90){ ins.push({t:"warn", icon:ICO.clock, h:`${nxt.label} approaching`, b:`<b>${nxt.daysUntil} days</b> until ${fmt(nxt.date)}. Vacation increases to <b>${nxt.vacDays} days/year</b>.`}); }
+  if (nxt && nxt.daysUntil <= 90){ ins.push({t:"warn", icon:ICO.clock, h:`${nxt.label} approaching`, b:`<b>${nxt.daysUntil} days</b> until ${fmt(nxt.date)}. PTO increases to <b>${nxt.vacDays} days/year</b>.`}); }
   if (nxt){ const bump = nxt.vacDays - (cur?cur.vacDays:0); if (bump > 0){ ins.push({t:"good", icon:ICO.celebrate, h:`Upcoming bump: +${bump} days/year`, b:`At ${nxt.label} you'll receive <b>${nxt.vacDays} days (${nxt.vacDays*8} hrs)</b> annually — up from ${cur?cur.vacDays:0}.`}); } }
   if (yosYears >= 5){ ins.push({t:"good", icon:ICO.star, h:"Milestone employee", b:`${yosYears} years at CCCI — that's a real career investment.`}); }
   else if (yosYears >= 1){ ins.push({t:"info", icon:ICO.clock, h:"Building your career", b:`${yosYears} ${yosYears===1?"year":"years"} in — on your way to the next milestone.`}); }
   else { ins.push({t:"info", icon:ICO.calendar, h:"First year at CCCI", b:`1-year anniversary on <b>${fmt(anniversaryFor(1))}</b> (${daysBetween(t, anniversaryFor(1))} days away).`}); }
   if (nxt && nxt.daysUntil > 90 && nxt.daysUntil <= 180){ ins.push({t:"info", icon:ICO.calendar, h:"Halfway to next milestone", b:`Under 6 months until ${nxt.label}. Start planning any milestone celebrations!`}); }
-  if (cur && cur.years === 1 && nxt && nxt.years === 2){ ins.push({t:"good", icon:ICO.star, h:"Biggest bump ahead", b:"The 2-year milestone brings the largest single vacation increase you'll see (+5 days)."}); }
+  if (cur && cur.years === 1 && nxt && nxt.years === 2){ ins.push({t:"good", icon:ICO.star, h:"Biggest bump ahead", b:"The 2-year milestone brings the largest single PTO increase you'll see (+5 days)."}); }
   document.getElementById("annInsights").innerHTML = ins.length ? ins.map(i => `<div class="insight ${i.t}"><div class="insight-icon">${i.icon}</div><div class="insight-body"><strong>${i.h}</strong>${i.b}</div></div>`).join("") : `<div class="empty"><div class="empty-icon">${ICO.info}</div><h4>No alerts</h4><p>You're on track.</p></div>`;
   const tb = document.querySelector("#tierTable tbody");
   tb.innerHTML = state.tiers.map((tier, idx) => { const date = anniversaryFor(tier.years);
-    return `<tr><td data-label="Milestone"><b>${tier.label}</b></td><td data-label="Anniversary">${fmt(date,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}</td><td data-label="Year" class="mono">Year ${tier.years}</td><td data-label="Vacation days"><input type="number" value="${tier.vacDays}" step="1" min="0" onchange="updateTier(${idx},'vacDays',this.value)"/></td><td data-label="Notes"><input type="text" value="${(tier.notes||'').replace(/"/g,'&quot;')}" onchange="updateTier(${idx},'notes',this.value)"/></td></tr>`;
+    return `<tr><td data-label="Milestone"><b>${tier.label}</b></td><td data-label="Anniversary">${fmt(date,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}</td><td data-label="Year" class="mono">Year ${tier.years}</td><td data-label="PTO days"><input type="number" value="${tier.vacDays}" step="1" min="0" onchange="updateTier(${idx},'vacDays',this.value)"/></td><td data-label="Notes"><input type="text" value="${(tier.notes||'').replace(/"/g,'&quot;')}" onchange="updateTier(${idx},'notes',this.value)"/></td></tr>`;
   }).join("");
   renderTierChart();
 }
@@ -2196,7 +2201,7 @@ function renderTierChart(){
   const dark = getTheme()==='dark'; const line = cssVar('--data-blue'); const tick = cssVar('--chart-tick'), grid = cssVar('--chart-grid');
   if (tierChart) tierChart.destroy();
   tierChart = new Chart(cvs, {type:'line',
-    data:{labels, datasets:[{label:'Vacation days/year', data, borderColor:line, backgroundColor:(ctx)=>{const c=ctx.chart.ctx; const g=c.createLinearGradient(0,0,0,220); g.addColorStop(0,cssVar('--data-blue-soft')); g.addColorStop(1,'rgba(0,0,0,0)'); return g;}, stepped:true, fill:true, pointRadius:4, pointHoverRadius:6, pointBackgroundColor:line, pointBorderColor:dark?'#0a0a0a':'#fff', pointBorderWidth:2, borderWidth:2.5}]},
+    data:{labels, datasets:[{label:'PTO days/year', data, borderColor:line, backgroundColor:(ctx)=>{const c=ctx.chart.ctx; const g=c.createLinearGradient(0,0,0,220); g.addColorStop(0,cssVar('--data-blue-soft')); g.addColorStop(1,'rgba(0,0,0,0)'); return g;}, stepped:true, fill:true, pointRadius:4, pointHoverRadius:6, pointBackgroundColor:line, pointBorderColor:dark?'#0a0a0a':'#fff', pointBorderWidth:2, borderWidth:2.5}]},
     options:{responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}, tooltip:{backgroundColor:dark?'#fff':'#0F172A',titleColor:dark?'#000':'#fff',bodyColor:dark?'#000':'#fff',padding:10,cornerRadius:8,callbacks:{label:ctx=>` ${ctx.parsed.y} days/year`}}},
       scales:{x:{grid:{display:false}, ticks:{font:{size:11},color:tick}, border:{display:false}}, y:{beginAtZero:true, grid:{color:grid,drawTicks:false}, ticks:{font:{size:10},color:tick,padding:6,callback:v=>v+'d'}, border:{display:false}}}}
@@ -2222,7 +2227,7 @@ function renderCalendar(){
     const hn = holidayName(d);
     if (hn && f.hol!==false) c.push("hol");
     const e = em[iso];
-    if (e && e.type==="Vacation" && f.vac!==false) c.push("vac");
+    if (e && e.type==="PTO" && f.vac!==false) c.push("vac");
     if (e && e.type==="Sick" && f.sick!==false) c.push("sick");
     if (e && e.type==="Personal Holiday" && f.personal!==false) c.push("personal");
     if (!e && phDates.has(iso) && f.personal!==false) c.push("personal");
@@ -2238,10 +2243,10 @@ function renderCalendar(){
     if (e){
       const eIdx = state.entries.indexOf(e);
       const drag = `draggable="true" ondragstart="dragStart(event,'entry',${eIdx})" title="Drag to reschedule"`;
-      if (e.type==="Vacation" && f.vac!==false) tags.push(`<span class="cal-tag vac" ${drag}>Vacation · ${e.hours}h</span>`);
+      if (e.type==="PTO" && f.vac!==false) tags.push(`<span class="cal-tag vac" ${drag}>PTO · ${e.hours}h</span>`);
       else if (e.type==="Sick" && f.sick!==false) tags.push(`<span class="cal-tag sick" ${drag}>Sick · ${e.hours}h</span>`);
       else if (e.type==="Personal Holiday" && f.personal!==false) tags.push(`<span class="cal-tag personal" ${drag}>Personal Hol.</span>`);
-      else if (!["Vacation","Sick","Personal Holiday"].includes(e.type)) tags.push(`<span class="cal-tag other" ${drag}>${e.type} · ${e.hours}h</span>`);
+      else if (!["PTO","Sick","Personal Holiday"].includes(e.type)) tags.push(`<span class="cal-tag other" ${drag}>${e.type} · ${e.hours}h</span>`);
     }
     if (!e && sug.has(iso) && f.sug!==false){ tags.push(`<span class="cal-tag sug" draggable="true" ondragstart="dragStart(event,'sug','${iso}')" title="Drag to a day to book PTO">💡 Try PTO</span>`); }
     // Friday appointment overlay
@@ -2361,9 +2366,9 @@ function moveFridayAppt(oldIso, newIso){
 }
 function bookSuggestionAt(iso){
   if (state.entries.some(e => e.date === iso)){ toast("That day already has an entry"); renderCalendar(); return; }
-  state.entries.push({date:iso, type:"Vacation", hours:state.config.workday, status:"Pending", notes:"From smart suggestion"});
+  state.entries.push({date:iso, type:"PTO", hours:state.config.workday, status:"Pending", notes:"From smart suggestion"});
   save(); refresh();
-  toast(`Booked Vacation → ${fmt(parseDate(iso),{weekday:"short",month:"short",day:"numeric"})}`);
+  toast(`Booked PTO → ${fmt(parseDate(iso),{weekday:"short",month:"short",day:"numeric"})}`);
 }
 function rescheduleEntry(idx, newDate){
   const e = state.entries[idx];
@@ -2486,7 +2491,7 @@ function renderSettings(){
     const yos = yearsOfService(t); const yy = Math.floor(yos); const mm = Math.floor((yos-yy)*12);
     const nxt = nextMilestone(t);
     snap.innerHTML =
-      `<div class="cfg-snap-item"><div class="cs-lbl">Vacation Balance</div><div class="cs-val">${bal.toFixed(1)} hrs</div><div class="cs-sub">${(bal/c.workday).toFixed(1)} days available</div></div>` +
+      `<div class="cfg-snap-item"><div class="cs-lbl">PTO Balance</div><div class="cs-val">${bal.toFixed(1)} hrs</div><div class="cs-sub">${(bal/c.workday).toFixed(1)} days available</div></div>` +
       `<div class="cfg-snap-item"><div class="cs-lbl">Service Tenure</div><div class="cs-val">${yy}y ${mm}m</div><div class="cs-sub">Since ${fmt(parseDate(c.hire),{month:"short",year:"numeric"})}</div></div>` +
       `<div class="cfg-snap-item"><div class="cs-lbl">Next Milestone</div><div class="cs-val">${nxt?nxt.label:"Max"}</div><div class="cs-sub">${nxt?nxt.daysUntil+" days · "+nxt.vacDays+" days/yr":"Top tier"}</div></div>`;
   }
@@ -2574,7 +2579,7 @@ function deleteEntry(i){
 }
 function bookSuggestion(dates){
   let added = 0; const firstDate = parseDate(dates[0]);
-  dates.forEach(d => { if (!state.entries.find(e => e.date === d)){ state.entries.push({date:d, type:"Vacation", hours:state.config.workday, status:"Pending", notes:"From smart suggestion"}); added++; } });
+  dates.forEach(d => { if (!state.entries.find(e => e.date === d)){ state.entries.push({date:d, type:"PTO", hours:state.config.workday, status:"Pending", notes:"From smart suggestion"}); added++; } });
   save(); calCursor = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1); refresh();
   toast(`Booked ${added} day${added===1?"":"s"} — ${fmt(firstDate,{weekday:"short",month:"short",day:"numeric",year:"numeric"})}`);
   switchTab("cal");
@@ -2623,7 +2628,7 @@ function exportICS(){
     lines.push("TRANSP:TRANSPARENT");
     lines.push("END:VEVENT");
   };
-  const emoji = t => t==="Vacation" ? "🌴" : t==="Sick" ? "🤒" : t==="Personal Holiday" ? "🎁" : "📅";
+  const emoji = t => t==="PTO" ? "🌴" : t==="Sick" ? "🤒" : t==="Personal Holiday" ? "🎁" : "📅";
   [...state.entries].sort((a,b) => a.date.localeCompare(b.date)).forEach(e => {
     const hoursNote = (e.hours && e.hours !== wd) ? ` (${e.hours}h)` : "";
     const summary = `${emoji(e.type)} ${e.type}${hoursNote}`;
@@ -2648,7 +2653,7 @@ function exportCSV(){
   const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_entries_${isoDate(today())}.csv`; a.click(); URL.revokeObjectURL(url);
   toast(`Exported ${state.entries.length} row${state.entries.length===1?"":"s"} to CSV`);
 }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); ptoMigrate(state); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
 
 function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
