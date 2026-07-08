@@ -1573,7 +1573,7 @@ function renderKPIs(){
 
   document.getElementById("kpis").innerHTML = `
     <div class="kpi kpi-link" ${link("dashDrillLog('Vacation')","View vacation entries")}>
-      <div class="kpi-top"><div class="kpi-icon green">${ICO.palm}</div><span class="kpi-title">Vacation Balance</span></div>
+      <div class="kpi-top"><div class="kpi-icon green">${ICO.palm}</div><span class="kpi-title">PTO Balance</span></div>
       <div class="kpi-body">
         <div class="kpi-main"><div class="kpi-value v-green">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} days of ${allot.vacation} hrs</div></div>
         ${ringSVG2(usedPct, ringCls)}
@@ -1581,7 +1581,7 @@ function renderKPIs(){
       <div class="kpi-foot">${calICO} Next refill: ${fmt(refillDate,{month:"short",day:"numeric",year:"numeric"})} (${daysToRefill} days)</div>
     </div>
     <div class="kpi kpi-link" ${link("dashDrillLogYear("+cfg.year+")","View this year's entries")}>
-      <div class="kpi-top"><div class="kpi-icon purple">${ICO.used}</div><span class="kpi-title">Vacation Used YTD</span></div>
+      <div class="kpi-top"><div class="kpi-icon purple">${ICO.used}</div><span class="kpi-title">PTO Used YTD</span></div>
       <div class="kpi-body">
         <div class="kpi-main"><div class="kpi-value v-purple">${uv.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(uv/cfg.workday).toFixed(1)} days of ${allot.vacation} hrs</div></div>
         <div class="kpi-sparkbox">${sparklineSVG(vacCumulativeByMonth(cfg.year))}</div>
