@@ -2287,7 +2287,7 @@ function renderFridays(){
   const kp = document.getElementById("friKpis");
   if (kp) kp.innerHTML =
     miniKpi("cyan", ICO.calendar, "WFH Fridays Left", `${fri.length}`, "v-cyan", `Through Dec 31, ${t.getFullYear()}`) +
-    miniKpi("purple", ICO.check, "Appointments Booked", `${nBooked}`, "v-purple", "Marked Scheduled") +
+    miniKpi("purple", ICO.check, "Fridays Booked", `${nBooked}`, "v-purple", "Marked Scheduled") +
     miniKpi("magenta", ICO.gift, "Holiday Fridays", `${nHol}`, "v-magenta", "Paid days off — no PTO needed") +
     miniKpi("teal", ICO.info, "Open Fridays", `${nOpen}`, "v-teal", "Available to plan around");
 }
