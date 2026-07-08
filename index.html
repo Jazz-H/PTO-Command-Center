@@ -183,6 +183,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .notif-empty{padding:36px 18px;text-align:center;color:var(--n-500);font-size:13px}
 .notif-empty svg{width:26px;height:26px;color:var(--success);margin-bottom:8px}
 .notif-act{height:26px;padding:0 10px;font-size:11.5px;margin-top:8px}
+.notif-dismiss{width:28px;height:28px;flex-shrink:0;border:none;background:transparent;color:var(--n-400);cursor:pointer;display:grid;place-items:center;border-radius:7px;padding:0;box-shadow:none;align-self:flex-start;margin-top:2px}
+.notif-dismiss:hover{background:var(--hover-strong);color:var(--n-800)}
+.notif-dismiss svg{width:14px;height:14px}
 .topbar-cta{height:38px;white-space:nowrap}
 .btn.topbar-cta{background:var(--gradient-primary);border:none;box-shadow:var(--gradient-glow)}
 .btn.topbar-cta:hover{background:var(--gradient-primary);filter:brightness(1.06);box-shadow:var(--gradient-glow),var(--shadow-md)}
@@ -693,6 +696,8 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   .notif-close{width:36px;height:36px}
   .notif-close svg{width:18px;height:18px}
   .notif-head{padding:13px 12px 13px 16px}
+  .notif-dismiss{width:34px;height:34px}
+  .notif-dismiss svg{width:16px;height:16px}
   .kpi{padding:14px}
   .kpi-body{flex-wrap:wrap;gap:8px}
   .kpi-sparkbox{width:100%;order:3;margin-top:2px}
@@ -1739,15 +1744,24 @@ function notifTabFor(i){
 function activeNotifs(){ return buildInsights().map(i => ({...i, id: insightId(i)})); }
 function renderNotifPanel(){
   const list = document.getElementById("notifList"); if (!list) return;
-  const all = activeNotifs();
+  const dismissed = new Set(state.dismissedInsights || []);
+  const all = activeNotifs().map(i => ({...i, dismissable: i.t !== "critical"})).filter(i => !(i.dismissable && dismissed.has(i.id)));
   const mr = document.getElementById("notifMarkRead"); if (mr) mr.style.display = all.length ? "" : "none";
   if (!all.length){ list.innerHTML = `<div class="notif-empty">${ICO.check}<div>You're all caught up.</div></div>`; return; }
   list.innerHTML = all.map(i => {
     const unread = _notifUnread.has(i.id);
     const plain = i.b.replace(/<[^>]+>/g, "");
     const act = i.action ? `<button class="btn ghost sm notif-act" onclick="event.stopPropagation();closeNotifPanel();${i.action.fn}">${i.action.label} →</button>` : "";
-    return `<div class="notif-item ${unread?'unread':''}" role="button" tabindex="0" onclick="openNotif('${i.id}','${notifTabFor(i)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNotif('${i.id}','${notifTabFor(i)}')}"><div class="notif-ic ${i.t}">${i.icon}</div><div class="notif-tbody"><div class="nt">${i.h}</div><div class="nb">${plain}</div>${act}</div>${unread?'<span class="notif-udot"></span>':''}</div>`;
+    const right = i.dismissable
+      ? `<button class="notif-dismiss" onclick="event.stopPropagation();dismissNotif('${i.id}')" title="Dismiss" aria-label="Dismiss notification">${ICO.x}</button>`
+      : (unread ? `<span class="notif-udot"></span>` : "");
+    return `<div class="notif-item ${unread?'unread':''}" role="button" tabindex="0" onclick="openNotif('${i.id}','${notifTabFor(i)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNotif('${i.id}','${notifTabFor(i)}')}"><div class="notif-ic ${i.t}">${i.icon}</div><div class="notif-tbody"><div class="nt">${i.h}</div><div class="nb">${plain}</div>${act}</div>${right}</div>`;
   }).join("");
+}
+function dismissNotif(id){
+  state.dismissedInsights = state.dismissedInsights || [];
+  if (!state.dismissedInsights.includes(id)) state.dismissedInsights.push(id);
+  save(); renderNotifPanel(); if (typeof renderInsights === "function") renderInsights();
 }
 function toggleNotifPanel(ev){
   if (ev) ev.stopPropagation();
