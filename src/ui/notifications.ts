@@ -14,7 +14,7 @@ export function renderInsights(){
   const dashOnly = i => !isNotifType(i.t);
   const visible = all.filter(i => dashOnly(i) && !(i.dismissable && dismissed.has(i.id))).slice(0, DASH_INSIGHT_MAX);
   const hiddenOnes = all.filter(i => dashOnly(i) && i.dismissable && dismissed.has(i.id));
-  document.getElementById("insightCount").textContent = visible.length;
+  document.getElementById("insightCount").textContent = String(visible.length);
   const btn = document.getElementById("showDismissedBtn");
   if (btn){
     if (hiddenOnes.length){ btn.style.display = ""; btn.textContent = state.showDismissed ? "Hide dismissed" : `Show dismissed (${hiddenOnes.length})`; }

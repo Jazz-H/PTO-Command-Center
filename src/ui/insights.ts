@@ -22,9 +22,9 @@ export function buildInsights(){
   const monthsLeft = Math.max(1, daysToRefill/30.44);
   const perMonth = atRiskDays/monthsLeft;
   const dated = state.entries.map(e => ({...e, d:parseDate(e.date)}));
-  const futureOff = dated.filter(e => e.d > t && e.d.getFullYear()===y).sort((a,b)=>a.d-b.d);
+  const futureOff = dated.filter(e => e.d > t && e.d.getFullYear()===y).sort((a,b)=>+a.d - +b.d);
   const nextOff = futureOff[0];
-  const pastVac = dated.filter(e => e.d <= t && e.type==="PTO").sort((a,b)=>b.d-a.d)[0];
+  const pastVac = dated.filter(e => e.d <= t && e.type==="PTO").sort((a,b)=>+b.d - +a.d)[0];
 
   // ── Vacation forfeiture (highest value) ──
   if (atRiskHrs > 0 && daysToRefill <= 45){

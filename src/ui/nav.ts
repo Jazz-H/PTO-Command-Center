@@ -2,5 +2,5 @@
    without importing app.ts (which would be a circular import). app.ts owns the
    real implementation and registers it via setSwitchTab() at startup; the
    live-binding export means importers always see the registered function. */
-export let switchTab = () => {};
-export function setSwitchTab(fn){ switchTab = fn; }
+export let switchTab: (id: string) => void = () => {};
+export function setSwitchTab(fn: (id: string) => void){ switchTab = fn; }

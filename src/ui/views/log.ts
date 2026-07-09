@@ -14,14 +14,15 @@ import { toast, miniKpi, cssVar } from "../dom.ts";
 import { ICO } from "../icons.ts";
 
 let logChart;
-const selectedLog = new Set();
+const selectedLog = new Set<number>();
 
 function logIsFiltered(){
   return !!((state.logSearch||"").trim()) || (state.logType||"All")!=="All" || (state.logYear||"All")!=="All";
 }
 // Parse slash-commands out of the search box (e.g. "/vac /2026 /jul dentist")
 function parseLogQuery(raw){
-  const out = { type:null, year:null, month:null, text:[] };
+  const out: { type: string|null, year: string|null, month: number|null, text: string } = { type:null, year:null, month:null, text:"" };
+  const words: string[] = [];
   (raw||"").split(/\s+/).forEach(tok => {
     if (!tok) return;
     if (tok[0] === "/" && tok.length > 1){
@@ -31,10 +32,10 @@ function parseLogQuery(raw){
       if (typeMap[c]){ out.type = typeMap[c]; return; }
       const mi = MONTHNAMES.findIndex(m => m.toLowerCase() === c || m.toLowerCase().slice(0,3) === c);
       if (mi >= 0){ out.month = mi; return; }
-      out.text.push(tok); // unknown /command → treat as text
-    } else out.text.push(tok);
+      words.push(tok); // unknown /command → treat as text
+    } else words.push(tok);
   });
-  out.text = out.text.join(" ");
+  out.text = words.join(" ");
   return out;
 }
 function getFilteredEntries(){
@@ -115,8 +116,8 @@ export function renderLog(){
   const fromToday = (a,b) => {
     const da = parseDate(a.date), db = parseDate(b.date);
     const au = da >= t0, bu = db >= t0;
-    if (au && bu) return da - db;      // both upcoming → soonest first
-    if (!au && !bu) return db - da;    // both past → most recent first
+    if (au && bu) return +da - +db;      // both upcoming → soonest first
+    if (!au && !bu) return +db - +da;    // both past → most recent first
     return au ? -1 : 1;                // upcoming before past
   };
   const filtered = getFilteredEntries().sort(fromToday);

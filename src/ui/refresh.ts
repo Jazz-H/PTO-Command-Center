@@ -2,5 +2,5 @@
    mutation, without importing app.ts (which would be a circular import). app.ts
    owns the real implementation and registers it via setRefresh() at startup;
    the live-binding export means importers always see the registered function. */
-export let refresh = () => {};
-export function setRefresh(fn){ refresh = fn; }
+export let refresh: () => void = () => {};
+export function setRefresh(fn: () => void){ refresh = fn; }
