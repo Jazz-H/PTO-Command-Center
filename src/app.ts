@@ -1,3 +1,4 @@
+import { DAYNAMES, DOWABBR, MONTHNAMES, parseDate, fmt, isoDate, today, isWeekend, addDays, daysBetween, weekNum, ordSuffix } from "./domain/dates.ts";
 const ICO = {
   vac:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.66 8L12 2.35 6.34 8A8 8 0 1 0 17.66 8z"/></svg>',
   used:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
@@ -142,20 +143,9 @@ function updateSidebarToggleA11y(){
   btn.title = (collapsed ? 'Expand' : 'Collapse') + ' sidebar (Ctrl/Cmd+B)';
 }
 
-const DAYNAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const DOWABBR = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const MONTHNAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-function parseDate(s){ if(!s) return null; const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
-function fmt(d, opts){ return d.toLocaleDateString("en-US", opts||{month:"short",day:"numeric",year:"numeric"}); }
-function isoDate(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${dd}`; }
-function today(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
 function isHoliday(d){ return state.holidays.some(h => h.date === isoDate(d)); }
 function holidayName(d){ const h = state.holidays.find(h => h.date === isoDate(d)); return h ? h.name : null; }
-function isWeekend(d){ const w = d.getDay(); return w===0||w===6; }
-function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-function daysBetween(a,b){ return Math.round((b-a)/86400000); }
-function weekNum(d){ const j=new Date(d.getFullYear(),0,1); return Math.ceil((((d-j)/86400000)+j.getDay()+1)/7); }
 
 function getAllotment(year){ const a = state.allotments.find(a => a.year === year); return a || {vacation:0, sick:null}; }
 function ytdUsage(type, year){ return state.entries.filter(e => e.type===type && parseDate(e.date).getFullYear()===year).reduce((s,e) => s+Number(e.hours||0), 0); }
@@ -1301,7 +1291,6 @@ function renderCalInsights(y, m){
   }
   el.innerHTML = rows.map(r => `<div class="cal-ins ${r.cls}"><span class="cal-ins-ic">${r.ic}</span>${r.html}</div>`).join("");
 }
-function ordSuffix(n){ const s=["th","st","nd","rd"], v=n%100; return s[(v-20)%10]||s[v]||s[0]; }
 function renderCalEvents(y, m){
   const el = document.getElementById("calEvents"); if (!el) return;
   const inMonth = d => d.getFullYear()===y && d.getMonth()===m;
