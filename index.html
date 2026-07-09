@@ -379,10 +379,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     <div class="card">
       <div class="card-title"><h3>Employee info</h3></div>
       <div class="row">
-        <div><label class="field">Name</label><input id="c_name"/></div>
+        <div class="row row-2"><div><label class="field">Name</label><input id="c_name"/></div><div><label class="field">Account <span style="color:var(--n-400);font-weight:400">(cloud sign-in)</span></label><div class="acct-email" style="background:var(--input-disabled);color:var(--n-500);padding:8px 11px;border:1px solid var(--line);border-radius:8px;font-size:13px;box-shadow:var(--shadow-xs);min-height:37px;display:flex;align-items:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div></div></div>
         <div class="row row-2"><div><label class="field">Hire date</label><input type="date" id="c_hire"/></div><div><label class="field">Plan year</label><input type="number" id="c_year"/></div></div>
         <div class="row row-2"><div><label class="field">Standard workday (hrs)</label><input type="number" id="c_workday" step="0.5"/></div><div><label class="field">Birthday <span style="color:var(--n-400);font-weight:400">(for suggestions)</span></label><input type="date" id="c_birthday"/></div></div>
-        <div><label class="field">Account <span style="color:var(--n-400);font-weight:400">(cloud sign-in)</span></label><div class="acct-email" style="background:var(--input-disabled);color:var(--n-500);padding:8px 11px;border:1px solid var(--line);border-radius:8px;font-size:13px;box-shadow:var(--shadow-xs);min-height:37px;display:flex;align-items:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div></div>
       </div>
       <div class="cfg-snapshot" id="cfgSnapshot"></div>
     </div>
