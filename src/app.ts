@@ -288,7 +288,7 @@ function exportICS(){
   const holEl = $("ics_holidays");
   const includeHol = !!(holEl && holEl.checked);
   const stamp = new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
-  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Jazz Harris//PTO Pilot//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:PTO Pilot"];
+  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//PTO Pilot//PTO Pilot//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:PTO Pilot"];
   let seq = 0;
   const add = (iso, summary, category, desc) => {
     const endIso = isoDate(addDays(parseDate(iso), 1)); // all-day DTEND is exclusive (next day)

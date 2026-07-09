@@ -26,6 +26,17 @@ export function renderGreeting(){
   const first = (state.config.name || "there").split(" ")[0];
   const g = $("dashGreeting"); if (g) g.innerHTML = `Good ${part}, ${first}! <span style="font-weight:400">👋</span>`;
   const s = $("dash-sub"); if (s) s.textContent = `Here's your time-off overview for ${fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"})}`;
+  applyIdentity();
+}
+
+// Paint the signed-in user's name + initials into the shell (sidebar card, top
+// chip, account menu). No PII is baked into the markup — it all comes from
+// config.name, so every account sees only its own identity.
+function applyIdentity(){
+  const name = (state.config.name || "").trim();
+  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("") || "—";
+  document.querySelectorAll<HTMLElement>(".uc-avatar, .user-card .avatar").forEach(el => el.textContent = initials);
+  document.querySelectorAll<HTMLElement>(".uc-name, .user-info .n, #umName").forEach(el => el.textContent = name || "Your profile");
 }
 export function renderKPIs(){
   const cfg = state.config; const bal = currentBalance();

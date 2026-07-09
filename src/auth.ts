@@ -3,7 +3,7 @@
    with the account in the background; if absent we show the magic-link sign-in.
    Offline-first: the local cache is always the boot source, so an unreachable
    Supabase never blocks a returning, signed-in user. */
-import { state, setState, save, setOnSave, localTimestamp, ptoMigrate } from "./state/store.ts";
+import { state, setState, save, setOnSave, localTimestamp, ptoMigrate, nameFromEmail } from "./state/store.ts";
 import { refresh } from "./ui/refresh.ts";
 import { supabase, fetchRemoteState, pushRemoteState, sendMagicLink, verifyCode, signOut, getEmail } from "./state/supabase.ts";
 
@@ -17,6 +17,10 @@ async function syncFromRemote(){
   try{
     const remote = await fetchRemoteState();
     if (!remote){
+      if (!state.config.name){                                 // brand-new account with a blank profile →
+        const nm = nameFromEmail(await getEmail());             // seed a display name from the login email
+        if (nm){ state.config.name = nm; save(); refresh(); }
+      }
       await pushRemoteState(state).catch(()=>{});              // first sign-in on this account → seed from local
     } else if (remote.updatedAt > localTimestamp()){
       setState(ptoMigrate(remote.data)); save(); refresh();    // remote is newer → pull + repaint

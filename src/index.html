@@ -65,8 +65,8 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   <div class="nav-section">Configuration</div>
   <button class="nav-item" data-tab="cfg" data-tooltip="Settings" style="--nav-c:var(--data-blue);--nav-cs:var(--data-blue-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></button>
   <div class="user-card">
-    <div class="avatar">JH</div>
-    <div class="user-info"><div class="n">Jazz Harris</div><div class="r">Business Analyst II</div></div>
+    <div class="avatar"></div>
+    <div class="user-info"><div class="n"></div><div class="r">CCCI</div></div>
   </div>
 </aside>
 <div class="nav-backdrop" onclick="closeNav()"></div>
@@ -90,9 +90,9 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
         </div>
       </div>
       <div class="user-wrap">
-        <button class="user-chip" id="userChipBtn" onclick="toggleUserMenu(event)" title="Account menu" aria-haspopup="true" aria-expanded="false"><span class="uc-avatar">JH</span><span class="uc-name">Jazz Harris</span><svg class="uc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <button class="user-chip" id="userChipBtn" onclick="toggleUserMenu(event)" title="Account menu" aria-haspopup="true" aria-expanded="false"><span class="uc-avatar"></span><span class="uc-name"></span><svg class="uc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
         <div class="user-menu" id="userMenu" role="menu" aria-label="Account">
-          <div class="um-head"><span class="uc-avatar lg">JH</span><div class="um-id"><span class="um-name" id="umName">Jazz Harris</span><span class="um-role" id="umRole">Business Analyst II</span></div></div>
+          <div class="um-head"><span class="uc-avatar lg"></span><div class="um-id"><span class="um-name" id="umName"></span><span class="um-role" id="umRole">CCCI</span></div></div>
           <button class="um-item" role="menuitem" onclick="closeUserMenu();switchTab('cfg')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button>
           <div class="um-theme">
             <span class="um-theme-lbl">Appearance</span>
@@ -113,11 +113,11 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
     </div>
   </div>
   <div class="content">
-<div class="print-header"><strong>PTO Summary</strong> — <span id="printName">Jazz Harris</span> — <span id="printDate"></span></div>
+<div class="print-header"><strong>PTO Summary</strong> — <span id="printName"></span> — <span id="printDate"></span></div>
 
 <div class="panel active" id="dash">
   <div class="dash-head">
-    <div class="page-head" style="margin-bottom:0"><h1 id="dashGreeting">Welcome back, Jazz</h1><div class="sub" id="dash-sub"></div></div>
+    <div class="page-head" style="margin-bottom:0"><h1 id="dashGreeting">Welcome back</h1><div class="sub" id="dash-sub"></div></div>
     <button class="btn dash-cta" onclick="requestTimeOff()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Time Off</span></button>
   </div>
   <div class="grid g-kpi" id="kpis"></div>

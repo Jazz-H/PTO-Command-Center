@@ -11,19 +11,14 @@ const CCCI_2026_HOLIDAYS = [
 ];
 
 export const DEFAULTS = {
-  config: { name:"Jazz Harris", hire:"2025-07-28", year:2026, workday:8, birthday:"" },
+  config: { name:"", hire:"", year:2026, workday:8, birthday:"" },
   allotments: [
-    {year:2025, vacation:32, sick:null, notes:"Partial — hired 7/28/2025"},
-    {year:2026, vacation:80, sick:null, notes:"10 days PTO"},
-    {year:2027, vacation:120, sick:null, notes:"2-year mark — 15 days"},
-    {year:2028, vacation:120, sick:null, notes:"15 days"},
-    {year:2029, vacation:120, sick:null, notes:"15 days"},
-    {year:2030, vacation:160, sick:null, notes:"5-year mark — 20 days"}
+    {year:2026, vacation:80, sick:null, notes:"10 days PTO"}
   ],
   personalHolidays: [{year:2026, date:null, status:"Unscheduled", notes:""},{year:2027, date:null, status:"Unscheduled", notes:""}],
   tiers: [
     {years:1, vacDays:10, label:"1 Year", notes:"First anniversary at CCCI"},
-    {years:2, vacDays:15, label:"2 Years", notes:"+5 days bump (Brie confirmed)"},
+    {years:2, vacDays:15, label:"2 Years", notes:"+5 days bump"},
     {years:5, vacDays:20, label:"5 Years", notes:"Half-decade milestone"},
     {years:10, vacDays:25, label:"10 Years", notes:"Decade of service"},
     {years:15, vacDays:25, label:"15 Years", notes:"Long-term recognition"},
@@ -36,6 +31,19 @@ export const DEFAULTS = {
   dismissedInsights: [], showDismissed: false, entryMode: "hours", sugFilters: {}, chartRange: 12,
   notificationsSeen: []
 };
+
+// Best-effort display name from an email's local-part, for brand-new accounts
+// that have no name yet ("jane.doe@x" → "Jane Doe", "john_smith2@x" → "John
+// Smith"). Returns "" when nothing usable is left (e.g. pure-initials logins) so
+// callers can leave the field blank rather than show gibberish.
+export function nameFromEmail(email: string): string {
+  const local = ((email || "").split("@")[0] || "").split("+")[0];   // drop plus-addressing tag
+  const parts = local.split(/[._\-]+/)
+    .map(p => p.replace(/\d+/g, ""))
+    .filter(Boolean);
+  if (parts.length < 2) return "";                                   // single token / initials → leave blank
+  return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(" ");
+}
 
 // Migrate legacy entry fields. Safe + idempotent:
 //  - fold "Vacation"/"Personal" types into the unified "PTO" bucket (PH stays separate)
