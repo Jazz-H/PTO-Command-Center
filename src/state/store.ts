@@ -1,6 +1,7 @@
 /* App state store — the persisted model plus load / save / migrate.
    `state` is a live-binding export: read it directly, mutate its fields,
    but only ever REPLACE the whole object through setState(). */
+import type { AppState } from "./schema.ts";
 
 const CCCI_2026_HOLIDAYS = [
   {date:"2026-01-01", name:"New Year's Day"},{date:"2026-01-19", name:"Martin Luther King Day"},
@@ -82,6 +83,6 @@ function load(){
   return ptoMigrate(JSON.parse(JSON.stringify(DEFAULTS)));
 }
 
-export let state = load();
-export function setState(s){ state = s; }
+export let state: AppState = load();
+export function setState(s: AppState){ state = s; }
 export function save(){ localStorage.setItem("pto_state", JSON.stringify(state)); }

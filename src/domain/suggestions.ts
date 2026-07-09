@@ -51,7 +51,7 @@ export function ptoOffSpan(dates){
   let start = new Date(seed), end = new Date(seed);
   while (flex(addDays(start,-1))) start = addDays(start,-1);
   while (flex(addDays(end,1))) end = addDays(end,1);
-  return Math.round((end - start) / 86400000) + 1;
+  return Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
 }
 export function buildAllSuggestions(year){
   const wd = state.config.workday || 8, t = today(), out = [];

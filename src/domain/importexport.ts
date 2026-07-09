@@ -31,12 +31,12 @@ export function parseHtmlTable(html){
 
 // ── Value normalizers ──
 export function normImportDate(v){
-  if (v instanceof Date && !isNaN(v)) return `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,"0")}-${String(v.getDate()).padStart(2,"0")}`;
+  if (v instanceof Date && !isNaN(v.getTime())) return `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,"0")}-${String(v.getDate()).padStart(2,"0")}`;
   let s = String(v==null?"":v).trim(); if (!s) return null;
   if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(s)){ const [y,m,d] = s.split("-").map(Number); return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
   // Excel serial date (days since 1899-12-30); modern dates are ~20000–80000
   if (/^\d{4,6}(\.\d+)?$/.test(s)){ const n = Number(s); if (n >= 20000 && n < 80000){ const dt = new Date(Date.UTC(1899,11,30) + Math.round(n)*86400000); return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,"0")}-${String(dt.getUTCDate()).padStart(2,"0")}`; } }
-  const d = new Date(s); if (isNaN(d)) return null;
+  const d = new Date(s); if (isNaN(d.getTime())) return null;
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 export function normImportType(s){ const k = String(s||"").trim().toLowerCase(); const map = {pto:"PTO", vacation:"PTO", vac:"PTO", personal:"PTO", sick:"Sick", "personal holiday":"Personal Holiday", holiday:"Personal Holiday", ph:"Personal Holiday", bereavement:"Bereavement", jury:"Jury Duty", "jury duty":"Jury Duty", unpaid:"Unpaid"}; return map[k] || (s ? String(s).trim() : "PTO"); }

@@ -32,7 +32,7 @@ export function reconcilePersonalHolidays(){
     if (ph.status === "Forfeited") return;
     const ent = state.entries
       .filter(e => e.type === "Personal Holiday" && parseDate(e.date).getFullYear() === ph.year)
-      .sort((a,b) => parseDate(a.date) - parseDate(b.date))[0];
+      .sort((a,b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())[0];
     if (ent){
       const st = ent.status === "Taken" ? "Taken" : "Scheduled";
       if (ph.date !== ent.date || ph.status !== st){ ph.date = ent.date; ph.status = st; if (!ph.notes) ph.notes = ent.notes || "Personal holiday"; changed = true; }
