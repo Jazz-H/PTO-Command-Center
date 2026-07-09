@@ -136,7 +136,7 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
       <div class="chart-wrap"><canvas id="balChart"></canvas></div>
       <div class="chart-summary" id="chartSummary"></div>
     </div>
-    <div class="card"><div class="card-title"><h3>Upcoming Time Off</h3><button class="link-btn" onclick="switchTab('cal')">View Calendar →</button></div><div id="upcoming"></div></div>
+    <div class="card"><div class="card-title"><h3>Upcoming Time Off</h3><button class="link-btn" onclick="switchTab('cal')">View Calendar →</button></div><div class="dash-scroll-wrap"><div id="upcoming"></div></div></div>
     <div class="card">
       <div class="card-title"><h3>Insights</h3>
         <div style="display:flex;align-items:center;gap:10px">
@@ -145,7 +145,7 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
           <span id="insightCount" style="display:none"></span>
         </div>
       </div>
-      <div id="insights" class="insights-col"></div>
+      <div class="dash-scroll-wrap"><div id="insights" class="insights-col"></div></div>
     </div>
   </div>
   <div style="height:20px"></div>
