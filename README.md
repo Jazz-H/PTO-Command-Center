@@ -102,7 +102,7 @@ The app now ships as one built `index.html` (offline PWA) generated from **modul
 ```
 src/index.html   — app shell (markup + head)
 src/styles.css   — styles (design tokens + components)
-src/app.js       — application logic (ES module)
+src/app.ts       — application logic (ES module)
 index.html       — BUILT single-file artifact GitHub Pages serves — generated, do not hand-edit
 vite.config.js   — inlines src/ into the root index.html
 ```
@@ -121,7 +121,7 @@ MIT — do whatever you want with this.
 
 ## 🙋 Support
 
-This is a personal-use tool. If you're a fellow CCCI teammate and want your own copy, fork this repo and edit `DEFAULTS.config` in `src/app.js` and run `npm run build` with your hire date and name.
+This is a personal-use tool. If you're a fellow CCCI teammate and want your own copy, fork this repo and edit `DEFAULTS.config` in `src/app.ts` and run `npm run build` with your hire date and name.
 
 ---
 
