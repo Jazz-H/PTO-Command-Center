@@ -1,4 +1,5 @@
 import { DAYNAMES, DOWABBR, MONTHNAMES, parseDate, fmt, isoDate, today, isWeekend, addDays, daysBetween, weekNum, ordSuffix } from "./domain/dates.ts";
+import { state, setState, save, DEFAULTS, ptoMigrate } from "./state/store.ts";
 const ICO = {
   vac:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.66 8L12 2.35 6.34 8A8 8 0 1 0 17.66 8z"/></svg>',
   used:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
@@ -27,90 +28,9 @@ const ICO = {
   award:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>'
 };
 
-const CCCI_2026_HOLIDAYS = [
-  {date:"2026-01-01", name:"New Year's Day"},{date:"2026-01-19", name:"Martin Luther King Day"},
-  {date:"2026-04-03", name:"Good Friday"},{date:"2026-05-25", name:"Memorial Day"},
-  {date:"2026-07-03", name:"Independence Day"},{date:"2026-09-07", name:"Labor Day"},
-  {date:"2026-11-26", name:"Thanksgiving Day"},{date:"2026-12-25", name:"Christmas Day"}
-];
-
-const DEFAULTS = {
-  config: { name:"Jazz Harris", hire:"2025-07-28", year:2026, workday:8, birthday:"" },
-  allotments: [
-    {year:2025, vacation:32, sick:null, notes:"Partial — hired 7/28/2025"},
-    {year:2026, vacation:80, sick:null, notes:"10 days PTO"},
-    {year:2027, vacation:120, sick:null, notes:"2-year mark — 15 days"},
-    {year:2028, vacation:120, sick:null, notes:"15 days"},
-    {year:2029, vacation:120, sick:null, notes:"15 days"},
-    {year:2030, vacation:160, sick:null, notes:"5-year mark — 20 days"}
-  ],
-  personalHolidays: [{year:2026, date:null, status:"Unscheduled", notes:""},{year:2027, date:null, status:"Unscheduled", notes:""}],
-  tiers: [
-    {years:1, vacDays:10, label:"1 Year", notes:"First anniversary at CCCI"},
-    {years:2, vacDays:15, label:"2 Years", notes:"+5 days bump (Brie confirmed)"},
-    {years:5, vacDays:20, label:"5 Years", notes:"Half-decade milestone"},
-    {years:10, vacDays:25, label:"10 Years", notes:"Decade of service"},
-    {years:15, vacDays:25, label:"15 Years", notes:"Long-term recognition"},
-    {years:20, vacDays:25, label:"20 Years", notes:"Two decades!"},
-    {years:25, vacDays:30, label:"25 Years", notes:"Quarter century"}
-  ],
-  holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
-  entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {},
-  logSearch: "", logType: "All", logYear: "All", logView: "list", collapsedMonths: {},
-  dismissedInsights: [], showDismissed: false, entryMode: "hours", sugFilters: {}, chartRange: 12,
-  notificationsSeen: []
-};
-
-let state = load();
 let calCursor = new Date();
 let editingIdx = -1;
 
-// Fold legacy "Vacation" and "Personal" entry types into the unified "PTO" bucket.
-// Personal Holiday stays a separate category. Safe + idempotent (only relabels the type field).
-function ptoMigrate(st){
-  if (st && Array.isArray(st.entries)) st.entries.forEach(e => { if (e && (e.type === "Vacation" || e.type === "Personal")) e.type = "PTO"; });
-  return st;
-}
-function load(){
-  try{
-    const r = localStorage.getItem("pto_state");
-    if (r){
-      const s = JSON.parse(r);
-      if (s.allotments){
-        if (!s.tiers) s.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers));
-        s.allotments.forEach(a => { if (a.sickTBC === true || a.sick === undefined) a.sick = null; delete a.sickTBC; });
-        if (s.holidaysV !== "ccci-2026-v1"){
-          const hasWrongOnes = s.holidays && s.holidays.some(h => h.date === "2026-06-19" || h.date === "2026-11-27" || h.date === "2026-12-24");
-          const has2026Count = s.holidays ? s.holidays.filter(h => h.date.startsWith("2026")).length : 0;
-          if (hasWrongOnes && has2026Count <= 10){
-            s.holidays = s.holidays.filter(h => !h.date.startsWith("2026"));
-            s.holidays = [...s.holidays, ...CCCI_2026_HOLIDAYS];
-          }
-          s.holidaysV = "ccci-2026-v1";
-        }
-        if (!s.personalHolidays) s.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays));
-        if (!s.calFilters) s.calFilters = {};
-        if (!s.fridays) s.fridays = {};
-        if (s.logSearch === undefined) s.logSearch = "";
-        if (!s.logType) s.logType = "All";
-        if (!s.logYear) s.logYear = "All";
-        if (!s.logView) s.logView = "list";
-        if (!s.collapsedMonths) s.collapsedMonths = {};
-        if (!s.dismissedInsights) s.dismissedInsights = [];
-        if (s.showDismissed === undefined) s.showDismissed = false;
-        if (!s.entryMode) s.entryMode = "hours";
-        if (!s.sugFilters) s.sugFilters = {};
-        if (s.config && s.config.birthday === undefined) s.config.birthday = "";
-        if (!s.chartRange) s.chartRange = 12;
-        if (!s.notificationsSeen) s.notificationsSeen = [];
-        ptoMigrate(s);
-        return s;
-      }
-    }
-  }catch(e){}
-  return ptoMigrate(JSON.parse(JSON.stringify(DEFAULTS)));
-}
-function save(){ localStorage.setItem("pto_state", JSON.stringify(state)); }
 function toast(msg){ const t = document.getElementById("toast"); t.innerHTML = ICO.check + '<span>'+msg+'</span>'; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2400); }
 
 function getThemeMode(){ return localStorage.getItem('pto_theme') || 'dark'; }
@@ -1836,8 +1756,8 @@ function importSpreadsheet(ev){
   };
   r.readAsArrayBuffer(f);
 }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ state = JSON.parse(e.target.result); ptoMigrate(state); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
-function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); state = JSON.parse(JSON.stringify(DEFAULTS)); save(); refresh(); toast("All data reset"); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ setState(JSON.parse(e.target.result)); ptoMigrate(state); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); setState(JSON.parse(JSON.stringify(DEFAULTS))); save(); refresh(); toast("All data reset"); }
 
 function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderHistory(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
 
@@ -1925,5 +1845,5 @@ if (pwaIsIOS() && !pwaStandalone() && !pwaDismissed() && location.protocol.start
    on* attributes keep working after ES-module conversion. Retired once handlers
    move to event delegation (later phase). Generated from all top-level fn decls. */
 if (typeof window !== "undefined") Object.assign(window, {
-  ptoMigrate, load, save, toast, getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, cssVar, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, parseDate, fmt, isoDate, today, isHoliday, holidayName, isWeekend, addDays, daysBetween, weekNum, getAllotment, ytdUsage, currentBalance, daysUntilNextRefill, getPersonalHoliday, isEligibleForPH, personalHolidayDates, reconcilePersonalHolidays, scheduledFridayAppts, buildChartData, buildSuggestions, suggestedDates, nthWeekday, usFederalHolidays, ptoOffSpan, buildAllSuggestions, toggleSugFilter, anniversaryFor, yearsOfService, nextMilestone, currentMilestone, anniversaryDates, buildInsights, renderGreeting, ringSVG, ringSVG2, miniKpi, usageThisVsLast, sparklineSVG, vacCumulativeByMonth, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, esc, hashStr, insightId, insightHtml, isNotifType, liveInsights, renderInsights, notifUnreadCount, refreshNotifDot, notifTabFor, activeNotifs, renderNotifPanel, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, logIsFiltered, parseLogQuery, getFilteredEntries, renderLogSummary, renderLogChart, renderLog, logRowHtml, onLogCheck, toggleLogSelectAll, updateLogBulkBar, clearLogSelection, bulkStatusLog, bulkDeleteLog, monthKey, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, renderSugSummary, dismissSugTip, renderSuggestions, renderFridays, friHours, renderAnniversaries, renderTierChart, updateTier, renderCalendar, syncCalPickers, setCalMonth, setCalYear, toggleCalList, applyCalListCollapsed, calJumpDay, renderCalSide, renderCalInsights, ordSuffix, renderCalEvents, renderCalStats, flashCalDay, updateLegendUI, toggleLegendFilter, goToToday, dragStart, dropBlockReasonFor, dragOver, dragLeave, dropOnDay, moveFridayAppt, bookSuggestionAt, rescheduleEntry, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, detachPH, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, icsEscape, icsFold, exportICS, csvCell, exportCSV, exportExcel, parseCSVText, parseHtmlTable, normImportDate, normImportType, ingestEntryRows, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa
+  toast, getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, cssVar, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, isHoliday, holidayName, getAllotment, ytdUsage, currentBalance, daysUntilNextRefill, getPersonalHoliday, isEligibleForPH, personalHolidayDates, reconcilePersonalHolidays, scheduledFridayAppts, buildChartData, buildSuggestions, suggestedDates, nthWeekday, usFederalHolidays, ptoOffSpan, buildAllSuggestions, toggleSugFilter, anniversaryFor, yearsOfService, nextMilestone, currentMilestone, anniversaryDates, buildInsights, renderGreeting, ringSVG, ringSVG2, miniKpi, usageThisVsLast, sparklineSVG, vacCumulativeByMonth, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, esc, hashStr, insightId, insightHtml, isNotifType, liveInsights, renderInsights, notifUnreadCount, refreshNotifDot, notifTabFor, activeNotifs, renderNotifPanel, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, logIsFiltered, parseLogQuery, getFilteredEntries, renderLogSummary, renderLogChart, renderLog, logRowHtml, onLogCheck, toggleLogSelectAll, updateLogBulkBar, clearLogSelection, bulkStatusLog, bulkDeleteLog, monthKey, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, renderSugSummary, dismissSugTip, renderSuggestions, renderFridays, friHours, renderAnniversaries, renderTierChart, updateTier, renderCalendar, syncCalPickers, setCalMonth, setCalYear, toggleCalList, applyCalListCollapsed, calJumpDay, renderCalSide, renderCalInsights, renderCalEvents, renderCalStats, flashCalDay, updateLegendUI, toggleLegendFilter, goToToday, dragStart, dropBlockReasonFor, dragOver, dragLeave, dropOnDay, moveFridayAppt, bookSuggestionAt, rescheduleEntry, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, detachPH, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, icsEscape, icsFold, exportICS, csvCell, exportCSV, exportExcel, parseCSVText, parseHtmlTable, normImportDate, normImportType, ingestEntryRows, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa
 });
