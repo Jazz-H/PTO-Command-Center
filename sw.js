@@ -1,8 +1,7 @@
 /* PTO Pilot service worker — bump CACHE to force a refresh on update */
-const CACHE = 'pto-cache-v6';
+const CACHE = 'pto-cache-v7';
 const SHELL = [
   './', './index.html',
-  './styles.css', './app.js',
   './manifest.json',
   './favicon.svg', './favicon-32.png', './apple-touch-icon.png',
   './icon-192.png', './icon-512.png'

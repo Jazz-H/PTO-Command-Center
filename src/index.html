@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PTO Pilot</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="PTO"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script>
+(function(){const m=localStorage.getItem('pto_theme')||'dark';const sysDark=window.matchMedia('(prefers-color-scheme: dark)').matches;const p=(m==='system')?(sysDark?'dark':'light'):m;document.documentElement.setAttribute('data-theme',p);
+const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.documentElement.setAttribute('data-sidebar','collapsed');})();
+</script>
+<link rel="stylesheet" href="./styles.css"/>
+</head><body>
+<div class="app">
+<aside class="sidebar" id="appSidebar">
+  <div class="brand" role="button" tabindex="0" title="Go to Dashboard" onclick="switchTab('dash');closeNav()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('dash');closeNav()}">
+    <div class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 2 15 22 11 13 2 9" fill="#fff"/><polygon points="22 2 11 13 15 22" fill="#0a2540" fill-opacity=".2"/></svg></div>
+    <div class="brand-text"><span class="t">PTO Pilot</span><span class="s">Your time-off copilot</span></div>
+  </div>
+  <div class="nav-section">Overview</div>
+  <button class="nav-item active" data-tab="dash" data-tooltip="Dashboard" style="--nav-c:var(--data-purple);--nav-cs:var(--data-purple-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-label">Dashboard</span></button>
+  <button class="nav-item" data-tab="cal" data-tooltip="Calendar" style="--nav-c:var(--data-cyan);--nav-cs:var(--data-cyan-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-label">Calendar</span></button>
+  <button class="nav-item" data-tab="log" data-tooltip="Time Off Log" style="--nav-c:var(--data-blue);--nav-cs:var(--data-blue-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="nav-label">Time Off Log</span></button>
+  <div class="nav-section">Planning</div>
+  <button class="nav-item" data-tab="sug" data-tooltip="Smart Suggestions" style="--nav-c:var(--data-magenta);--nav-cs:var(--data-magenta-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M8.5 14A5 5 0 1 1 15.5 14c-.7.7-1.1 1.4-1.3 2.2H9.8c-.2-.8-.6-1.5-1.3-2.2z"/></svg><span class="nav-label">Smart Suggestions</span></button>
+  <button class="nav-item" data-tab="fri" data-tooltip="Friday Planner" style="--nav-c:var(--data-teal);--nav-cs:var(--data-teal-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg><span class="nav-label">Friday Planner</span></button>
+  <button class="nav-item" data-tab="ann" data-tooltip="Anniversaries" style="--nav-c:var(--data-cyan);--nav-cs:var(--data-cyan-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg><span class="nav-label">Anniversaries</span></button>
+  <div class="nav-section">Configuration</div>
+  <button class="nav-item" data-tab="cfg" data-tooltip="Settings" style="--nav-c:var(--data-blue);--nav-cs:var(--data-blue-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nav-label">Settings</span></button>
+  <div class="user-card">
+    <div class="avatar">JH</div>
+    <div class="user-info"><div class="n">Jazz Harris</div><div class="r">Business Analyst II</div></div>
+  </div>
+</aside>
+<div class="nav-backdrop" onclick="closeNav()"></div>
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+    <button class="nav-hamburger" id="sidebarCollapse" onclick="toggleSidebarSmart()" title="Toggle sidebar (Ctrl/Cmd+B)" aria-label="Toggle sidebar" aria-controls="appSidebar" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="global-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="globalSearch" placeholder="Search anything…" autocomplete="off" onkeydown="if(event.key==='Enter')globalSearchGo(this.value)"/>
+      <kbd class="gs-kbd">⌘K</kbd>
+    </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn topbar-add" onclick="requestTimeOff()" title="Add time off (N)" aria-label="Add time off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <div class="notif-wrap">
+        <button class="icon-btn" id="notifBtn" onclick="toggleNotifPanel(event)" title="Notifications" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>
+        <div class="notif-panel" id="notifPanel" role="dialog" aria-label="Notifications">
+          <div class="notif-head"><strong>Notifications</strong><div class="notif-head-actions"><button class="link-btn" id="notifMarkRead" onclick="markAllNotifsRead()">Mark all read</button><button class="notif-close" onclick="closeNotifPanel()" aria-label="Close notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>
+          <div class="notif-list" id="notifList"></div>
+        </div>
+      </div>
+      <div class="user-wrap">
+        <button class="user-chip" id="userChipBtn" onclick="toggleUserMenu(event)" title="Account menu" aria-haspopup="true" aria-expanded="false"><span class="uc-avatar">JH</span><span class="uc-name">Jazz Harris</span><svg class="uc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="user-menu" id="userMenu" role="menu" aria-label="Account">
+          <div class="um-head"><span class="uc-avatar lg">JH</span><div class="um-id"><span class="um-name" id="umName">Jazz Harris</span><span class="um-role" id="umRole">Business Analyst II</span></div></div>
+          <button class="um-item" role="menuitem" onclick="closeUserMenu();switchTab('cfg')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button>
+          <div class="um-theme">
+            <span class="um-theme-lbl">Appearance</span>
+            <div class="theme-toggle">
+              <button class="theme-btn" data-set-theme="light" title="Light" aria-label="Light theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+              <button class="theme-btn" data-set-theme="dark" title="Dark" aria-label="Dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+              <button class="theme-btn" data-set-theme="system" title="System" aria-label="System theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
+            </div>
+          </div>
+          <div class="um-sep"></div>
+          <button class="um-item" role="menuitem" onclick="closeUserMenu();exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export backup</span></button>
+          <button class="um-item" role="menuitem" onclick="closeUserMenu();window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Print summary</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+<div class="print-header"><strong>PTO Summary</strong> — <span id="printName">Jazz Harris</span> — <span id="printDate"></span></div>
+
+<div class="panel active" id="dash">
+  <div class="dash-head">
+    <div class="page-head" style="margin-bottom:0"><h1 id="dashGreeting">Welcome back, Jazz</h1><div class="sub" id="dash-sub"></div></div>
+    <button class="btn dash-cta" onclick="requestTimeOff()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Time Off</span></button>
+  </div>
+  <div class="grid g-kpi" id="kpis"></div>
+  <div style="height:20px"></div>
+  <div class="grid g-dash-2">
+    <div class="card">
+      <div class="card-title"><div><h3>PTO Balance Projection</h3><div class="card-sub">Next 12 months</div></div>
+        <div class="seg-toggle" id="rangeToggle">
+          <button type="button" data-range="3" onclick="setChartRange(3)">3M</button>
+          <button type="button" data-range="6" onclick="setChartRange(6)">6M</button>
+          <button type="button" data-range="12" class="active" onclick="setChartRange(12)">1Y</button>
+          <button type="button" data-range="0" onclick="setChartRange(0)">All</button>
+        </div>
+      </div>
+      <div class="chart-legend-row"><span class="lg-item"><span class="lg-dot" style="background:var(--chart-line)"></span>Balance (hrs)</span><span class="lg-item"><span class="lg-dot dashed" style="border-color:var(--chart-usage)"></span>Used YTD (hrs)</span></div>
+      <div class="chart-wrap"><canvas id="balChart"></canvas></div>
+      <div class="chart-summary" id="chartSummary"></div>
+    </div>
+    <div class="card"><div class="card-title"><h3>Upcoming Time Off</h3><button class="link-btn" onclick="switchTab('cal')">View Calendar →</button></div><div id="upcoming"></div></div>
+    <div class="card">
+      <div class="card-title"><h3>Insights</h3>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="link-btn" id="showDismissedBtn" onclick="toggleShowDismissed()" style="display:none"></button>
+          <button class="link-btn" id="dismissAllBtn" onclick="dismissAllInsights()" style="display:none">Dismiss all</button>
+          <span id="insightCount" style="display:none"></span>
+        </div>
+      </div>
+      <div id="insights" class="insights-col"></div>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="grid g-dash-3">
+    <div class="card"><div class="card-title"><h3>Upcoming Fridays (WFH)</h3><button class="link-btn" onclick="switchTab('fri')">View all Fridays →</button></div><div id="upcomingFridays"></div></div>
+    <div class="card"><div class="card-title"><h3>Usage Breakdown (YTD)</h3></div><div class="usage-wrap"><div class="usage-donut"><canvas id="pieChart"></canvas></div><div id="usageLegend" class="usage-legend"></div></div></div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="card"><div class="card-title"><h3>History</h3><button class="link-btn" onclick="switchTab('log')">View log →</button></div><div id="history"></div></div>
+</div>
+
+<div class="panel" id="log">
+  <div class="page-head"><h1>Time off log</h1><div class="sub">Record, edit, and manage every PTO, sick, and holiday day</div></div>
+  <div class="grid g-kpi no-print" id="logKpis" style="margin-bottom:20px"></div>
+  <div class="card no-print" style="margin-bottom:20px">
+    <div class="card-title"><h3>Add time off</h3></div>
+    <div class="form-grid">
+      <div id="f_start"><label class="field">Start date</label><button type="button" class="dp-field" onclick="openDatePicker('e_date',this)"><span class="dp-text" id="e_date_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_date"/></div>
+      <div id="f_end"><label class="field">End date</label><button type="button" class="dp-field" onclick="openDatePicker('e_end',this)"><span class="dp-text" id="e_end_text">Same day</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="e_end"/></div>
+      <div id="f_hours" style="display:none"><label class="field">Hours</label><input type="number" id="e_hours" value="4" step="0.5" min="0"/></div>
+      <div><label class="field">Type</label><select id="e_type"><option>PTO</option><option>Sick</option><option>Personal Holiday</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
+      <div class="ad-cell"><label class="field">&nbsp;</label><label class="switch"><input type="checkbox" id="e_allday" checked onchange="setAllDay(this.checked)"><span class="track"></span><span class="switch-lbl">All day</span></label></div>
+      <div><label class="field">Status</label><select id="e_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
+      <div><label class="field">Notes</label><input type="text" id="e_notes" placeholder="Optional"/></div>
+      <button class="btn" onclick="addEntry()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
+    </div>
+    <div id="rangePreview" class="range-preview" style="display:none"></div>
+  </div>
+  <div class="card no-print" style="margin-bottom:20px"><div class="card-title"><h3>Monthly usage</h3><span class="meta" id="logChartMeta"></span></div><div class="chart-wrap" style="height:180px"><canvas id="logMonthChart"></canvas></div></div>
+  <div class="card">
+    <div class="card-title"><h3>All entries</h3><span class="meta" id="logCount">0 entries</span></div>
+    <div class="bulk-bar no-print" id="logBulkBar"><span class="bulk-count" id="logBulkCount">0 selected</span><div class="bulk-actions"><button class="btn ghost sm" onclick="bulkStatusLog('Taken')">Mark Taken</button><button class="btn ghost sm" onclick="bulkStatusLog('Approved')">Mark Approved</button><button class="btn ghost sm" style="color:var(--accent);border-color:var(--accent-line)" onclick="bulkDeleteLog()">Delete</button><button class="btn subtle sm" onclick="clearLogSelection()">Clear</button></div></div>
+    <div class="log-toolbar">
+      <div class="log-search">
+        <span class="lsi" id="logSearchIcon"></span>
+        <input type="text" id="logSearch" placeholder="Search… or /vac /sick /2026 /jul" title="Type to search, or use slash-commands: /vac /sick /personal /holiday, /2026, /jul — they stack with each other and your text" autocomplete="off" oninput="onLogSearch(this.value)"/>
+        <button type="button" class="log-search-clear" id="logSearchClear" onclick="clearLogSearch()" title="Clear search" aria-label="Clear search"></button>
+      </div>
+      <select id="logTypeFilter" onchange="onLogFilter('logType',this.value)" title="Filter by type">
+        <option value="All">All types</option>
+        <option value="PTO">PTO</option>
+        <option value="Sick">Sick</option>
+        <option value="Personal Holiday">Personal Holiday</option>
+        <option value="Bereavement">Bereavement</option>
+        <option value="Jury Duty">Jury Duty</option>
+        <option value="Unpaid">Unpaid</option>
+      </select>
+      <select id="logYearFilter" onchange="onLogFilter('logYear',this.value)" title="Filter by year"></select>
+      <div class="log-view-toggle" id="logViewToggle">
+        <button type="button" data-view="list" onclick="setLogView('list')">List</button>
+        <button type="button" data-view="month" onclick="setLogView('month')">By month</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table id="logTable" class="rtable"><thead><tr><th style="width:34px" class="no-print"><input type="checkbox" id="logSelectAll" onchange="toggleLogSelectAll(this.checked)" title="Select all" aria-label="Select all entries"></th><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<div class="panel" id="cal">
+  <div class="page-head"><h1>Calendar</h1><div class="sub">Visual view of holidays, time off, anniversaries, Friday appointments, and suggestions</div></div>
+  <div class="cal-split">
+   <div class="card cal-main">
+    <div class="cal-toolbar">
+      <div class="cal-nav-group">
+        <button class="btn ghost sm" onclick="navMonth(-1)" title="Previous month" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <select id="calMonthPicker" class="cal-picker" onchange="setCalMonth(this.value)" aria-label="Month"></select>
+        <select id="calYearPicker" class="cal-picker" onchange="setCalYear(this.value)" aria-label="Year"></select>
+        <button class="btn ghost sm" onclick="navMonth(1)" title="Next month" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        <button class="btn ghost sm" onclick="goToToday()">Today</button>
+      </div>
+      <div class="cal-legend-top" id="calLegend">
+        <button class="legend-item" data-filter="vac"><span class="legend-swatch" style="background:var(--success)"></span><span>PTO</span></button>
+        <button class="legend-item" data-filter="sick"><span class="legend-swatch" style="background:var(--accent)"></span><span>Sick</span></button>
+        <button class="legend-item" data-filter="personal"><span class="legend-swatch" style="background:var(--pink)"></span><span>Personal Hol.</span></button>
+        <button class="legend-item" data-filter="hol"><span class="legend-swatch" style="background:var(--violet)"></span><span>Company Hol.</span></button>
+        <button class="legend-item" data-filter="friAppt"><span class="legend-swatch" style="background:var(--cyan)"></span><span>Friday Appt.</span></button>
+        <button class="legend-item" data-filter="sug"><span class="legend-swatch" style="background:var(--warn-soft); border:1px dashed var(--warn)"></span><span>Suggested</span></button>
+        <button class="legend-item" data-filter="anniv"><span class="legend-swatch" style="background:var(--warn)"></span><span>Anniversary</span></button>
+        <button class="legend-item" data-filter="fri"><span class="legend-swatch" style="background:var(--info-soft); border-top:2px solid var(--info)"></span><span>WFH Fri</span></button>
+      </div>
+    </div>
+    <div class="cal-grid" id="calHead"></div>
+    <div style="height:6px"></div>
+    <div class="cal-grid" id="calBody"></div>
+   </div>
+   <div class="card cal-side" id="calSide">
+    <div class="cal-side-head" role="button" tabindex="0" onclick="toggleCalList()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCalList()}" aria-label="Toggle month details">
+      <div><h3 id="calSideTitle">This month</h3><span class="card-sub" id="calSideSub">Events &amp; insights</span></div>
+      <span class="cal-side-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+    <div class="cal-side-body" id="calSideBody">
+      <div class="cal-stats" id="calStats"></div>
+      <div class="cal-sec-head">Insights</div>
+      <div class="cal-insights" id="calInsights"></div>
+      <div class="cal-events-head">Events this month</div>
+      <div class="cal-events" id="calEvents"></div>
+    </div>
+   </div>
+  </div>
+</div>
+
+<div class="panel" id="sug">
+  <div class="page-head"><h1>Smart suggestions</h1><div class="sub">Maximize time off with strategic PTO placement — WFH Fridays give you an edge</div></div>
+  <div class="banner info" id="sugTip">
+    <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <div><strong>How this works.</strong> The engine weighs company holidays, federal long weekends, ordinary weekends, your personal dates, and your remaining balance against your WFH-Friday edge. Toggle categories below; hover the ⓘ on any row to see why it's suggested.</div>
+    <button class="banner-close" onclick="dismissSugTip()" title="Dismiss" aria-label="Dismiss tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="grid g-kpi" id="sugKpis" style="margin-bottom:20px"></div>
+  <div class="card">
+    <div class="sug-filters" id="sugFilters"></div>
+    <div class="table-wrap"><table id="sugTable" class="rtable"><thead><tr><th>Occasion</th><th>When</th><th>Take PTO on</th><th>Outcome</th><th style="text-align:right">Hours</th><th>ROI</th><th style="width:100px"></th></tr></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<div class="panel" id="fri">
+  <div class="page-head"><h1>Friday planner</h1><div class="sub">Schedule appointments on WFH Fridays — save PTO for actual trips. Scheduled items show on your calendar.</div></div>
+  <div class="grid g-kpi" id="friKpis"></div>
+  <div style="height:20px"></div>
+  <div class="card"><div class="card-title"><h3>Remaining Fridays this year</h3><span class="meta" id="friMeta"></span></div><div class="table-wrap"><table id="friTable" class="rtable"><thead><tr><th>Friday</th><th>Week</th><th>Holiday?</th><th>Purpose</th><th style="width:80px">Hrs</th><th style="width:150px">Status</th></tr></thead><tbody></tbody></table></div><div id="friMoreWrap" class="show-more-wrap"></div></div>
+</div>
+
+<div class="panel" id="ann">
+  <div class="page-head"><h1>Service anniversaries</h1><div class="sub">Career milestones and PTO tier progression at CCCI</div></div>
+  <div class="grid g-kpi" id="annKpis"></div>
+  <div style="height:20px"></div>
+  <div class="grid g-2">
+    <div class="card"><div class="card-title"><h3>Milestone timeline</h3><span class="meta">All tiers</span></div><div id="milestoneList"></div></div>
+    <div class="card"><div class="card-title"><h3>Insights</h3></div><div id="annInsights"></div></div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="card"><div class="card-title"><h3>PTO growth over tenure</h3><span class="meta">Days/year at each milestone</span></div><div class="chart-wrap" style="height:220px"><canvas id="tierChart"></canvas></div></div>
+  <div style="height:20px"></div>
+  <div class="card">
+    <div class="card-title"><h3>PTO tier reference</h3><span class="meta">Edit to match HR policy</span></div>
+    <div class="table-wrap"><table id="tierTable" class="rtable"><thead><tr><th>Milestone</th><th>Anniversary date</th><th>Year</th><th style="width:110px">PTO days</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<div class="panel" id="cfg">
+  <div class="page-head"><h1>Settings</h1><div class="sub">Configure your policy, allotments, holidays, and preferences</div></div>
+  <div class="banner info" id="cfgTip">
+    <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div><strong>CCCI policy.</strong> PTO is awarded Jan 1 based on service date (10 days year 1 → 15 days at 2-yr mark). 2026 offers <b>9 paid holidays</b>: 8 scheduled + 1 personal holiday (teammate-scheduled after 90 days of service). Unused holidays are forfeited Dec 31.</div>
+    <button class="banner-close" onclick="dismissCfgTip()" title="Dismiss" aria-label="Dismiss tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="card cfg-actions">
+    <div class="cfg-actions-head">
+      <button class="btn" onclick="saveConfig()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save settings</button>
+      <button class="btn ghost cfg-danger" onclick="resetAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Reset all data</button>
+    </div>
+    <div class="cfg-actions-grid">
+      <div class="cfg-actions-group">
+        <span class="cfg-actions-lbl">Spreadsheet (Excel)</span>
+        <div class="cfg-actions-btns">
+          <button class="btn ghost" onclick="exportExcel()" title="Download your entries as an Excel-compatible spreadsheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Export to Excel</button>
+          <button class="btn ghost" onclick="document.getElementById('xlsxFile').click()" title="Import entries from an Excel/CSV file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import from Excel</button>
+          <input type="file" id="xlsxFile" accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel" style="display:none" onchange="importSpreadsheet(event)"/>
+        </div>
+      </div>
+      <div class="cfg-actions-group">
+        <span class="cfg-actions-lbl">Full backup</span>
+        <div class="cfg-actions-btns">
+          <button class="btn ghost" onclick="exportData()" title="Download a complete JSON backup of everything"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export JSON</button>
+          <button class="btn ghost" onclick="document.getElementById('importFile').click()" title="Restore from a JSON backup (replaces everything)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import JSON</button>
+          <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)"/>
+        </div>
+      </div>
+      <div class="cfg-actions-group">
+        <span class="cfg-actions-lbl">Calendar</span>
+        <div class="cfg-actions-btns">
+          <button class="btn ghost" onclick="exportICS()" title="Download an .ics file for Outlook / Google / Apple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Export .ics</button>
+          <label class="na-toggle" style="cursor:pointer"><input type="checkbox" id="ics_holidays"/> Incl. holidays</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="grid g-2-eq">
+    <div class="card">
+      <div class="card-title"><h3>Employee info</h3></div>
+      <div class="row">
+        <div><label class="field">Name</label><input id="c_name"/></div>
+        <div class="row row-2"><div><label class="field">Hire date</label><input type="date" id="c_hire"/></div><div><label class="field">Plan year</label><input type="number" id="c_year"/></div></div>
+        <div class="row row-2"><div><label class="field">Standard workday (hrs)</label><input type="number" id="c_workday" step="0.5"/></div><div><label class="field">Birthday <span style="color:var(--n-400);font-weight:400">(for suggestions)</span></label><input type="date" id="c_birthday"/></div></div>
+      </div>
+      <div class="cfg-snapshot" id="cfgSnapshot"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><h3>Annual allotments</h3><span class="meta">Front-loaded Jan 1</span></div>
+      <div style="background:var(--hover-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--n-600);line-height:1.5"><b style="color:var(--n-800)">Sick allotment:</b> Set to N/A until confirmed with HR. Uncheck N/A and enter the number of hours once you know your annual sick benefit.</div>
+      <div class="year-row header"><div>Year</div><div>PTO (hrs)</div><div>Sick (hrs)</div><div>Notes</div></div>
+      <div id="allotList"></div>
+    </div>
+  </div>
+  <div style="height:20px"></div>
+  <div class="card">
+    <div class="card-title"><h3>Company holidays</h3><span class="meta">CCCI 2026 official · 8 scheduled + 1 personal</span></div>
+    <div id="holList"></div>
+    <div class="row hol-add-row" style="margin-top:12px">
+      <input type="date" id="new_hol_date"/>
+      <input type="text" id="new_hol_name" placeholder="Holiday name"/>
+      <button class="btn ghost" onclick="addHoliday()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add holiday</button>
+    </div>
+  </div>
+</div>
+
+  </div>
+</main>
+</div>
+
+<!-- Edit Entry Modal -->
+<div class="modal-backdrop" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit time-off entry</h3>
+      <button class="modal-close" onclick="closeEditModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-grid">
+      <div><label class="field">Date</label><button type="button" class="dp-field" onclick="openDatePicker('edit_date',this)"><span class="dp-text" id="edit_date_text">Pick a date</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><input type="hidden" id="edit_date"/></div>
+      <div><label class="field">Type</label><select id="edit_type"><option>PTO</option><option>Sick</option><option>Personal Holiday</option><option>Bereavement</option><option>Jury Duty</option><option>Unpaid</option></select></div>
+      <div><label class="field">Hours</label><input type="number" id="edit_hours" step="0.5" min="0"/></div>
+      <div><label class="field">Status</label><select id="edit_status"><option>Approved</option><option>Pending</option><option>Taken</option></select></div>
+      <div class="full"><label class="field">Notes</label><input type="text" id="edit_notes"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn subtle sm" onclick="closeEditModal()">Cancel</button>
+      <button class="btn" onclick="saveEditEntry()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="dp-pop" id="datePicker" role="dialog" aria-label="Choose a date">
+  <div class="dp-head">
+    <button type="button" class="dp-nav" onclick="dpMonth(-1)" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="dp-title" id="dpTitle"></div>
+    <button type="button" class="dp-nav" onclick="dpMonth(1)" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+  </div>
+  <div class="dp-dow" id="dpDow"></div>
+  <div class="dp-grid" id="dpGrid"></div>
+  <div class="dp-foot">
+    <button type="button" class="dp-today" onclick="dpToday()">Today</button>
+    <div class="dp-legend"><span><i class="sw-hol"></i>Holiday</span><span><i class="sw-ent"></i>Entry</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="pwa-banner" id="pwaBanner" role="dialog" aria-label="Install app">
+  <div class="pwa-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 2 15 22 11 13 2 9" fill="#fff"/><polygon points="22 2 11 13 15 22" fill="#0a2540" fill-opacity=".2"/></svg></div>
+  <div class="pwa-text"><strong id="pwaTitle">Install PTO Pilot</strong><span id="pwaDesc">Add it to your home screen for one-tap, offline access.</span></div>
+  <div class="pwa-actions">
+    <button class="btn dash-cta pwa-install" id="pwaInstallBtn" onclick="installPwa()">Install</button>
+    <button class="icon-btn pwa-dismiss" id="pwaDismissBtn" onclick="dismissPwaBanner()" aria-label="Dismiss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+</div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
