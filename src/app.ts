@@ -6,6 +6,7 @@ import { buildSuggestions, suggestedDates, nthWeekday, usFederalHolidays, ptoOff
 import { icsEscape, icsFold, csvCell, parseCSVText, parseHtmlTable, ingestEntryRows } from "./domain/importexport.ts";
 import { getPersonalHoliday, isEligibleForPH, personalHolidayDates, reconcilePersonalHolidays } from "./domain/personalholiday.ts";
 import { buildInsights, insightId, insightHtml, isNotifType, liveInsights, DASH_INSIGHT_MAX } from "./ui/insights.ts";
+import { buildChartData, usageThisVsLast, vacCumulativeByMonth } from "./domain/charts.ts";
 import { ICO } from "./ui/icons.ts";
 
 let calCursor = new Date();
@@ -58,24 +59,6 @@ function scheduledFridayAppts(){
   return out;
 }
 
-function buildChartData(){
-  const t = today();
-  const startYear = t.getFullYear(); const startMonth = t.getMonth();
-  const points = [];
-  for (let i = 0; i < 15; i++){
-    const monthDate = new Date(startYear, startMonth + i, 1);
-    const yr = monthDate.getFullYear(); const mo = monthDate.getMonth();
-    const monthEnd = new Date(yr, mo + 1, 0);
-    const monthStart = new Date(yr, mo, 1);
-    const allot = getAllotment(yr);
-    const usedThisMonth = state.entries.filter(e => e.type === "PTO" && parseDate(e.date) >= monthStart && parseDate(e.date) <= monthEnd).reduce((s,e) => s + Number(e.hours||0), 0);
-    const usedToDate = state.entries.filter(e => e.type === "PTO" && parseDate(e.date).getFullYear() === yr && parseDate(e.date) <= monthEnd).reduce((s,e) => s + Number(e.hours||0), 0);
-    points.push({label: `${MONTHNAMES[mo].slice(0,3)} '${String(yr).slice(2)}`, shortLabel: MONTHNAMES[mo].slice(0,3), balance: Math.max(0, allot.vacation - usedToDate), usedYTD: usedToDate, usedThisMonth, monthDate, year: yr, month: mo, allotment: allot.vacation});
-  }
-  return points;
-}
-
-
 // ===== SuggestionEngine (PTO-504) — pluggable strategies grouped by category =====
 const SUG_CATS = {
   company:  {label:"Company holidays",     chip:"v", color:"violet",  icon:ICO.gift,      order:1},
@@ -109,12 +92,6 @@ function ringSVG2(pct, cls){
 function miniKpi(colorCls, icon, title, value, valueCls, sub){
   return `<div class="kpi"><div class="kpi-top"><div class="kpi-icon ${colorCls}">${icon}</div><span class="kpi-title">${title}</span></div><div class="kpi-body"><div class="kpi-main"><div class="kpi-value ${valueCls||''}">${value}</div><div class="kpi-sub">${sub}</div></div></div></div>`;
 }
-function usageThisVsLast(){
-  const t = today(), y = t.getFullYear(), m = t.getMonth();
-  const inMonth = (yy,mm) => state.entries.filter(e => e.type==="PTO" && parseDate(e.date).getFullYear()===yy && parseDate(e.date).getMonth()===mm).reduce((s,e)=>s+Number(e.hours||0),0);
-  const cur = inMonth(y,m); const last = m===0 ? inMonth(y-1,11) : inMonth(y,m-1);
-  return { cur, last, diff: cur-last };
-}
 function sparklineSVG(values){
   const n = values.length;
   if (n < 2) return "";
@@ -126,15 +103,6 @@ function sparklineSVG(values){
   const line = "M" + pts.join(" L");
   const fill = `M0,28 L${pts.join(" L")} L100,28 Z`;
   return `<svg class="kpi-spark" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><path class="fill" d="${fill}"/><path class="line" d="${line}"/></svg>`;
-}
-function vacCumulativeByMonth(year){
-  const out = []; let run = 0;
-  const t = today(); const upto = (t.getFullYear()===year) ? t.getMonth() : 11;
-  for (let mo=0; mo<=upto; mo++){
-    run += state.entries.filter(e => e.type==="PTO" && parseDate(e.date).getFullYear()===year && parseDate(e.date).getMonth()===mo).reduce((s,e)=>s+Number(e.hours||0),0);
-    out.push(run);
-  }
-  return out.length >= 2 ? out : [0, run];
 }
 function renderKPIs(){
   const cfg = state.config; const bal = currentBalance();
@@ -1543,5 +1511,5 @@ if (pwaIsIOS() && !pwaStandalone() && !pwaDismissed() && location.protocol.start
    on* attributes keep working after ES-module conversion. Retired once handlers
    move to event delegation (later phase). Generated from all top-level fn decls. */
 if (typeof window !== "undefined") Object.assign(window, {
-  toast, getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, cssVar, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, scheduledFridayAppts, buildChartData, toggleSugFilter, renderGreeting, ringSVG, ringSVG2, miniKpi, usageThisVsLast, sparklineSVG, vacCumulativeByMonth, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, esc, renderInsights, notifUnreadCount, refreshNotifDot, notifTabFor, activeNotifs, renderNotifPanel, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, logIsFiltered, parseLogQuery, getFilteredEntries, renderLogSummary, renderLogChart, renderLog, logRowHtml, onLogCheck, toggleLogSelectAll, updateLogBulkBar, clearLogSelection, bulkStatusLog, bulkDeleteLog, monthKey, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, renderSugSummary, dismissSugTip, renderSuggestions, renderFridays, friHours, renderAnniversaries, renderTierChart, updateTier, renderCalendar, syncCalPickers, setCalMonth, setCalYear, toggleCalList, applyCalListCollapsed, calJumpDay, renderCalSide, renderCalInsights, renderCalEvents, renderCalStats, flashCalDay, updateLegendUI, toggleLegendFilter, goToToday, dragStart, dropBlockReasonFor, dragOver, dragLeave, dropOnDay, moveFridayAppt, bookSuggestionAt, rescheduleEntry, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, detachPH, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, exportICS, exportCSV, exportExcel, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa
+  toast, getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, cssVar, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, scheduledFridayAppts, toggleSugFilter, renderGreeting, ringSVG, ringSVG2, miniKpi, sparklineSVG, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, esc, renderInsights, notifUnreadCount, refreshNotifDot, notifTabFor, activeNotifs, renderNotifPanel, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, logIsFiltered, parseLogQuery, getFilteredEntries, renderLogSummary, renderLogChart, renderLog, logRowHtml, onLogCheck, toggleLogSelectAll, updateLogBulkBar, clearLogSelection, bulkStatusLog, bulkDeleteLog, monthKey, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, renderSugSummary, dismissSugTip, renderSuggestions, renderFridays, friHours, renderAnniversaries, renderTierChart, updateTier, renderCalendar, syncCalPickers, setCalMonth, setCalYear, toggleCalList, applyCalListCollapsed, calJumpDay, renderCalSide, renderCalInsights, renderCalEvents, renderCalStats, flashCalDay, updateLegendUI, toggleLegendFilter, goToToday, dragStart, dropBlockReasonFor, dragOver, dragLeave, dropOnDay, moveFridayAppt, bookSuggestionAt, rescheduleEntry, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, detachPH, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, exportICS, exportCSV, exportExcel, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa
 });
