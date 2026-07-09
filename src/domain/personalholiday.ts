@@ -15,6 +15,14 @@ export function isEligibleForPH(){ const hire = parseDate(state.config.hire); co
 
 export function personalHolidayDates(){ return new Set(state.personalHolidays.filter(p => p.date).map(p => p.date)); }
 
+// When a "Personal Holiday" log entry is deleted, release the linked PH record.
+export function detachPH(entry){
+  if (entry && entry.type === "Personal Holiday"){
+    const ph = state.personalHolidays.find(p => p.date === entry.date);
+    if (ph){ ph.date = null; ph.status = "Unscheduled"; ph.notes = ""; }
+  }
+}
+
 // Keep the Personal Holiday record in sync with any "Personal Holiday" log entry for that year,
 // so scheduling one from the Time Off Log updates the dashboard card (and vice-versa).
 export function reconcilePersonalHolidays(){

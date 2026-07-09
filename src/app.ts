@@ -4,7 +4,8 @@ import { isHoliday, holidayName, getAllotment, ytdUsage, currentBalance, daysUnt
 import { anniversaryFor, yearsOfService, nextMilestone, currentMilestone, anniversaryDates } from "./domain/anniversaries.ts";
 import { buildSuggestions, suggestedDates, nthWeekday, usFederalHolidays, ptoOffSpan, buildAllSuggestions } from "./domain/suggestions.ts";
 import { icsEscape, icsFold, csvCell, parseCSVText, parseHtmlTable, ingestEntryRows } from "./domain/importexport.ts";
-import { getPersonalHoliday, isEligibleForPH, personalHolidayDates, reconcilePersonalHolidays } from "./domain/personalholiday.ts";
+import { getPersonalHoliday, isEligibleForPH, personalHolidayDates, reconcilePersonalHolidays, detachPH } from "./domain/personalholiday.ts";
+import { setRefresh } from "./ui/refresh.ts";
 import { buildInsights, insightId, insightHtml, isNotifType, liveInsights, DASH_INSIGHT_MAX } from "./ui/insights.ts";
 import { buildChartData, usageThisVsLast, vacCumulativeByMonth } from "./domain/charts.ts";
 import { toast, cssVar, esc, ringSVG, ringSVG2, miniKpi, sparklineSVG } from "./ui/dom.ts";
@@ -1071,12 +1072,6 @@ function addEntry(){
   state.entries.push({date:start, type, hours, status, notes});
   save(); document.getElementById("e_notes").value=""; refresh(); toast("Entry added");
 }
-function detachPH(entry){
-  if (entry && entry.type === "Personal Holiday"){
-    const ph = state.personalHolidays.find(p => p.date === entry.date);
-    if (ph){ ph.date = null; ph.status = "Unscheduled"; ph.notes = ""; }
-  }
-}
 function deleteEntry(i){
   const entry = state.entries[i]; if (!entry) return;
   if (entry.batchId){
@@ -1238,6 +1233,7 @@ function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r =
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); setState(JSON.parse(JSON.stringify(DEFAULTS))); save(); refresh(); toast("All data reset"); }
 
 function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderHistory(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
+setRefresh(refresh); // register the re-render seam for view modules
 
 const TAB_TITLES = {dash:"Dashboard", log:"Time Off Log", cal:"Calendar", sug:"Smart Suggestions", fri:"Friday Planner", ann:"Anniversaries", cfg:"Settings"};
 document.querySelectorAll(".nav-item").forEach(t => { t.addEventListener("click", () => { switchTab(t.dataset.tab); closeNav(); }); });
@@ -1323,5 +1319,5 @@ if (pwaIsIOS() && !pwaStandalone() && !pwaDismissed() && location.protocol.start
    on* attributes keep working after ES-module conversion. Retired once handlers
    move to event delegation (later phase). Generated from all top-level fn decls. */
 if (typeof window !== "undefined") Object.assign(window, {
-  getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, scheduledFridayAppts, toggleSugFilter, renderGreeting, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, renderInsights, notifUnreadCount, refreshNotifDot, notifTabFor, activeNotifs, renderNotifPanel, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, logIsFiltered, parseLogQuery, getFilteredEntries, renderLogSummary, renderLogChart, renderLog, logRowHtml, onLogCheck, toggleLogSelectAll, updateLogBulkBar, clearLogSelection, bulkStatusLog, bulkDeleteLog, monthKey, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, dismissSugTip, renderSuggestions, renderFridays, renderAnniversaries, updateTier, renderCalendar, syncCalPickers, setCalMonth, setCalYear, toggleCalList, applyCalListCollapsed, calJumpDay, renderCalSide, renderCalInsights, renderCalEvents, renderCalStats, flashCalDay, updateLegendUI, toggleLegendFilter, goToToday, dragStart, dropBlockReasonFor, dragOver, dragLeave, dropOnDay, moveFridayAppt, bookSuggestionAt, rescheduleEntry, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, detachPH, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, exportICS, exportCSV, exportExcel, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa
+  getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, scheduledFridayAppts, toggleSugFilter, renderGreeting, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, renderInsights, notifUnreadCount, refreshNotifDot, notifTabFor, activeNotifs, renderNotifPanel, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, logIsFiltered, parseLogQuery, getFilteredEntries, renderLogSummary, renderLogChart, renderLog, logRowHtml, onLogCheck, toggleLogSelectAll, updateLogBulkBar, clearLogSelection, bulkStatusLog, bulkDeleteLog, monthKey, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, dismissSugTip, renderSuggestions, renderFridays, renderAnniversaries, updateTier, renderCalendar, syncCalPickers, setCalMonth, setCalYear, toggleCalList, applyCalListCollapsed, calJumpDay, renderCalSide, renderCalInsights, renderCalEvents, renderCalStats, flashCalDay, updateLegendUI, toggleLegendFilter, goToToday, dragStart, dropBlockReasonFor, dragOver, dragLeave, dropOnDay, moveFridayAppt, bookSuggestionAt, rescheduleEntry, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, exportICS, exportCSV, exportExcel, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa
 });
