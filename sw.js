@@ -1,5 +1,5 @@
 /* PTO Pilot service worker — bump CACHE to force a refresh on update */
-const CACHE = 'pto-cache-v8';
+const CACHE = 'pto-cache-v9';
 const SHELL = [
   './', './index.html',
   './manifest.json',

@@ -29,9 +29,15 @@ export async function pushRemoteState(s: AppState): Promise<void> {
   if (error) throw error;
 }
 
-// Send a passwordless magic link; the email redirects back to this app.
+// Send a passwordless sign-in email. It carries BOTH a magic link (click on the
+// same device) and a 6-digit code (type it in on whichever device you're on —
+// solves the "requested on desktop, email opened on phone" case).
 export async function sendMagicLink(email: string){
   return supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + window.location.pathname } });
+}
+// Verify the emailed 6-digit code on this device → signs this browser in.
+export async function verifyCode(email: string, token: string){
+  return supabase.auth.verifyOtp({ email, token, type: "email" });
 }
 export async function signOut(){ return supabase.auth.signOut(); }
 export async function getSession(){ const { data } = await supabase.auth.getSession(); return data.session; }

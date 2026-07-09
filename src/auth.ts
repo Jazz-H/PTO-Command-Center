@@ -5,7 +5,7 @@
    Supabase never blocks a returning, signed-in user. */
 import { state, setState, save, setOnSave, localTimestamp, ptoMigrate } from "./state/store.ts";
 import { refresh } from "./ui/refresh.ts";
-import { supabase, fetchRemoteState, pushRemoteState, sendMagicLink, signOut, getEmail } from "./state/supabase.ts";
+import { supabase, fetchRemoteState, pushRemoteState, sendMagicLink, verifyCode, signOut, getEmail } from "./state/supabase.ts";
 
 let _pushTimer: any = null;
 function debouncedPush(){ clearTimeout(_pushTimer); _pushTimer = setTimeout(() => { pushRemoteState(state).catch(()=>{}); }, 1200); }
@@ -33,26 +33,49 @@ function setGate(mode: "pending" | "in" | "out"){ const g = gate(); if (g) g.set
 function showAccountEmail(){ getEmail().then(email => { document.querySelectorAll<HTMLElement>(".acct-email").forEach(el => el.textContent = email); }).catch(()=>{}); }
 
 let _formWired = false;
+let _pendingEmail = "";
 function wireSignInForm(){
   if (_formWired) return; _formWired = true;
   const form = document.getElementById("authForm") as HTMLFormElement | null;
   const email = document.getElementById("authEmail") as HTMLInputElement | null;
+  const code = document.getElementById("authCode") as HTMLInputElement | null;
   const msg = document.getElementById("authMsg");
-  const btn = document.getElementById("authSubmit") as HTMLButtonElement | null;
+  const sendBtn = document.getElementById("authSubmit") as HTMLButtonElement | null;
+  const verifyBtn = document.getElementById("authVerify") as HTMLButtonElement | null;
+  const backBtn = document.getElementById("authBack") as HTMLButtonElement | null;
   if (!form) return;
+  const setMsg = (text: string, cls = "") => { if (msg){ msg.className = "auth-msg " + cls; msg.textContent = text; } };
+
+  // Step 1 — send the code (also emails a magic link as a fallback).
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const addr = (email?.value || "").trim();
-    if (!addr){ if (msg) msg.textContent = "Enter your email."; return; }
-    if (btn){ btn.disabled = true; btn.textContent = "Sending…"; }
-    if (msg){ msg.className = "auth-msg"; msg.textContent = ""; }
+    if (!addr){ setMsg("Enter your email.", "err"); return; }
+    if (sendBtn){ sendBtn.disabled = true; sendBtn.textContent = "Sending…"; }
+    setMsg("");
     const { error } = await sendMagicLink(addr);
-    if (btn){ btn.disabled = false; btn.textContent = "Send magic link"; }
-    if (msg){
-      if (error){ msg.className = "auth-msg err"; msg.textContent = error.message || "Couldn't send the link — try again."; }
-      else { msg.className = "auth-msg ok"; msg.textContent = `Check ${addr} for a sign-in link.`; }
-    }
+    if (sendBtn){ sendBtn.disabled = false; sendBtn.textContent = "Send sign-in code"; }
+    if (error){ setMsg(error.message || "Couldn't send — try again.", "err"); return; }
+    _pendingEmail = addr;
+    form.setAttribute("data-step", "code");
+    setMsg(`Code sent to ${addr}. Enter it here — you can read it on any device.`, "ok");
+    setTimeout(() => code?.focus(), 60);
   });
+
+  // Step 2 — verify the 6-digit code on THIS device.
+  const doVerify = async () => {
+    const token = (code?.value || "").trim();
+    if (token.length < 6){ setMsg("Enter the 6-digit code.", "err"); return; }
+    if (verifyBtn){ verifyBtn.disabled = true; verifyBtn.textContent = "Verifying…"; }
+    setMsg("");
+    const { error } = await verifyCode(_pendingEmail, token);
+    if (verifyBtn){ verifyBtn.disabled = false; verifyBtn.textContent = "Verify & sign in"; }
+    // On success, onAuthStateChange(SIGNED_IN) takes over and boots the app.
+    if (error) setMsg(error.message || "That code didn't work — check it or resend.", "err");
+  };
+  verifyBtn?.addEventListener("click", doVerify);
+  code?.addEventListener("keydown", (e) => { if ((e as KeyboardEvent).key === "Enter"){ e.preventDefault(); doVerify(); } });
+  backBtn?.addEventListener("click", () => { form.setAttribute("data-step", "email"); setMsg(""); if (code) code.value = ""; });
 }
 
 export async function signOutAccount(){

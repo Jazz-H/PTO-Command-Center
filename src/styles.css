@@ -847,6 +847,12 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 .auth-form{ display:none; flex-direction:column; gap:10px; text-align:left; }
 .auth-gate[data-mode="pending"] .auth-pending{ display:grid; place-items:center; }
 .auth-gate[data-mode="out"] .auth-form{ display:flex; }
+.auth-step{ display:none; flex-direction:column; gap:10px; }
+.auth-form[data-step="email"] .auth-step-email{ display:flex; }
+.auth-form[data-step="code"] .auth-step-code{ display:flex; }
+.auth-code{ letter-spacing:.35em; text-align:center; font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
+.auth-link{ background:none; border:none; color:var(--n-500); font-size:12.5px; cursor:pointer; padding:2px; text-decoration:underline; }
+.auth-link:hover{ color:var(--accent); }
 .auth-spinner{ width:26px; height:26px; border-radius:50%; border:3px solid var(--line); border-top-color:var(--accent); animation:authspin .7s linear infinite; }
 @keyframes authspin{ to{ transform:rotate(360deg); } }
 .auth-label{ font-size:12.5px; font-weight:600; color:var(--n-600); margin-bottom:2px; }

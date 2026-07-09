@@ -31,12 +31,20 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
       <div class="auth-sub">Your time-off copilot</div>
     </div>
     <div class="auth-pending"><div class="auth-spinner" aria-label="Loading"></div></div>
-    <form id="authForm" class="auth-form" novalidate>
-      <label class="auth-label" for="authEmail">Sign in with your email</label>
-      <input id="authEmail" class="auth-input" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
-      <button id="authSubmit" type="submit" class="auth-btn">Send magic link</button>
+    <form id="authForm" class="auth-form" data-step="email" novalidate>
+      <div class="auth-step auth-step-email">
+        <label class="auth-label" for="authEmail">Sign in with your email</label>
+        <input id="authEmail" class="auth-input" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
+        <button id="authSubmit" type="submit" class="auth-btn">Send sign-in code</button>
+      </div>
+      <div class="auth-step auth-step-code">
+        <label class="auth-label" for="authCode">Enter the 6-digit code we emailed</label>
+        <input id="authCode" class="auth-input auth-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456">
+        <button id="authVerify" type="button" class="auth-btn">Verify &amp; sign in</button>
+        <button id="authBack" type="button" class="auth-link">Use a different email</button>
+      </div>
       <div id="authMsg" class="auth-msg" role="status" aria-live="polite"></div>
-      <div class="auth-fine">We'll email you a one-time sign-in link — no password needed.</div>
+      <div class="auth-fine">We email you a 6-digit code (and a magic link). Enter the code here on any device — no password needed.</div>
     </form>
   </div>
 </div>
