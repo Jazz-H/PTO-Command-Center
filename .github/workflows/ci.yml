@@ -1,0 +1,38 @@
+name: CI
+
+# Verify the app builds from a clean checkout and that the committed single-file
+# artifact (index.html, served by GitHub Pages) is in sync with src/.
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22        # Vite 8 needs Node 20.19+ / 22.12+; matches local
+          cache: npm
+
+      - name: Install (clean, from lockfile)
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify committed index.html is up to date
+        # The build writes index.html; if it differs from what's committed, the
+        # deployed artifact is stale — someone edited src/ without rebuilding.
+        run: |
+          if ! git diff --exit-code -- index.html; then
+            echo "::error::index.html is out of date. Run 'npm run build' and commit the result."
+            exit 1
+          fi
+
+      - name: Type check (report only, non-blocking)
+        # Loose baseline today; surfaced in the log but not a gate yet.
+        run: npm run typecheck || true
