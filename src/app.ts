@@ -184,7 +184,6 @@ function dpSelect(iso){
   const field = _dp.field;
   dpSet(field, iso);
   closeDatePicker();
-  if (field === "e_date" || field === "e_end") updateRangePreview();
 }
 document.addEventListener("keydown", e => {
   if (!datePickerOpen()) return;
@@ -223,20 +222,6 @@ function updateEntryFormUI(){
   const show = (id, on) => { const el = $(id); if (el) el.style.display = on ? "" : "none"; };
   show("f_end", allDay);     // multi-day range only makes sense for all-day entries
   show("f_hours", !allDay);  // partial hours only when it's not an all-day entry
-  const rp = $("rangePreview"); if (rp) rp.style.display = allDay ? "" : "none";
-  if (allDay) updateRangePreview();
-}
-function updateRangePreview(){
-  if (state.entryAllDay === false) return;
-  const rp = $("rangePreview"); if (!rp) return;
-  const s = $("e_date").value, e = $("e_end").value || s;
-  if (!s){ rp.className = "range-preview"; rp.textContent = "Pick a start date. Add an end date to book a multi-day range — weekends, company holidays, and already-booked days are skipped."; return; }
-  const days = businessDaysInRange(s, e); const wd = state.config.workday || 8;
-  if (!days.length){ rp.className = "range-preview"; rp.textContent = "Those dates are already in your log."; return; }
-  const isRange = !!(e && e !== s);
-  const span = days.length === 1 ? fmt(parseDate(days[0]),{month:"short",day:"numeric"}) : `${fmt(parseDate(days[0]),{month:"short",day:"numeric"})} – ${fmt(parseDate(days[days.length-1]),{month:"short",day:"numeric"})}`;
-  rp.className = "range-preview";
-  rp.innerHTML = `This will add <b>${days.length} ${days.length===1?"day":"days"}</b> (<b>${days.length*wd} hrs</b>) across ${span}.${isRange ? " Weekends &amp; company holidays skipped." : ""}`;
 }
 function addEntry(){
   const allDay = state.entryAllDay !== false;
@@ -415,7 +400,7 @@ function importSpreadsheet(ev){
 function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ setState(JSON.parse(e.target.result as string)); ptoMigrate(state); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); setState(JSON.parse(JSON.stringify(DEFAULTS))); save(); refresh(); toast("All data reset"); }
 
-function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderHistory(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
+function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderHistory(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); }
 setRefresh(refresh); // register the re-render seam for view modules
 
 const TAB_TITLES = {dash:"Dashboard", log:"Time Off Log", cal:"Calendar", sug:"Smart Suggestions", fri:"Friday Planner", ann:"Anniversaries", cfg:"Settings"};
@@ -506,5 +491,5 @@ if (pwaIsIOS() && !pwaStandalone() && !pwaDismissed() && location.protocol.start
    on* attributes keep working after ES-module conversion. Retired once handlers
    move to event delegation (later phase). Generated from all top-level fn decls. */
 if (typeof window !== "undefined") Object.assign(window, {
-  getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, toggleSugFilter, renderGreeting, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, renderInsights, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, renderLog, onLogCheck, toggleLogSelectAll, clearLogSelection, bulkStatusLog, bulkDeleteLog, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, dismissSugTip, renderSuggestions, renderFridays, renderAnniversaries, updateTier, renderCalendar, setCalMonth, setCalYear, toggleCalList, calJumpDay, toggleLegendFilter, goToToday, dragStart, dragOver, dragLeave, dropOnDay, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, exportICS, exportCSV, exportExcel, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa, signOutAccount
+  getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, toggleSugFilter, renderGreeting, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, renderInsights, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, renderLog, onLogCheck, toggleLogSelectAll, clearLogSelection, bulkStatusLog, bulkDeleteLog, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, dismissSugTip, renderSuggestions, renderFridays, renderAnniversaries, updateTier, renderCalendar, setCalMonth, setCalYear, toggleCalList, calJumpDay, toggleLegendFilter, goToToday, dragStart, dragOver, dragLeave, dropOnDay, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, addEntry, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, exportICS, exportCSV, exportExcel, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa, signOutAccount
 });
