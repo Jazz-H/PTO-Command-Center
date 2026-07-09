@@ -13,7 +13,7 @@ import { renderAnniversaries, updateTier } from "./ui/views/anniversaries.ts";
 import { renderFridays } from "./ui/views/fridays.ts";
 import { renderSuggestions, toggleSugFilter, dismissSugTip } from "./ui/views/suggestions.ts";
 import { renderLog, onLogCheck, toggleLogSelectAll, clearLogSelection, bulkStatusLog, bulkDeleteLog, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters } from "./ui/views/log.ts";
-import { renderCalendar, gotoCalendarMonth, navMonth, setCalMonth, setCalYear, toggleCalList, calJumpDay, toggleLegendFilter, goToToday, dragStart, dragOver, dragLeave, dropOnDay } from "./ui/views/calendar.ts";
+import { renderCalendar, gotoCalendarMonth, navMonth, setCalMonth, setCalYear, toggleCalList, calJumpDay, toggleLegendFilter, goToToday, dragStart, dragOver, dragLeave, dropOnDay, flashCalDay } from "./ui/views/calendar.ts";
 import { renderSettings, dismissCfgTip, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday } from "./ui/views/settings.ts";
 import { renderGreeting, renderKPIs, renderCharts, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderUpcoming, renderHistory, renderUpcomingFridays, resizeCharts } from "./ui/views/dashboard.ts";
 import { setSwitchTab } from "./ui/nav.ts";
@@ -448,11 +448,6 @@ document.addEventListener('keydown', e => {
     const el = document.activeElement; const tag = el ? el.tagName : '';
     if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT' && !(el && el.isContentEditable)){ e.preventDefault(); requestTimeOff(); }
   }
-});
-document.addEventListener('dragend', () => {
-  document.querySelectorAll('.cal-tag.dragging').forEach(el => el.classList.remove('dragging'));
-  document.querySelectorAll('.cal-day.drop-target,.cal-day.drop-invalid').forEach(el => el.classList.remove('drop-target','drop-invalid'));
-  _drag = null;
 });
 
 dpSet("e_date", isoDate(today()));

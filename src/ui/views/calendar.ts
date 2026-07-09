@@ -182,7 +182,7 @@ function renderCalStats(y, m){
     `<span class="cal-stat"><span class="dot" style="background:var(--data-purple)"></span><b>${hols}</b> ${hols===1?'holiday':'holidays'}</span>` +
     `<span class="cal-stat"><span class="dot" style="background:var(--data-cyan)"></span><b>${fridays}</b> WFH Fridays</span>`;
 }
-function flashCalDay(iso){ setTimeout(() => { const cell = document.querySelector(`.cal-day[data-iso="${iso}"]`); if (cell){ cell.classList.add('flash'); setTimeout(()=>cell.classList.remove('flash'), 1400); } }, 150); }
+export function flashCalDay(iso){ setTimeout(() => { const cell = document.querySelector(`.cal-day[data-iso="${iso}"]`); if (cell){ cell.classList.add('flash'); setTimeout(()=>cell.classList.remove('flash'), 1400); } }, 150); }
 
 function updateLegendUI(){
   const f = state.calFilters || {};
@@ -204,6 +204,12 @@ export function goToToday(){
 // --- Drag entries between days to reschedule ---
 // Drag payload: {type:'entry'|'fri'|'sug', key}. entry.key=index, fri/sug.key=iso date.
 let _drag = null;
+// Clear drag state + hover styling when a drag ends anywhere (incl. cancelled).
+document.addEventListener('dragend', () => {
+  document.querySelectorAll('.cal-tag.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.cal-day.drop-target,.cal-day.drop-invalid').forEach(el => el.classList.remove('drop-target','drop-invalid'));
+  _drag = null;
+});
 export function dragStart(ev, type, key){
   _drag = {type, key};
   if (ev.dataTransfer){ ev.dataTransfer.effectAllowed = "move"; try{ ev.dataTransfer.setData("text/plain", type+":"+key); }catch(_){} }
