@@ -65,7 +65,7 @@ function wireSignInForm(){
   // Step 2 — verify the 6-digit code on THIS device.
   const doVerify = async () => {
     const token = (code?.value || "").trim();
-    if (token.length < 6){ setMsg("Enter the 6-digit code.", "err"); return; }
+    if (token.length < 4){ setMsg("Enter the code from your email.", "err"); return; }
     if (verifyBtn){ verifyBtn.disabled = true; verifyBtn.textContent = "Verifying…"; }
     setMsg("");
     const { error } = await verifyCode(_pendingEmail, token);
