@@ -18,7 +18,7 @@ export function renderAnniversaries(){
     miniKpi("blue", ICO.calendar, "Hire Date", fmt(hire,{month:"short",day:"numeric",year:"numeric"}), "sm", `${DAYNAMES[hire.getDay()]} · CCCI`) +
     miniKpi("teal", ICO.clock, "Service Tenure", `${yosYears}<span class="unit">yrs ${yosMonths} mo</span>`, "v-teal", cur ? "Current tier: "+cur.label : "Pre-1yr") +
     miniKpi("purple", ICO.award, "Next Milestone", nxt ? nxt.label : "Max", "v-purple sm", nxt ? fmt(nxt.date,{month:"short",day:"numeric"})+" · "+nxt.daysUntil+" days" : "Top tier reached") +
-    miniKpi("magenta", ICO.celebrate, "Next Bump", `+${nxt ? (nxt.vacDays-(cur?cur.vacDays:0)) : 0}<span class="unit">days</span>`, "v-magenta", nxt ? nxt.vacDays+" days total at "+nxt.label : "N/A");
+    miniKpi("magenta", ICO.chevUp, "Next Bump", `+${nxt ? (nxt.vacDays-(cur?cur.vacDays:0)) : 0}<span class="unit">days</span>`, "v-magenta", nxt ? nxt.vacDays+" days total at "+nxt.label : "N/A");
   document.getElementById("milestoneList").innerHTML = state.tiers.map(tier => {
     const date = anniversaryFor(tier.years); const passed = date <= t;
     const isCurrent = cur && tier.years === cur.years; const isNext = nxt && tier.years === nxt.years;
