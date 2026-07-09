@@ -14,6 +14,7 @@ import { renderFridays } from "./ui/views/fridays.ts";
 import { renderSuggestions, toggleSugFilter, dismissSugTip } from "./ui/views/suggestions.ts";
 import { renderLog, onLogCheck, toggleLogSelectAll, clearLogSelection, bulkStatusLog, bulkDeleteLog, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters } from "./ui/views/log.ts";
 import { renderCalendar, gotoCalendarMonth, navMonth, setCalMonth, setCalYear, toggleCalList, calJumpDay, toggleLegendFilter, goToToday, dragStart, dragOver, dragLeave, dropOnDay } from "./ui/views/calendar.ts";
+import { renderSettings, dismissCfgTip, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday } from "./ui/views/settings.ts";
 import { ICO } from "./ui/icons.ts";
 
 let editingIdx = -1;
@@ -549,32 +550,6 @@ document.addEventListener("keydown", e => {
 window.addEventListener("scroll", () => { if (datePickerOpen()) closeDatePicker(); }, true);
 window.addEventListener("resize", () => { if (datePickerOpen()) closeDatePicker(); });
 
-function dismissCfgTip(){ state.cfgTipDismissed = true; save(); const el = document.getElementById("cfgTip"); if (el) el.style.display = "none"; }
-function renderSettings(){
-  const tipEl = document.getElementById("cfgTip"); if (tipEl) tipEl.style.display = state.cfgTipDismissed ? "none" : "";
-  const c = state.config;
-  document.getElementById("c_name").value = c.name;
-  document.getElementById("c_hire").value = c.hire;
-  document.getElementById("c_year").value = c.year;
-  document.getElementById("c_workday").value = c.workday;
-  document.getElementById("c_birthday").value = c.birthday || "";
-  document.getElementById("allotList").innerHTML = state.allotments.sort((a,b) => a.year-b.year).map((a,i) => {
-    const isNA = a.sick === null;
-    return `<div class="year-row"><div class="year-label">${a.year}</div><div><input type="number" value="${a.vacation}" step="0.5" onchange="updateAllot(${i},'vacation',this.value)"/></div><div class="sick-input-wrap"><input type="number" value="${isNA?'':a.sick}" step="0.5" placeholder="${isNA?'N/A':''}" ${isNA?'disabled':''} onchange="updateAllot(${i},'sick',this.value)"/><label class="na-toggle"><input type="checkbox" ${isNA?'checked':''} onchange="toggleNA(${i},this.checked)"/>N/A</label></div><div><input type="text" value="${(a.notes||'').replace(/"/g,'&quot;')}" onchange="updateAllot(${i},'notes',this.value)"/></div></div>`;
-  }).join("");
-  document.getElementById("holList").innerHTML = state.holidays.sort((a,b) => a.date.localeCompare(b.date)).map((h,i) => `<div style="display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft)"><span style="width:140px;color:var(--n-500);font-size:13px;font-variant-numeric:tabular-nums">${fmt(parseDate(h.date))}</span><span style="flex:1;font-size:13px;color:var(--n-800);font-weight:500">${h.name}</span><button class="btn subtle sm" onclick="delHoliday(${i})">${ICO.trash}</button></div>`).join("");
-  const snap = document.getElementById("cfgSnapshot");
-  if (snap){
-    const bal = currentBalance(); const t = today();
-    const yos = yearsOfService(t); const yy = Math.floor(yos); const mm = Math.floor((yos-yy)*12);
-    const nxt = nextMilestone(t);
-    snap.innerHTML =
-      `<div class="cfg-snap-item"><div class="cs-lbl">PTO Balance</div><div class="cs-val">${bal.toFixed(1)} hrs</div><div class="cs-sub">${(bal/c.workday).toFixed(1)} days available</div></div>` +
-      `<div class="cfg-snap-item"><div class="cs-lbl">Service Tenure</div><div class="cs-val">${yy}y ${mm}m</div><div class="cs-sub">Since ${fmt(parseDate(c.hire),{month:"short",year:"numeric"})}</div></div>` +
-      `<div class="cfg-snap-item"><div class="cs-lbl">Next Milestone</div><div class="cs-val">${nxt?nxt.label:"Max"}</div><div class="cs-sub">${nxt?nxt.daysUntil+" days · "+nxt.vacDays+" days/yr":"Top tier"}</div></div>`;
-  }
-}
-
 function uid(){ return "b" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function businessDaysInRange(startIso, endIso){
   const out = []; if (!startIso || !endIso) return out;
@@ -668,11 +643,6 @@ function requestTimeOff(){ switchTab("log"); const card = document.querySelector
 function viewInCalendar(iso){ gotoCalendarMonth(parseDate(iso)); renderCalendar(); switchTab("cal"); }
 function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); renderUpcomingFridays(); renderFridays(); }
 function toggleFriShowAll(){ state.friShowAll = !state.friShowAll; save(); renderFridays(); }
-function updateAllot(i, field, val){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx][field] = field==="notes" ? val : Number(val); save(); }
-function toggleNA(i, checked){ const sorted = [...state.allotments].sort((a,b) => a.year-b.year); const target = sorted[i]; const idx = state.allotments.indexOf(target); state.allotments[idx].sick = checked ? null : 0; save(); refresh(); toast(checked?"Marked as N/A":"N/A removed"); }
-function saveConfig(){ const c = state.config; c.name = document.getElementById("c_name").value; c.hire = document.getElementById("c_hire").value; c.year = Number(document.getElementById("c_year").value); c.workday = Number(document.getElementById("c_workday").value); c.birthday = document.getElementById("c_birthday").value; save(); refresh(); toast("Settings saved"); }
-function addHoliday(){ const d = document.getElementById("new_hol_date").value; const n = document.getElementById("new_hol_name").value; if (!d||!n){ toast("Enter date and name"); return; } state.holidays.push({date:d, name:n}); save(); document.getElementById("new_hol_date").value=""; document.getElementById("new_hol_name").value=""; renderSettings(); refresh(); toast("Holiday added"); }
-function delHoliday(i){ const sorted = [...state.holidays].sort((a,b) => a.date.localeCompare(b.date)); const target = sorted[i]; state.holidays = state.holidays.filter(h => h!==target); save(); renderSettings(); refresh(); toast("Holiday removed"); }
 function exportData(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_backup_${isoDate(today())}.json`; a.click(); URL.revokeObjectURL(url); toast("Backup exported"); }
 function exportICS(){
   const wd = state.config.workday || 8;
