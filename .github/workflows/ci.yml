@@ -36,3 +36,7 @@ jobs:
       - name: Type check
         # Hard gate: the codebase is at zero tsc errors — keep it there.
         run: npm run typecheck
+
+      - name: Unit tests
+        # Domain-layer tests (Vitest). Hard gate.
+        run: npm test
