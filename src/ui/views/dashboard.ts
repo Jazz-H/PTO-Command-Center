@@ -31,7 +31,7 @@ export function renderKPIs(){
   const cfg = state.config; const bal = currentBalance();
   const uv = ytdUsage("PTO", cfg.year); const us = ytdUsage("Sick", cfg.year);
   const allot = getAllotment(cfg.year); const daysToRefill = daysUntilNextRefill();
-  const sickIsNA = allot.sick === null; const sickBal = sickIsNA ? null : allot.sick - us;
+  const sickIsNA = allot.sick === null;
   const usedPct = allot.vacation ? Math.round(uv/allot.vacation*100) : 0;
   const tr = usageThisVsLast();
   const link = (fn, title) => `role="button" tabindex="0" title="${title}" onclick="${fn}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${fn}}"`;
@@ -82,13 +82,13 @@ export function renderKPIs(){
     </div>
     ${sickIsNA
       ? `<div class="kpi kpi-link" ${link("dashDrillLog('Sick')","View sick entries")}>
-          <div class="kpi-top"><div class="kpi-icon blue">${ICO.sick}</div><span class="kpi-title">Sick Balance</span></div>
-          <div class="kpi-body"><div class="kpi-main"><div class="kpi-value v-blue" style="color:var(--data-blue)">N/A</div><div class="kpi-sub">Not set</div></div><div class="kpi-qmark">?</div></div>
+          <div class="kpi-top"><div class="kpi-icon blue">${ICO.sick}</div><span class="kpi-title">Sick Used YTD</span></div>
+          <div class="kpi-body"><div class="kpi-main"><div class="kpi-value v-blue">${us.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(us/cfg.workday).toFixed(1)} days used · allotment N/A</div></div></div>
           <div class="kpi-foot">Confirm accrual with HR</div>
         </div>`
       : `<div class="kpi kpi-link" ${link("dashDrillLog('Sick')","View sick entries")}>
-          <div class="kpi-top"><div class="kpi-icon blue">${ICO.sick}</div><span class="kpi-title">Sick Balance</span></div>
-          <div class="kpi-body"><div class="kpi-main"><div class="kpi-value v-blue">${sickBal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(sickBal/cfg.workday).toFixed(1)} days of ${allot.sick} hrs</div></div></div>
+          <div class="kpi-top"><div class="kpi-icon blue">${ICO.sick}</div><span class="kpi-title">Sick Used YTD</span></div>
+          <div class="kpi-body"><div class="kpi-main"><div class="kpi-value v-blue">${us.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(us/cfg.workday).toFixed(1)} days of ${allot.sick} hrs</div></div></div>
         </div>`}
     <div class="kpi">
       <div class="kpi-top"><div class="kpi-icon magenta">${ICO.gift}</div><span class="kpi-title pink">Personal Holiday</span></div>
