@@ -129,7 +129,7 @@ export function schedulePersonalHoliday(year){
   const ph = getPersonalHoliday(year);
   ph.date = d; ph.status = "Scheduled"; ph.notes = "Personal holiday (CCCI benefit)";
   if (!state.entries.find(e => e.date === d && e.type === "Personal Holiday")){
-    state.entries.push({date:d, type:"Personal Holiday", hours:state.config.workday, status:"Approved", notes:"CCCI personal holiday"});
+    state.entries.push({date:d, type:"Personal Holiday", hours:state.config.workday, status:"Scheduled", notes:"CCCI personal holiday"});
   }
   save(); gotoCalendarMonth(parsed); refresh();
   toast(`Personal holiday scheduled — ${fmt(parsed,{weekday:"short",month:"short",day:"numeric"})}`);

@@ -75,7 +75,7 @@ function openEditModal(idx){
   dpSet("edit_date", e.date);
   $("edit_type").value = e.type;
   $("edit_hours").value = String(e.hours);
-  $("edit_status").value = e.status || "Approved";
+  $("edit_status").value = e.status || "Scheduled";
   $("edit_notes").value = e.notes || "";
   $("editModal").classList.add("open");
 }
@@ -207,10 +207,11 @@ function businessDaysInRange(startIso, endIso){
   let s = parseDate(startIso), e = parseDate(endIso);
   if (e < s){ const t = s; s = e; e = t; }
   const booked = new Set(state.entries.map(x => x.date));
+  const single = s.getTime() === e.getTime();
   for (let d = new Date(s); d <= e; d = addDays(d, 1)){
-    if (isWeekend(d)) continue;
     const iso = isoDate(d);
-    if (holidayName(d) || booked.has(iso)) continue;
+    if (booked.has(iso)) continue;                              // never duplicate an existing entry
+    if (!single && (isWeekend(d) || holidayName(d))) continue;  // multi-day ranges skip weekends/holidays
     out.push(iso);
   }
   return out;
@@ -231,10 +232,11 @@ function updateRangePreview(){
   const s = $("e_date").value, e = $("e_end").value || s;
   if (!s){ rp.className = "range-preview"; rp.textContent = "Pick a start date. Add an end date to book a multi-day range — weekends, company holidays, and already-booked days are skipped."; return; }
   const days = businessDaysInRange(s, e); const wd = state.config.workday || 8;
-  if (!days.length){ rp.className = "range-preview warn"; rp.textContent = "No business days to add in that range (all weekends, holidays, or already booked)."; return; }
+  if (!days.length){ rp.className = "range-preview"; rp.textContent = "Those dates are already in your log."; return; }
+  const isRange = !!(e && e !== s);
   const span = days.length === 1 ? fmt(parseDate(days[0]),{month:"short",day:"numeric"}) : `${fmt(parseDate(days[0]),{month:"short",day:"numeric"})} – ${fmt(parseDate(days[days.length-1]),{month:"short",day:"numeric"})}`;
   rp.className = "range-preview";
-  rp.innerHTML = `This will add <b>${days.length} ${days.length===1?"day":"days"}</b> (<b>${days.length*wd} hrs</b>) across ${span}. Weekends &amp; company holidays skipped.`;
+  rp.innerHTML = `This will add <b>${days.length} ${days.length===1?"day":"days"}</b> (<b>${days.length*wd} hrs</b>) across ${span}.${isRange ? " Weekends &amp; company holidays skipped." : ""}`;
 }
 function addEntry(){
   const allDay = state.entryAllDay !== false;
@@ -247,7 +249,7 @@ function addEntry(){
   if (allDay){
     const end = $("e_end").value || start;
     const days = businessDaysInRange(start, end);
-    if (!days.length){ toast("No business days to add in that range"); return; }
+    if (!days.length){ toast("Those dates are already in your log"); return; }
     if (days.length === 1){ state.entries.push({date:days[0], type, hours:wd, status, notes}); }
     else { const batchId = uid(); days.forEach(iso => state.entries.push({date:iso, type, hours:wd, status, notes, batchId})); }
     save(); $("e_notes").value=""; dpSet("e_end",""); refresh(); toast(`Added ${days.length} ${days.length===1?"entry":"entries"}`);

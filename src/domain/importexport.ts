@@ -62,7 +62,7 @@ export function ingestEntryRows(rows){
     const date = normImportDate(row[iDate]); if (!date){ bad++; continue; }
     const type = normImportType(iType >= 0 ? row[iType] : "PTO");
     let hours = iHours >= 0 ? parseFloat(row[iHours]) : wd; if (!(hours > 0)) hours = wd;
-    const status = (iStatus >= 0 && row[iStatus] ? String(row[iStatus]).trim() : "Approved");
+    const status = (iStatus >= 0 && row[iStatus] ? String(row[iStatus]).trim() : "Scheduled");
     const notes = iNotes >= 0 ? String(row[iNotes]||"").trim() : "";
     const key = `${date}|${type}|${hours}`; if (existing.has(key)){ dup++; continue; }
     existing.add(key); state.entries.push({date, type, hours, status, notes}); added++;

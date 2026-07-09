@@ -3,7 +3,7 @@
    layers get real autocomplete + checking instead of implicit `any`. */
 
 export type EntryType = "PTO" | "Sick" | "Personal Holiday" | "Bereavement" | "Jury Duty" | "Unpaid" | string;
-export type EntryStatus = "Approved" | "Pending" | "Taken" | "Scheduled" | string;
+export type EntryStatus = "Scheduled" | "Pending" | "Taken" | "Cancelled" | string;
 
 export interface Entry {
   date: string;            // ISO yyyy-mm-dd

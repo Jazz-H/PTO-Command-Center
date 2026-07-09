@@ -37,10 +37,18 @@ export const DEFAULTS = {
   notificationsSeen: []
 };
 
-// Fold legacy "Vacation" and "Personal" entry types into the unified "PTO" bucket.
-// Personal Holiday stays a separate category. Safe + idempotent (only relabels the type field).
+// Migrate legacy entry fields. Safe + idempotent:
+//  - fold "Vacation"/"Personal" types into the unified "PTO" bucket (PH stays separate)
+//  - retire the "Approved" status (no CCCI approval workflow): past → "Taken", future → "Scheduled"
 export function ptoMigrate(st){
-  if (st && Array.isArray(st.entries)) st.entries.forEach(e => { if (e && (e.type === "Vacation" || e.type === "Personal")) e.type = "PTO"; });
+  if (st && Array.isArray(st.entries)){
+    const todayIso = new Date().toISOString().slice(0, 10);
+    st.entries.forEach(e => {
+      if (!e) return;
+      if (e.type === "Vacation" || e.type === "Personal") e.type = "PTO";
+      if (e.status === "Approved") e.status = e.date < todayIso ? "Taken" : "Scheduled";
+    });
+  }
   return st;
 }
 function load(){

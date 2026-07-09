@@ -46,6 +46,17 @@ describe("balance", () => {
     expect(currentBalance(parseDate("2026-12-31")!)).toBe(48);
   });
 
+  it("excludes Cancelled entries from usage and balance", () => {
+    seed({ entries: [
+      entry("2026-01-15", "PTO", 8, "Scheduled"),
+      entry("2026-02-10", "PTO", 8, "Cancelled"),   // cancelled → didn't happen
+      entry("2026-03-01", "Sick", 8, "Cancelled"),
+    ]});
+    expect(ytdUsage("PTO", 2026)).toBe(8);
+    expect(ytdUsage("Sick", 2026)).toBe(0);
+    expect(currentBalance(parseDate("2026-12-31")!)).toBe(72);  // 80 − 8, cancelled ignored
+  });
+
   it("daysUntilNextRefill counts to next Jan 1", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 11, 25, 12, 0, 0)); // Dec 25 2026
