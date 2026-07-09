@@ -18,6 +18,7 @@ import { renderSettings, dismissCfgTip, updateAllot, toggleNA, saveConfig, addHo
 import { renderGreeting, renderKPIs, renderCharts, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderUpcoming, renderHistory, renderUpcomingFridays, resizeCharts } from "./ui/views/dashboard.ts";
 import { setSwitchTab } from "./ui/nav.ts";
 import { renderInsights, closeNotifPanel, closeUserMenu, toggleNotifPanel, dismissNotif, markAllNotifsRead, toggleUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights } from "./ui/notifications.ts";
+import { initAuth, signOutAccount } from "./auth.ts";
 import { ICO } from "./ui/icons.ts";
 
 let editingIdx = -1;
@@ -451,14 +452,22 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// App chrome that's safe before sign-in (no user data):
 dpSet("e_date", isoDate(today()));
-gotoCalendarMonth(new Date(state.config.year, today().getMonth(), 1));
 updateThemeToggle();
-refresh();
-updateEntryFormUI();
 updateSidebarToggleA11y();
-$("printName").textContent = state.config.name || "";
-$("printDate").textContent = fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+
+// Render the signed-in user's data. Runs only after the auth gate confirms a
+// session (and after remote sync), so no data paints before/without sign-in.
+function bootApp(){
+  gotoCalendarMonth(new Date(state.config.year, today().getMonth(), 1));
+  refresh();
+  updateEntryFormUI();
+  $("printName").textContent = state.config.name || "";
+  $("printDate").textContent = fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+}
+initAuth(bootApp);
+
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
@@ -495,5 +504,5 @@ if (pwaIsIOS() && !pwaStandalone() && !pwaDismissed() && location.protocol.start
    on* attributes keep working after ES-module conversion. Retired once handlers
    move to event delegation (later phase). Generated from all top-level fn decls. */
 if (typeof window !== "undefined") Object.assign(window, {
-  getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, toggleSugFilter, renderGreeting, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, renderInsights, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, renderLog, onLogCheck, toggleLogSelectAll, clearLogSelection, bulkStatusLog, bulkDeleteLog, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, dismissSugTip, renderSuggestions, renderFridays, renderAnniversaries, updateTier, renderCalendar, setCalMonth, setCalYear, toggleCalList, calJumpDay, toggleLegendFilter, goToToday, dragStart, dragOver, dragLeave, dropOnDay, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, exportICS, exportCSV, exportExcel, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa
+  getThemeMode, resolveTheme, getTheme, setTheme, updateThemeToggle, openNav, closeNav, toggleNav, toggleSidebarSmart, toggleSidebar, updateSidebarToggleA11y, toggleSugFilter, renderGreeting, renderKPIs, dashDrillLog, dashDrillLogYear, drillFriday, setChartRange, renderPersonalHolidayStrip, schedulePersonalHoliday, unschedulePersonalHoliday, markPersonalHolidayTaken, renderCharts, renderInsights, dismissNotif, toggleNotifPanel, closeNotifPanel, markAllNotifsRead, toggleUserMenu, closeUserMenu, openNotif, dismissInsight, restoreInsight, toggleShowDismissed, dismissAllInsights, renderUpcoming, renderHistory, renderUpcomingFridays, renderLog, onLogCheck, toggleLogSelectAll, clearLogSelection, bulkStatusLog, bulkDeleteLog, setLogView, toggleMonthCollapse, onLogSearch, clearLogSearch, onLogFilter, clearLogFilters, openEditModal, closeEditModal, saveEditEntry, dismissSugTip, renderSuggestions, renderFridays, renderAnniversaries, updateTier, renderCalendar, setCalMonth, setCalYear, toggleCalList, calJumpDay, toggleLegendFilter, goToToday, dragStart, dragOver, dragLeave, dropOnDay, dpSet, dpDisabled, openDatePicker, closeDatePicker, datePickerOpen, positionDatePicker, dpMonth, dpToday, renderDatePicker, dpSelect, dismissCfgTip, renderSettings, uid, businessDaysInRange, setAllDay, updateEntryFormUI, updateRangePreview, addEntry, deleteEntry, bookSuggestion, switchTab, globalSearchGo, requestTimeOff, viewInCalendar, navMonth, updateFri, toggleFriShowAll, updateAllot, toggleNA, saveConfig, addHoliday, delHoliday, exportData, exportICS, exportCSV, exportExcel, loadXLSX, finishSpreadsheetImport, importSpreadsheet, importData, resetAll, refresh, pwaStandalone, pwaIsIOS, pwaDismissed, showPwaBanner, hidePwaBanner, dismissPwaBanner, installPwa, signOutAccount
 });

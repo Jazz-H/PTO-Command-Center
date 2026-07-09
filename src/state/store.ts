@@ -85,4 +85,15 @@ function load(){
 
 export let state: AppState = load();
 export function setState(s: AppState){ state = s; }
-export function save(){ localStorage.setItem("pto_state", JSON.stringify(state)); }
+
+// Save-sync seam: the Supabase layer registers a handler so every local save
+// also debounce-pushes to the account. No-op when signed out (offline-first).
+let _onSave: (s: AppState) => void = () => {};
+export function setOnSave(fn: (s: AppState) => void){ _onSave = fn; }
+export function localTimestamp(): number { return Number(localStorage.getItem("pto_state_ts")) || 0; }
+
+export function save(){
+  localStorage.setItem("pto_state", JSON.stringify(state));
+  localStorage.setItem("pto_state_ts", String(Date.now()));
+  _onSave(state);
+}

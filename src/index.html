@@ -23,6 +23,23 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
 </script>
 <link rel="stylesheet" href="./styles.css"/>
 </head><body>
+<div id="authGate" class="auth-gate" data-mode="pending">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 2 15 22 11 13 2 9" fill="#fff"/><polygon points="22 2 11 13 15 22" fill="#0a2540" fill-opacity=".2"/></svg></div>
+      <div class="auth-title">PTO Pilot</div>
+      <div class="auth-sub">Your time-off copilot</div>
+    </div>
+    <div class="auth-pending"><div class="auth-spinner" aria-label="Loading"></div></div>
+    <form id="authForm" class="auth-form" novalidate>
+      <label class="auth-label" for="authEmail">Sign in with your email</label>
+      <input id="authEmail" class="auth-input" type="email" autocomplete="email" inputmode="email" placeholder="you@email.com" required>
+      <button id="authSubmit" type="submit" class="auth-btn">Send magic link</button>
+      <div id="authMsg" class="auth-msg" role="status" aria-live="polite"></div>
+      <div class="auth-fine">We'll email you a one-time sign-in link — no password needed.</div>
+    </form>
+  </div>
+</div>
 <div class="app">
 <aside class="sidebar" id="appSidebar">
   <div class="brand" role="button" tabindex="0" title="Go to Dashboard" onclick="switchTab('dash');closeNav()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('dash');closeNav()}">
@@ -80,6 +97,9 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
           <div class="um-sep"></div>
           <button class="um-item" role="menuitem" onclick="closeUserMenu();exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export backup</span></button>
           <button class="um-item" role="menuitem" onclick="closeUserMenu();window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Print summary</span></button>
+          <div class="um-sep"></div>
+          <div class="um-acct"><span class="um-acct-lbl">Signed in as</span><span class="acct-email">—</span></div>
+          <button class="um-item danger" role="menuitem" onclick="closeUserMenu();signOutAccount()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Sign out</span></button>
         </div>
       </div>
     </div>
