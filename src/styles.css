@@ -343,7 +343,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cal-side-chev{width:26px;height:26px;display:grid;place-items:center;color:var(--n-500);flex-shrink:0;transition:transform .2s ease}
 .cal-side-chev svg{width:16px;height:16px}
 .cal-side.collapsed .cal-side-chev{transform:rotate(-90deg)}
-.cal-side.collapsed .cal-events-head,.cal-side.collapsed .cal-events{display:none}
+.cal-side.collapsed .cal-events-head,.cal-side.collapsed .cal-events,.cal-side.collapsed .cal-sec-head,.cal-side.collapsed .cal-insights{display:none}
 .cal-side-body{margin-top:14px;display:flex;flex-direction:column;gap:14px}
 .cal-side-body .cal-stats{gap:14px 18px;padding:0 0 14px;margin:0}
 .cal-sec-head{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--n-500);margin-bottom:8px}
