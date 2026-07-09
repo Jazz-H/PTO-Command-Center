@@ -12,7 +12,7 @@ import { holidayName } from "../../domain/balance.ts";
 import { suggestedDates } from "../../domain/suggestions.ts";
 import { anniversaryDates, anniversaryFor } from "../../domain/anniversaries.ts";
 import { personalHolidayDates, getPersonalHoliday } from "../../domain/personalholiday.ts";
-import { toast, esc } from "../dom.ts";
+import { toast, esc, $ } from "../dom.ts";
 import { ICO } from "../icons.ts";
 
 let calCursor = new Date();
@@ -36,13 +36,13 @@ function scheduledFridayAppts(){
 export function renderCalendar(){
   const y = calCursor.getFullYear(), m = calCursor.getMonth();
   syncCalPickers(y, m);
-  document.getElementById("calHead").innerHTML = DOWABBR.map(d => `<div class="cal-dow">${d}</div>`).join("");
+  $("calHead").innerHTML = DOWABBR.map(d => `<div class="cal-dow">${d}</div>`).join("");
   const first = new Date(y,m,1); const pad = first.getDay(); const dim = new Date(y,m+1,0).getDate();
   const cells = []; for (let i=0;i<pad;i++) cells.push(null); for (let d=1;d<=dim;d++) cells.push(new Date(y,m,d));
   const em = {}; state.entries.forEach(e => { em[e.date]=e; });
   const sug = suggestedDates(); const annivs = anniversaryDates(); const phDates = personalHolidayDates(); const friAppts = scheduledFridayAppts(); const t = today();
   const f = state.calFilters || {};
-  document.getElementById("calBody").innerHTML = cells.map(d => {
+  $("calBody").innerHTML = cells.map(d => {
     if (!d) return `<div class="cal-day empty"></div>`;
     const iso = isoDate(d); const c = ["cal-day"];
     if (isWeekend(d)) c.push("wknd");
@@ -85,12 +85,12 @@ export function renderCalendar(){
   updateLegendUI();
 }
 function syncCalPickers(y, m){
-  const mp = document.getElementById("calMonthPicker");
+  const mp = $<HTMLSelectElement>("calMonthPicker");
   if (mp){
     if (!mp.options.length) mp.innerHTML = MONTHNAMES.map((n,i) => `<option value="${i}">${n}</option>`).join("");
     mp.value = String(m);
   }
-  const yp = document.getElementById("calYearPicker");
+  const yp = $("calYearPicker");
   if (yp){
     const years = new Set([y, today().getFullYear()]);
     (state.entries||[]).forEach(e => years.add(parseDate(e.date).getFullYear()));
@@ -101,12 +101,12 @@ function syncCalPickers(y, m){
     yp.innerHTML = opts.map(yr => `<option value="${yr}">${yr}</option>`).join("");
     yp.value = String(y);
   }
-  const st = document.getElementById("calSideTitle"); if (st) st.textContent = `${MONTHNAMES[m]} ${y}`;
+  const st = $("calSideTitle"); if (st) st.textContent = `${MONTHNAMES[m]} ${y}`;
 }
 export function setCalMonth(m){ calCursor = new Date(calCursor.getFullYear(), Number(m), 1); renderCalendar(); }
 export function setCalYear(y){ calCursor = new Date(Number(y), calCursor.getMonth(), 1); renderCalendar(); }
 export function toggleCalList(){ state.calListCollapsed = !state.calListCollapsed; save(); applyCalListCollapsed(); }
-function applyCalListCollapsed(){ const side = document.getElementById("calSide"); if (side) side.classList.toggle("collapsed", !!state.calListCollapsed); }
+function applyCalListCollapsed(){ const side = $("calSide"); if (side) side.classList.toggle("collapsed", !!state.calListCollapsed); }
 export function calJumpDay(iso){ if (state.calListCollapsed){ state.calListCollapsed = false; save(); applyCalListCollapsed(); } flashCalDay(iso); const cell = document.querySelector(`.cal-day[data-iso="${iso}"]`); if (cell) cell.scrollIntoView({block:"nearest", behavior:"smooth"}); }
 function renderCalSide(y, m){
   applyCalListCollapsed();
@@ -114,7 +114,7 @@ function renderCalSide(y, m){
   renderCalEvents(y, m);
 }
 function renderCalInsights(y, m){
-  const el = document.getElementById("calInsights"); if (!el) return;
+  const el = $("calInsights"); if (!el) return;
   const inMonth = d => d.getFullYear()===y && d.getMonth()===m;
   const f = state.calFilters || {};
   const ents = state.entries.filter(e => inMonth(parseDate(e.date)));
@@ -138,7 +138,7 @@ function renderCalInsights(y, m){
   el.innerHTML = rows.map(r => `<div class="cal-ins ${r.cls}"><span class="cal-ins-ic">${r.ic}</span>${r.html}</div>`).join("");
 }
 function renderCalEvents(y, m){
-  const el = document.getElementById("calEvents"); if (!el) return;
+  const el = $("calEvents"); if (!el) return;
   const inMonth = d => d.getFullYear()===y && d.getMonth()===m;
   const f = state.calFilters || {};
   const evs = [];
@@ -168,7 +168,7 @@ function renderCalEvents(y, m){
   }).join("");
 }
 function renderCalStats(y, m){
-  const el = document.getElementById("calStats"); if (!el) return;
+  const el = $("calStats"); if (!el) return;
   const inMonth = d => d.getFullYear()===y && d.getMonth()===m;
   const ents = state.entries.filter(e => inMonth(parseDate(e.date)));
   const daysOff = new Set(ents.map(e => e.date)).size;
@@ -186,7 +186,7 @@ export function flashCalDay(iso){ setTimeout(() => { const cell = document.query
 
 function updateLegendUI(){
   const f = state.calFilters || {};
-  document.querySelectorAll("#calLegend .legend-item").forEach(btn => { btn.classList.toggle("off", f[btn.dataset.filter] === false); });
+  document.querySelectorAll<HTMLElement>("#calLegend .legend-item").forEach(btn => { btn.classList.toggle("off", f[btn.dataset.filter] === false); });
 }
 export function toggleLegendFilter(key){
   if (!state.calFilters) state.calFilters = {};

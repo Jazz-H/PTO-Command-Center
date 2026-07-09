@@ -10,7 +10,7 @@ import { refresh } from "../refresh.ts";
 import { detachPH } from "../../domain/personalholiday.ts";
 import { parseDate, fmt, today, DAYNAMES, MONTHNAMES } from "../../domain/dates.ts";
 import { ytdUsage } from "../../domain/balance.ts";
-import { toast, miniKpi, cssVar } from "../dom.ts";
+import { toast, miniKpi, cssVar, $ } from "../dom.ts";
 import { ICO } from "../icons.ts";
 
 let logChart;
@@ -58,7 +58,7 @@ function getFilteredEntries(){
   });
 }
 function renderLogSummary(){
-  const kp = document.getElementById("logKpis"); if (!kp) return;
+  const kp = $("logKpis"); if (!kp) return;
   const cfg = state.config, y = cfg.year;
   const uv = ytdUsage("PTO", y), us = ytdUsage("Sick", y);
   const uph = ytdUsage("Personal Holiday", y);
@@ -72,14 +72,14 @@ function renderLogSummary(){
     miniKpi("amber", ICO.gift, "Personal Hol. / Other", `${otherHrs.toFixed(1)}<span class="unit">hrs</span>`, "v-amber", `${(otherHrs/cfg.workday).toFixed(1)} days in ${y}`);
 }
 function renderLogChart(){
-  const cvs = document.getElementById("logMonthChart"); if (!cvs || typeof Chart === "undefined") return;
+  const cvs = $("logMonthChart"); if (!cvs || typeof Chart === "undefined") return;
   const y = state.config.year; const dark = document.documentElement.getAttribute('data-theme')==='dark';
   const labels = MONTHNAMES.map(m => m.slice(0,3));
   const series = {PTO:new Array(12).fill(0), Sick:new Array(12).fill(0), "Personal Holiday":new Array(12).fill(0), Other:new Array(12).fill(0)};
   state.entries.forEach(e => { const d = parseDate(e.date); if (d.getFullYear()!==y) return; const mo = d.getMonth(); const h = Number(e.hours||0);
     if (e.type==="PTO") series.PTO[mo]+=h; else if (e.type==="Sick") series.Sick[mo]+=h; else if (e.type==="Personal Holiday") series["Personal Holiday"][mo]+=h; else series.Other[mo]+=h; });
   const col = {PTO:cssVar('--data-green'), Sick:cssVar('--accent'), "Personal Holiday":cssVar('--data-magenta'), Other:cssVar('--data-amber')};
-  const meta = document.getElementById("logChartMeta"); if (meta) meta.textContent = `${y} · hours per month`;
+  const meta = $("logChartMeta"); if (meta) meta.textContent = `${y} · hours per month`;
   const tick = cssVar('--chart-tick'), grid = cssVar('--chart-grid');
   if (logChart) logChart.destroy();
   logChart = new Chart(cvs, {type:'bar',
@@ -94,21 +94,21 @@ export function renderLog(){
   renderLogChart();
   const tb = document.querySelector("#logTable tbody");
   // Sync toolbar controls to state
-  const searchEl = document.getElementById("logSearch");
-  const iconEl = document.getElementById("logSearchIcon");
+  const searchEl = $("logSearch");
+  const iconEl = $("logSearchIcon");
   if (iconEl && !iconEl.innerHTML) iconEl.innerHTML = ICO.search;
-  const clearEl = document.getElementById("logSearchClear");
+  const clearEl = $("logSearchClear");
   if (clearEl && !clearEl.innerHTML) clearEl.innerHTML = ICO.x;
   if (searchEl && document.activeElement !== searchEl && searchEl.value !== (state.logSearch||"")) searchEl.value = state.logSearch||"";
   if (clearEl) clearEl.classList.toggle("show", !!(state.logSearch||"").length);
   // Year filter, auto-populated from entries
   const years = [...new Set(state.entries.map(e => parseDate(e.date).getFullYear()))].sort((a,b) => b-a);
   if ((state.logYear||"All")!=="All" && !years.map(String).includes(String(state.logYear))) state.logYear = "All";
-  const yearSel = document.getElementById("logYearFilter");
+  const yearSel = $("logYearFilter");
   if (yearSel){ yearSel.innerHTML = `<option value="All">All years</option>` + years.map(y => `<option value="${y}">${y}</option>`).join(""); yearSel.value = state.logYear||"All"; }
-  const typeSel = document.getElementById("logTypeFilter"); if (typeSel) typeSel.value = state.logType||"All";
+  const typeSel = $("logTypeFilter"); if (typeSel) typeSel.value = state.logType||"All";
   const view = state.logView||"list";
-  document.querySelectorAll("#logViewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+  document.querySelectorAll<HTMLElement>("#logViewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
 
   // Order from the current date, like the Friday Planner / Smart Suggestions:
   // upcoming entries first (soonest → later), then past entries (most recent → older).
@@ -122,7 +122,7 @@ export function renderLog(){
   };
   const filtered = getFilteredEntries().sort(fromToday);
   const total = state.entries.length;
-  document.getElementById("logCount").textContent = logIsFiltered() ? `${filtered.length} of ${total} entries` : `${total} entries`;
+  $("logCount").textContent = logIsFiltered() ? `${filtered.length} of ${total} entries` : `${total} entries`;
 
   if (!filtered.length){
     tb.innerHTML = total === 0
@@ -164,8 +164,8 @@ function logRowHtml(e){
   return `<tr${selectedLog.has(idx)?' class="row-selected"':''}>${chk}<td data-label="Date"><b>${fmt(d)}</b></td><td data-label="Day" style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td data-label="Type"><span class="chip ${cls}">${e.type}</span></td><td data-label="Hours" class="num">${e.hours}</td><td data-label="Status"><span class="chip n">${e.status||"-"}</span></td><td data-label="Notes" style="color:var(--n-500)">${e.notes||"—"}</td><td class="cell-actions"><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
 }
 export function onLogCheck(idx, checked){ if (checked) selectedLog.add(idx); else selectedLog.delete(idx); const tr = document.querySelector(`.log-check[data-idx="${idx}"]`)?.closest('tr'); if (tr) tr.classList.toggle('row-selected', checked); updateLogBulkBar(); }
-export function toggleLogSelectAll(checked){ document.querySelectorAll('#logTable .log-check').forEach(cb => { const idx = Number(cb.dataset.idx); cb.checked = checked; if (checked) selectedLog.add(idx); else selectedLog.delete(idx); cb.closest('tr').classList.toggle('row-selected', checked); }); updateLogBulkBar(); }
-function updateLogBulkBar(){ const bar = document.getElementById('logBulkBar'); const cnt = document.getElementById('logBulkCount'); const n = selectedLog.size; if (bar) bar.classList.toggle('show', n>0); if (cnt) cnt.textContent = `${n} selected`; const all = document.getElementById('logSelectAll'); const boxes = document.querySelectorAll('#logTable .log-check'); if (all) all.checked = boxes.length>0 && [...boxes].every(b=>b.checked); }
+export function toggleLogSelectAll(checked){ document.querySelectorAll<HTMLInputElement>('#logTable .log-check').forEach(cb => { const idx = Number(cb.dataset.idx); cb.checked = checked; if (checked) selectedLog.add(idx); else selectedLog.delete(idx); cb.closest('tr').classList.toggle('row-selected', checked); }); updateLogBulkBar(); }
+function updateLogBulkBar(){ const bar = $('logBulkBar'); const cnt = $('logBulkCount'); const n = selectedLog.size; if (bar) bar.classList.toggle('show', n>0); if (cnt) cnt.textContent = `${n} selected`; const all = $('logSelectAll'); const boxes = document.querySelectorAll<HTMLInputElement>('#logTable .log-check'); if (all) all.checked = boxes.length>0 && [...boxes].every(b=>b.checked); }
 export function clearLogSelection(){ selectedLog.clear(); renderLog(); }
 export function bulkStatusLog(status){ if (!selectedLog.size) return; [...selectedLog].forEach(i => { if (state.entries[i]) state.entries[i].status = status; }); const n = selectedLog.size; selectedLog.clear(); save(); refresh(); toast(`Marked ${n} as ${status}`); }
 export function bulkDeleteLog(){ if (!selectedLog.size) return; const n = selectedLog.size; if (!confirm(`Delete ${n} selected ${n===1?'entry':'entries'}?`)) return; [...selectedLog].sort((a,b)=>b-a).forEach(i => { const e = state.entries[i]; if (e){ detachPH(e); state.entries.splice(i,1); } }); selectedLog.clear(); save(); refresh(); toast(`Deleted ${n} ${n===1?'entry':'entries'}`); }
@@ -175,10 +175,10 @@ export function toggleMonthCollapse(k){ state.collapsedMonths = state.collapsedM
 let _logSearchTimer = null;
 export function onLogSearch(v){
   state.logSearch = v;
-  const clearEl = document.getElementById("logSearchClear"); if (clearEl) clearEl.classList.toggle("show", !!v.length);
+  const clearEl = $("logSearchClear"); if (clearEl) clearEl.classList.toggle("show", !!v.length);
   if (_logSearchTimer) clearTimeout(_logSearchTimer);
   _logSearchTimer = setTimeout(() => { save(); renderLog(); }, 150);
 }
-export function clearLogSearch(){ state.logSearch = ""; const el = document.getElementById("logSearch"); if (el){ el.value = ""; el.focus(); } save(); renderLog(); }
+export function clearLogSearch(){ state.logSearch = ""; const el = $("logSearch"); if (el){ el.value = ""; el.focus(); } save(); renderLog(); }
 export function onLogFilter(key, val){ state[key] = val; save(); renderLog(); }
 export function clearLogFilters(){ state.logSearch = ""; state.logType = "All"; state.logYear = "All"; save(); renderLog(); }

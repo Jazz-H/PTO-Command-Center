@@ -13,7 +13,7 @@ import { getPersonalHoliday, isEligibleForPH, reconcilePersonalHolidays } from "
 import { nextMilestone } from "../../domain/anniversaries.ts";
 import { buildChartData, usageThisVsLast, vacCumulativeByMonth } from "../../domain/charts.ts";
 import { gotoCalendarMonth } from "./calendar.ts";
-import { toast, cssVar, esc, ringSVG2, sparklineSVG } from "../dom.ts";
+import { toast, cssVar, esc, ringSVG2, sparklineSVG, $ } from "../dom.ts";
 import { ICO } from "../icons.ts";
 
 let balChart, pieChart;
@@ -24,8 +24,8 @@ export function renderGreeting(){
   const h = new Date().getHours();
   const part = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
   const first = (state.config.name || "there").split(" ")[0];
-  const g = document.getElementById("dashGreeting"); if (g) g.innerHTML = `Good ${part}, ${first}! <span style="font-weight:400">👋</span>`;
-  const s = document.getElementById("dash-sub"); if (s) s.textContent = `Here's your time-off overview for ${fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"})}`;
+  const g = $("dashGreeting"); if (g) g.innerHTML = `Good ${part}, ${first}! <span style="font-weight:400">👋</span>`;
+  const s = $("dash-sub"); if (s) s.textContent = `Here's your time-off overview for ${fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"})}`;
 }
 export function renderKPIs(){
   const cfg = state.config; const bal = currentBalance();
@@ -63,7 +63,7 @@ export function renderKPIs(){
   if (nxt){ const du = nxt.daysUntil, yy = Math.floor(du/365), dd = du - yy*365; annVal = `${yy>0?yy+'y ':''}${dd}d`; annSub = nxt.label; annFoot = `${fmt(nxt.date,{month:"short",day:"numeric",year:"numeric"})} (${fmt(nxt.date,{weekday:"long"})})`; }
   else { annVal = "Max"; annSub = "Top tier reached"; annFoot = ""; }
 
-  document.getElementById("kpis").innerHTML = `
+  $("kpis").innerHTML = `
     <div class="kpi kpi-link" ${link("dashDrillLog('PTO')","View PTO entries")}>
       <div class="kpi-top"><div class="kpi-icon green">${ICO.palm}</div><span class="kpi-title">PTO Balance</span></div>
       <div class="kpi-body">
@@ -101,10 +101,10 @@ export function renderKPIs(){
       ${annFoot ? `<div class="kpi-foot">${annFoot}</div>` : ""}
     </div>`;
 }
-export function setChartRange(m){ state.chartRange = m; save(); document.querySelectorAll("#rangeToggle button").forEach(b => b.classList.toggle("active", Number(b.dataset.range) === m)); renderCharts(); }
+export function setChartRange(m){ state.chartRange = m; save(); document.querySelectorAll<HTMLElement>("#rangeToggle button").forEach(b => b.classList.toggle("active", Number(b.dataset.range) === m)); renderCharts(); }
 
 export function renderPersonalHolidayStrip(){
-  const el = document.getElementById("phStrip");
+  const el = $("phStrip");
   if (!el) return; // PH now lives in a KPI card on the dashboard
   const y = state.config.year; const ph = getPersonalHoliday(y); const elig = isEligibleForPH();
   let primary = "", actions = "";
@@ -120,7 +120,7 @@ export function renderPersonalHolidayStrip(){
 }
 
 export function schedulePersonalHoliday(year){
-  const input = document.getElementById(`ph_date_${year}`);
+  const input = $(`ph_date_${year}`);
   if (!input || !input.value){ toast("Pick a date first"); return; }
   const d = input.value; const parsed = parseDate(d);
   if (parsed.getFullYear() !== year){ toast("Date must be in " + year); return; }
@@ -167,7 +167,7 @@ export function renderCharts(){
   }
   const bal = currentBalance(); const usedYTDCurrent = ytdUsage("PTO", cfg.year);
   const nextAllot = getAllotment(cfg.year+1); const daysToRefill = daysUntilNextRefill();
-  document.getElementById("chartSummary").innerHTML = `
+  $("chartSummary").innerHTML = `
     <div class="chart-stat balance"><span class="lbl">Current balance</span><span class="val">${bal.toFixed(0)}<span class="unit">hrs</span></span></div>
     <div class="chart-stat usage"><span class="lbl">Used YTD</span><span class="val">${usedYTDCurrent.toFixed(0)}<span class="unit">hrs</span></span></div>
     <div class="chart-stat refill"><span class="lbl">Next refill</span><span class="val">+${nextAllot.vacation}<span class="unit">hrs · Jan 1</span></span></div>
@@ -177,7 +177,7 @@ export function renderCharts(){
     annotations['year_' + i] = { type: 'line', xMin: yb.index, xMax: yb.index, borderColor: dark ? 'rgba(115,115,115,.4)' : 'rgba(100,116,139,.35)', borderWidth: 1, borderDash: [4, 4], label: { display: true, content: `Jan 1 ${yb.year}`, position: 'start', backgroundColor: dark ? '#1a1a1a' : '#F8FAFC', color: dark ? '#e5e5e5' : '#334155', font: {size: 10, weight: 600}, padding: {x:6,y:3}, borderRadius: 4, yAdjust: -6 } };
   });
   if (balChart) balChart.destroy();
-  balChart = new Chart(document.getElementById("balChart"), {
+  balChart = new Chart($("balChart"), {
     type:"line",
     data:{labels, datasets:[
       {label:"Balance", data:balances, borderColor: lineColor, backgroundColor:(ctx)=>{const c=ctx.chart.ctx; const g=c.createLinearGradient(0,0,0,280); g.addColorStop(0,fill1); g.addColorStop(1,fill2); return g;}, tension:.35, fill:true, pointRadius:0, pointHoverRadius:6, borderWidth:2.5, pointBackgroundColor:lineColor, pointBorderColor:'#fff', pointBorderWidth:2, order: 2},
@@ -200,7 +200,7 @@ export function renderCharts(){
   const donutBorder = dark ? '#0a0a0a' : '#FFFFFF';
   const totalUsed = uv + us + uph;
   if (pieChart) pieChart.destroy();
-  pieChart = new Chart(document.getElementById("pieChart"), {
+  pieChart = new Chart($("pieChart"), {
     type:"doughnut",
     data:{labels:["PTO used","Sick used","Personal Holiday","PTO remaining"], datasets:[{data:[uv,us,uph,rem], backgroundColor:donutColors, borderWidth:2, borderColor:donutBorder}]},
     options:{responsive:true, maintainAspectRatio:false, cutout:"70%", plugins:{legend:{display:false}, tooltip:{backgroundColor:tooltipBg, titleColor:tooltipText, bodyColor:tooltipText, padding:10, cornerRadius:8}}}
@@ -208,7 +208,7 @@ export function renderCharts(){
   // Center label + custom legend
   const donutWrap = document.querySelector(".usage-donut");
   if (donutWrap){ let ctr = donutWrap.querySelector(".donut-center"); if (!ctr){ ctr = document.createElement("div"); ctr.className = "donut-center"; donutWrap.appendChild(ctr); } ctr.innerHTML = `<span class="dc-val">${totalUsed.toFixed(1)}</span><span class="dc-lbl">hrs used</span>`; }
-  const legEl = document.getElementById("usageLegend");
+  const legEl = $("usageLegend");
   if (legEl){
     const denom = allot.vacation || (totalUsed + rem) || 1;
     const rows = [
@@ -233,14 +233,14 @@ export function renderUpcoming(){
   (state.holidays || []).forEach(h => { const d = parseDate(h.date); if (d >= t) items.push({d, date:h.date, dot:'purple', label:esc(h.name), right:`<span class="chip v">Holiday</span>`}); });
   items.sort((a,b) => a.d - b.d);
   const up = items.slice(0, 6);
-  if (!up.length){ document.getElementById("upcoming").innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>Nothing scheduled</h4><p>A good week to plan a trip.</p></div>`; return; }
-  document.getElementById("upcoming").innerHTML = `<div class="up-list">` + up.map(e => {
+  if (!up.length){ $("upcoming").innerHTML = `<div class="empty"><div class="empty-icon">${ICO.calendar}</div><h4>Nothing scheduled</h4><p>A good week to plan a trip.</p></div>`; return; }
+  $("upcoming").innerHTML = `<div class="up-list">` + up.map(e => {
     const onclick = e.fri ? `drillFriday('${e.date}')` : `viewInCalendar('${e.date}')`;
     return `<div class="up-row" onclick="${onclick}"><span class="up-dot ${e.dot}"></span><span class="up-date">${fmt(e.d,{weekday:"short",month:"short",day:"numeric"})}</span><span class="up-label">${e.label}</span><span class="up-right">${e.right}</span></div>`;
   }).join("") + `</div><a class="up-viewall" onclick="switchTab('cal')">View all →</a>`;
 }
 export function renderHistory(){
-  const el = document.getElementById("history"); if (!el) return;
+  const el = $("history"); if (!el) return;
   const t = today(); const items = [];
   const dotFor = ty => ty==='PTO'?'green':ty==='Sick'?'red':ty==='Personal Holiday'?'magenta':'blue';
   // Past time-off entries
@@ -259,7 +259,7 @@ export function renderHistory(){
   }).join("") + `</div><a class="up-viewall" onclick="switchTab('log')">View all in log →</a>`;
 }
 export function renderUpcomingFridays(){
-  const el = document.getElementById("upcomingFridays"); if (!el) return;
+  const el = $("upcomingFridays"); if (!el) return;
   const t = today();
   const endOfYear = new Date(t.getFullYear(), 11, 31);
   let d = new Date(t); while (d.getDay() !== 5) d = addDays(d, 1); // next Friday (today if it's Friday)

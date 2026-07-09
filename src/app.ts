@@ -8,7 +8,7 @@ import { getPersonalHoliday, isEligibleForPH, reconcilePersonalHolidays, detachP
 import { setRefresh } from "./ui/refresh.ts";
 import { buildInsights, insightId, insightHtml, isNotifType, liveInsights, DASH_INSIGHT_MAX } from "./ui/insights.ts";
 import { buildChartData, usageThisVsLast, vacCumulativeByMonth } from "./domain/charts.ts";
-import { toast, cssVar, esc, ringSVG, ringSVG2, miniKpi, sparklineSVG } from "./ui/dom.ts";
+import { toast, cssVar, esc, ringSVG, ringSVG2, miniKpi, sparklineSVG, $ } from "./ui/dom.ts";
 import { renderAnniversaries, updateTier } from "./ui/views/anniversaries.ts";
 import { renderFridays } from "./ui/views/fridays.ts";
 import { renderSuggestions, toggleSugFilter, dismissSugTip } from "./ui/views/suggestions.ts";
@@ -26,7 +26,7 @@ function getThemeMode(){ return localStorage.getItem('pto_theme') || 'dark'; }
 function resolveTheme(mode){ return mode==='system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : mode; }
 function getTheme(){ return document.documentElement.getAttribute('data-theme') || 'light'; }
 function setTheme(mode){ if(mode!=='system'&&mode!=='dark'&&mode!=='light') mode='system'; localStorage.setItem('pto_theme', mode); document.documentElement.setAttribute('data-theme', resolveTheme(mode)); updateThemeToggle(); renderCharts(); }
-function updateThemeToggle(){ const cur = getThemeMode(); document.querySelectorAll('.theme-btn').forEach(b => { b.classList.toggle('active', b.dataset.setTheme === cur); }); }
+function updateThemeToggle(){ const cur = getThemeMode(); document.querySelectorAll<HTMLElement>('.theme-btn').forEach(b => { b.classList.toggle('active', b.dataset.setTheme === cur); }); }
 
 // SIDEBAR TOGGLE
 function openNav(){ document.documentElement.setAttribute('data-nav','open'); }
@@ -44,7 +44,7 @@ function toggleSidebar(){
   setTimeout(() => resizeCharts(), 300);
 }
 function updateSidebarToggleA11y(){
-  const btn = document.getElementById('sidebarCollapse'); if (!btn) return;
+  const btn = $('sidebarCollapse'); if (!btn) return;
   const collapsed = document.documentElement.getAttribute('data-sidebar') === 'collapsed';
   btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   btn.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
@@ -60,7 +60,7 @@ function updateSidebarToggleA11y(){
 
 function dashDrillLog(type){ state.logType = type||"All"; state.logYear = "All"; state.logSearch = ""; save(); switchTab("log"); renderLog(); }
 function dashDrillLogYear(year){ state.logType = "All"; state.logYear = String(year); state.logSearch = ""; save(); switchTab("log"); renderLog(); }
-function drillFriday(iso){ switchTab("fri"); setTimeout(() => { const row = document.getElementById("fri-"+iso); if (row){ row.scrollIntoView({block:"center"}); row.classList.add("row-flash"); setTimeout(()=>row.classList.remove("row-flash"), 1200); } }, 60); }
+function drillFriday(iso){ switchTab("fri"); setTimeout(() => { const row = $("fri-"+iso); if (row){ row.scrollIntoView({block:"center"}); row.classList.add("row-flash"); setTimeout(()=>row.classList.remove("row-flash"), 1200); } }, 60); }
 
 
 
@@ -72,25 +72,25 @@ function openEditModal(idx){
   editingIdx = idx;
   const e = state.entries[idx]; if (!e) return;
   dpSet("edit_date", e.date);
-  document.getElementById("edit_type").value = e.type;
-  document.getElementById("edit_hours").value = e.hours;
-  document.getElementById("edit_status").value = e.status || "Approved";
-  document.getElementById("edit_notes").value = e.notes || "";
-  document.getElementById("editModal").classList.add("open");
+  $("edit_type").value = e.type;
+  $("edit_hours").value = String(e.hours);
+  $("edit_status").value = e.status || "Approved";
+  $("edit_notes").value = e.notes || "";
+  $("editModal").classList.add("open");
 }
-function closeEditModal(){ document.getElementById("editModal").classList.remove("open"); editingIdx = -1; }
+function closeEditModal(){ $("editModal").classList.remove("open"); editingIdx = -1; }
 function saveEditEntry(){
   if (editingIdx < 0) return;
   const e = state.entries[editingIdx];
   const oldDate = e.date; const oldType = e.type;
-  const newDate = document.getElementById("edit_date").value;
-  const newType = document.getElementById("edit_type").value;
+  const newDate = $("edit_date").value;
+  const newType = $("edit_type").value;
   if (!newDate){ toast("Date is required"); return; }
   e.date = newDate;
   e.type = newType;
-  e.hours = Number(document.getElementById("edit_hours").value) || 8;
-  e.status = document.getElementById("edit_status").value;
-  e.notes = document.getElementById("edit_notes").value;
+  e.hours = Number($("edit_hours").value) || 8;
+  e.status = $("edit_status").value;
+  e.notes = $("edit_notes").value;
   // Sync personal holiday tracking if type/date changed
   if (oldType === "Personal Holiday" && (oldDate !== newDate || newType !== "Personal Holiday")){
     const ph = state.personalHolidays.find(p => p.date === oldDate);
@@ -118,9 +118,9 @@ function saveEditEntry(){
 // ===== Custom date picker (PTO-503 step B) =====
 let _dp = { field:null, cursor:null, focus:null };
 function dpSet(fieldId, iso){
-  const inp = document.getElementById(fieldId); if (!inp) return;
+  const inp = $(fieldId); if (!inp) return;
   inp.value = iso || "";
-  const txt = document.getElementById(fieldId + "_text");
+  const txt = $(fieldId + "_text");
   if (txt){ const btn = txt.closest(".dp-field");
     if (iso){ txt.textContent = fmt(parseDate(iso),{weekday:"short",month:"short",day:"numeric",year:"numeric"}); if (btn) btn.classList.remove("placeholder"); }
     else { txt.textContent = "Pick a date"; if (btn) btn.classList.add("placeholder"); }
@@ -135,19 +135,19 @@ function dpDisabled(fieldId, iso){
 }
 function openDatePicker(fieldId, anchor){
   _dp.field = fieldId;
-  const cur = document.getElementById(fieldId).value;
+  const cur = $(fieldId).value;
   const base = cur ? parseDate(cur) : today();
   _dp.cursor = new Date(base.getFullYear(), base.getMonth(), 1);
   _dp.focus = cur || isoDate(today());
   renderDatePicker();
-  const pop = document.getElementById("datePicker");
+  const pop = $("datePicker");
   pop.classList.add("open");
   positionDatePicker(anchor);
 }
-function closeDatePicker(){ const p = document.getElementById("datePicker"); if (p) p.classList.remove("open"); _dp.field = null; }
-function datePickerOpen(){ const p = document.getElementById("datePicker"); return !!(p && p.classList.contains("open")); }
+function closeDatePicker(){ const p = $("datePicker"); if (p) p.classList.remove("open"); _dp.field = null; }
+function datePickerOpen(){ const p = $("datePicker"); return !!(p && p.classList.contains("open")); }
 function positionDatePicker(anchor){
-  const pop = document.getElementById("datePicker"); const r = anchor.getBoundingClientRect();
+  const pop = $("datePicker"); const r = anchor.getBoundingClientRect();
   const pw = pop.offsetWidth || 262, ph = pop.offsetHeight || 300;
   let left = r.left; let top = r.bottom + 6;
   if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
@@ -159,10 +159,10 @@ function dpMonth(n){ _dp.cursor = new Date(_dp.cursor.getFullYear(), _dp.cursor.
 function dpToday(){ const t = today(); _dp.cursor = new Date(t.getFullYear(), t.getMonth(), 1); _dp.focus = isoDate(t); renderDatePicker(); }
 function renderDatePicker(){
   const y = _dp.cursor.getFullYear(), m = _dp.cursor.getMonth();
-  document.getElementById("dpTitle").textContent = `${MONTHNAMES[m]} ${y}`;
-  document.getElementById("dpDow").innerHTML = DOWABBR.map(d => `<span>${d[0]}</span>`).join("");
+  $("dpTitle").textContent = `${MONTHNAMES[m]} ${y}`;
+  $("dpDow").innerHTML = DOWABBR.map(d => `<span>${d[0]}</span>`).join("");
   const pad = new Date(y,m,1).getDay(), dim = new Date(y,m+1,0).getDate();
-  const sel = document.getElementById(_dp.field).value;
+  const sel = $(_dp.field).value;
   let cells = "";
   for (let i=0;i<pad;i++) cells += `<button type="button" class="dp-day blank" tabindex="-1"></button>`;
   for (let d=1;d<=dim;d++){
@@ -177,7 +177,7 @@ function renderDatePicker(){
     const dis = dpDisabled(_dp.field, iso); if (dis) cls.push("disabled");
     cells += `<button type="button" class="${cls.join(' ')}" ${dis ? 'aria-disabled="true"' : `onclick="dpSelect('${iso}')"`} title="${hn ? esc(hn) : ''}" tabindex="-1">${d}</button>`;
   }
-  document.getElementById("dpGrid").innerHTML = cells;
+  $("dpGrid").innerHTML = cells;
 }
 function dpSelect(iso){
   const field = _dp.field;
@@ -217,17 +217,17 @@ function businessDaysInRange(startIso, endIso){
 function setAllDay(on){ state.entryAllDay = !!on; save(); updateEntryFormUI(); }
 function updateEntryFormUI(){
   const allDay = state.entryAllDay !== false;
-  const cb = document.getElementById("e_allday"); if (cb) cb.checked = allDay;
-  const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? "" : "none"; };
+  const cb = $("e_allday"); if (cb) cb.checked = allDay;
+  const show = (id, on) => { const el = $(id); if (el) el.style.display = on ? "" : "none"; };
   show("f_end", allDay);     // multi-day range only makes sense for all-day entries
   show("f_hours", !allDay);  // partial hours only when it's not an all-day entry
-  const rp = document.getElementById("rangePreview"); if (rp) rp.style.display = allDay ? "" : "none";
+  const rp = $("rangePreview"); if (rp) rp.style.display = allDay ? "" : "none";
   if (allDay) updateRangePreview();
 }
 function updateRangePreview(){
   if (state.entryAllDay === false) return;
-  const rp = document.getElementById("rangePreview"); if (!rp) return;
-  const s = document.getElementById("e_date").value, e = document.getElementById("e_end").value || s;
+  const rp = $("rangePreview"); if (!rp) return;
+  const s = $("e_date").value, e = $("e_end").value || s;
   if (!s){ rp.className = "range-preview"; rp.textContent = "Pick a start date. Add an end date to book a multi-day range — weekends, company holidays, and already-booked days are skipped."; return; }
   const days = businessDaysInRange(s, e); const wd = state.config.workday || 8;
   if (!days.length){ rp.className = "range-preview warn"; rp.textContent = "No business days to add in that range (all weekends, holidays, or already booked)."; return; }
@@ -237,25 +237,25 @@ function updateRangePreview(){
 }
 function addEntry(){
   const allDay = state.entryAllDay !== false;
-  const type = document.getElementById("e_type").value;
-  const status = document.getElementById("e_status").value;
-  const notes = document.getElementById("e_notes").value;
+  const type = $("e_type").value;
+  const status = $("e_status").value;
+  const notes = $("e_notes").value;
   const wd = state.config.workday || 8;
-  const start = document.getElementById("e_date").value;
+  const start = $("e_date").value;
   if (!start){ toast("Pick a start date"); return; }
   if (allDay){
-    const end = document.getElementById("e_end").value || start;
+    const end = $("e_end").value || start;
     const days = businessDaysInRange(start, end);
     if (!days.length){ toast("No business days to add in that range"); return; }
     if (days.length === 1){ state.entries.push({date:days[0], type, hours:wd, status, notes}); }
     else { const batchId = uid(); days.forEach(iso => state.entries.push({date:iso, type, hours:wd, status, notes, batchId})); }
-    save(); document.getElementById("e_notes").value=""; dpSet("e_end",""); refresh(); toast(`Added ${days.length} ${days.length===1?"entry":"entries"}`);
+    save(); $("e_notes").value=""; dpSet("e_end",""); refresh(); toast(`Added ${days.length} ${days.length===1?"entry":"entries"}`);
     return;
   }
-  const hours = Number(document.getElementById("e_hours").value) || wd;
+  const hours = Number($("e_hours").value) || wd;
   if (hours <= 0){ toast("Enter a number of hours"); return; }
   state.entries.push({date:start, type, hours, status, notes});
-  save(); document.getElementById("e_notes").value=""; refresh(); toast("Entry added");
+  save(); $("e_notes").value=""; refresh(); toast("Entry added");
 }
 function deleteEntry(i){
   const entry = state.entries[i]; if (!entry) return;
@@ -279,25 +279,25 @@ function bookSuggestion(dates){
   dates.forEach(flashCalDay);
 }
 function switchTab(id){
-  document.querySelectorAll(".nav-item").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll<HTMLElement>(".nav-item").forEach(x => x.classList.remove("active"));
   document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
   const btn = document.querySelector(`.nav-item[data-tab="${id}"]`);
-  const panel = document.getElementById(id);
+  const panel = $(id);
   if (btn) btn.classList.add("active");
   if (panel) panel.classList.add("active");
-  const crumb = document.getElementById("crumb"); if (crumb) crumb.textContent = TAB_TITLES[id] || "";
+  const crumb = $("crumb"); if (crumb) crumb.textContent = TAB_TITLES[id] || "";
   window.scrollTo(0,0);
 }
 setSwitchTab(switchTab); // register the tab-navigation seam for view modules
-function globalSearchGo(v){ state.logSearch = v || ""; save(); switchTab("log"); renderLog(); const el = document.getElementById("logSearch"); if (el) el.value = v || ""; }
-function requestTimeOff(){ switchTab("log"); const card = document.querySelector("#log .card.no-print"); if (card) card.scrollIntoView({behavior:"smooth", block:"center"}); const t = document.getElementById("e_type"); if (t) setTimeout(()=>t.focus(), 200); }
+function globalSearchGo(v){ state.logSearch = v || ""; save(); switchTab("log"); renderLog(); const el = $("logSearch"); if (el) el.value = v || ""; }
+function requestTimeOff(){ switchTab("log"); const card = document.querySelector("#log .card.no-print"); if (card) card.scrollIntoView({behavior:"smooth", block:"center"}); const t = $("e_type"); if (t) setTimeout(()=>t.focus(), 200); }
 function viewInCalendar(iso){ gotoCalendarMonth(parseDate(iso)); renderCalendar(); switchTab("cal"); }
 function updateFri(iso, field, val){ state.fridays = state.fridays||{}; state.fridays[iso] = state.fridays[iso]||{purpose:"",status:"Open"}; state.fridays[iso][field] = val; save(); renderCalendar(); renderUpcomingFridays(); renderFridays(); }
 function toggleFriShowAll(){ state.friShowAll = !state.friShowAll; save(); renderFridays(); }
 function exportData(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_backup_${isoDate(today())}.json`; a.click(); URL.revokeObjectURL(url); toast("Backup exported"); }
 function exportICS(){
   const wd = state.config.workday || 8;
-  const holEl = document.getElementById("ics_holidays");
+  const holEl = $("ics_holidays");
   const includeHol = !!(holEl && holEl.checked);
   const stamp = new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
   const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Jazz Harris//PTO Pilot//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:PTO Pilot"];
@@ -333,7 +333,7 @@ function exportICS(){
 }
 function exportCSV(){
   const rows = [["Date","Day","Type","Hours","Status","Notes"]];
-  [...state.entries].sort((a,b) => a.date.localeCompare(b.date)).forEach(e => { const d = parseDate(e.date); rows.push([e.date, DAYNAMES[d.getDay()], e.type, e.hours, e.status||"", e.notes||""]); });
+  [...state.entries].sort((a,b) => a.date.localeCompare(b.date)).forEach(e => { const d = parseDate(e.date); rows.push([e.date, DAYNAMES[d.getDay()], e.type, String(e.hours), e.status||"", e.notes||""]); });
   const csv = rows.map(r => r.map(csvCell).join(",")).join("\r\n");
   const blob = new Blob(["﻿" + csv], {type:"text/csv;charset=utf-8"}); // BOM so Excel reads UTF-8
   const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `pto_entries_${isoDate(today())}.csv`; a.click(); URL.revokeObjectURL(url);
@@ -385,7 +385,7 @@ function importSpreadsheet(ev){
   const r = new FileReader();
   r.onload = async e => {
     ev.target.value = "";
-    const buf = e.target.result;
+    const buf = e.target.result as ArrayBuffer;
     const b = new Uint8Array(buf, 0, Math.min(8, buf.byteLength));
     const isZip = b[0] === 0x50 && b[1] === 0x4B;   // "PK" → .xlsx (zip)
     const isOle = b[0] === 0xD0 && b[1] === 0xCF;   // OLE  → legacy binary .xls
@@ -409,44 +409,45 @@ function importSpreadsheet(ev){
   };
   r.readAsArrayBuffer(f);
 }
-function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ setState(JSON.parse(e.target.result)); ptoMigrate(state); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
+function importData(ev){ const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { try{ setState(JSON.parse(e.target.result as string)); ptoMigrate(state); if(!state.tiers) state.tiers = JSON.parse(JSON.stringify(DEFAULTS.tiers)); if(!state.personalHolidays) state.personalHolidays = JSON.parse(JSON.stringify(DEFAULTS.personalHolidays)); if(!state.calFilters) state.calFilters = {}; if(!state.fridays) state.fridays = {}; if(state.logSearch===undefined) state.logSearch=""; if(!state.logType) state.logType="All"; if(!state.logYear) state.logYear="All"; if(!state.logView) state.logView="list"; if(!state.collapsedMonths) state.collapsedMonths={}; if(!state.dismissedInsights) state.dismissedInsights=[]; if(state.showDismissed===undefined) state.showDismissed=false; if(!state.entryMode) state.entryMode="hours"; if(!state.sugFilters) state.sugFilters={}; if(state.config&&state.config.birthday===undefined) state.config.birthday=""; if(!state.chartRange) state.chartRange=12; if(!state.notificationsSeen) state.notificationsSeen=[]; save(); refresh(); toast("Backup imported"); }catch(err){ toast("Import failed"); } }; r.readAsText(f); }
 function resetAll(){ if (!confirm("This will delete ALL your data. Continue?")) return; localStorage.removeItem("pto_state"); setState(JSON.parse(JSON.stringify(DEFAULTS))); save(); refresh(); toast("All data reset"); }
 
 function refresh(){ renderGreeting(); renderKPIs(); renderPersonalHolidayStrip(); renderCharts(); renderInsights(); renderUpcoming(); renderHistory(); renderUpcomingFridays(); renderLog(); renderSuggestions(); renderFridays(); renderAnniversaries(); renderCalendar(); renderSettings(); updateRangePreview(); }
 setRefresh(refresh); // register the re-render seam for view modules
 
 const TAB_TITLES = {dash:"Dashboard", log:"Time Off Log", cal:"Calendar", sug:"Smart Suggestions", fri:"Friday Planner", ann:"Anniversaries", cfg:"Settings"};
-document.querySelectorAll(".nav-item").forEach(t => { t.addEventListener("click", () => { switchTab(t.dataset.tab); closeNav(); }); });
-document.querySelectorAll('.theme-btn').forEach(b => { b.addEventListener('click', () => setTheme(b.dataset.setTheme)); });
+document.querySelectorAll<HTMLElement>(".nav-item").forEach(t => { t.addEventListener("click", () => { switchTab(t.dataset.tab); closeNav(); }); });
+document.querySelectorAll<HTMLElement>('.theme-btn').forEach(b => { b.addEventListener('click', () => setTheme(b.dataset.setTheme)); });
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (getThemeMode()==='system'){ document.documentElement.setAttribute('data-theme', resolveTheme('system')); renderCharts(); } });
 document.addEventListener('click', e => {
-  const legendBtn = e.target.closest('#calLegend .legend-item');
+  const t = e.target as HTMLElement;
+  const legendBtn = t.closest('#calLegend .legend-item') as HTMLElement;
   if (legendBtn) toggleLegendFilter(legendBtn.dataset.filter);
   // Close modal on backdrop click
-  if (e.target.id === 'editModal') closeEditModal();
+  if (t.id === 'editModal') closeEditModal();
   // Close date picker when clicking outside it (and not on a picker field)
-  if (datePickerOpen() && !e.target.closest('#datePicker') && !e.target.closest('.dp-field')) closeDatePicker();
+  if (datePickerOpen() && !t.closest('#datePicker') && !t.closest('.dp-field')) closeDatePicker();
   // Close notifications panel on outside click
-  const np = document.getElementById('notifPanel');
-  if (np && np.classList.contains('open') && !e.target.closest('.notif-wrap')) closeNotifPanel();
+  const np = $('notifPanel');
+  if (np && np.classList.contains('open') && !t.closest('.notif-wrap')) closeNotifPanel();
   // Close account menu on outside click
-  const um = document.getElementById('userMenu');
-  if (um && um.classList.contains('open') && !e.target.closest('.user-wrap')) closeUserMenu();
+  const um = $('userMenu');
+  if (um && um.classList.contains('open') && !t.closest('.user-wrap')) closeUserMenu();
 });
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'j'){ e.preventDefault(); setTheme(getTheme()==='dark' ? 'light' : 'dark'); }
-  if (e.key === 'Escape' && !e.defaultPrevented && document.getElementById('editModal').classList.contains('open')) closeEditModal();
-  if (e.key === 'Escape' && !e.defaultPrevented){ const np = document.getElementById('notifPanel'); if (np && np.classList.contains('open')) closeNotifPanel(); }
-  if (e.key === 'Escape' && !e.defaultPrevented){ const um = document.getElementById('userMenu'); if (um && um.classList.contains('open')){ closeUserMenu(); const b = document.getElementById('userChipBtn'); if (b) b.focus(); } }
+  if (e.key === 'Escape' && !e.defaultPrevented && $('editModal').classList.contains('open')) closeEditModal();
+  if (e.key === 'Escape' && !e.defaultPrevented){ const np = $('notifPanel'); if (np && np.classList.contains('open')) closeNotifPanel(); }
+  if (e.key === 'Escape' && !e.defaultPrevented){ const um = $('userMenu'); if (um && um.classList.contains('open')){ closeUserMenu(); const b = $('userChipBtn'); if (b) b.focus(); } }
   if (e.key === 'Escape' && !e.defaultPrevented && document.documentElement.getAttribute('data-nav')==='open') closeNav();
   if ((e.ctrlKey || e.metaKey) && e.key === 'b'){ e.preventDefault(); toggleSidebar(); }
   if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')){
-    e.preventDefault(); const gs = document.getElementById('globalSearch'); if (gs){ gs.focus(); gs.select(); }
+    e.preventDefault(); const gs = $('globalSearch'); if (gs){ gs.focus(); gs.select(); }
   }
   // "N" — quick Add Time Off (ignore when typing or with modifiers)
   if ((e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey && !e.altKey){
     const el = document.activeElement; const tag = el ? el.tagName : '';
-    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT' && !(el && el.isContentEditable)){ e.preventDefault(); requestTimeOff(); }
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT' && !(el && (el as HTMLElement).isContentEditable)){ e.preventDefault(); requestTimeOff(); }
   }
 });
 
@@ -456,8 +457,8 @@ updateThemeToggle();
 refresh();
 updateEntryFormUI();
 updateSidebarToggleA11y();
-document.getElementById("printName").textContent = state.config.name || "";
-document.getElementById("printDate").textContent = fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+$("printName").textContent = state.config.name || "";
+$("printDate").textContent = fmt(today(),{weekday:"long",month:"long",day:"numeric",year:"numeric"});
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
@@ -467,8 +468,8 @@ let _deferredPrompt = null;
 function pwaStandalone(){ return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
 function pwaIsIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent || '') && !window.MSStream; }
 function pwaDismissed(){ try{ return localStorage.getItem('pto_pwa_dismissed') === '1'; }catch(e){ return false; } }
-function showPwaBanner(){ const el = document.getElementById('pwaBanner'); if (el) el.classList.add('show'); }
-function hidePwaBanner(){ const el = document.getElementById('pwaBanner'); if (el) el.classList.remove('show'); }
+function showPwaBanner(){ const el = $('pwaBanner'); if (el) el.classList.add('show'); }
+function hidePwaBanner(){ const el = $('pwaBanner'); if (el) el.classList.remove('show'); }
 function dismissPwaBanner(){ try{ localStorage.setItem('pto_pwa_dismissed','1'); }catch(e){} hidePwaBanner(); }
 function installPwa(){
   if (!_deferredPrompt){ hidePwaBanner(); return; }
@@ -482,7 +483,7 @@ window.addEventListener('beforeinstallprompt', e => {
 window.addEventListener('appinstalled', () => { _deferredPrompt = null; hidePwaBanner(); try{ toast('Installed — find PTO on your home screen 🎉'); }catch(e){} });
 // iOS Safari never fires beforeinstallprompt — show manual instructions instead
 if (pwaIsIOS() && !pwaStandalone() && !pwaDismissed() && location.protocol.startsWith('http')){
-  const t = document.getElementById('pwaTitle'), d = document.getElementById('pwaDesc'), ib = document.getElementById('pwaInstallBtn');
+  const t = $('pwaTitle'), d = $('pwaDesc'), ib = $('pwaInstallBtn');
   if (t) t.textContent = 'Add PTO to your Home Screen';
   if (d) d.innerHTML = 'Tap the Share button, then “Add to Home Screen”.';
   if (ib) ib.style.display = 'none';

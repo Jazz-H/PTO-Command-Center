@@ -33,6 +33,6 @@ jobs:
             exit 1
           fi
 
-      - name: Type check (report only, non-blocking)
-        # Loose baseline today; surfaced in the log but not a gate yet.
-        run: npm run typecheck || true
+      - name: Type check
+        # Hard gate: the codebase is at zero tsc errors — keep it there.
+        run: npm run typecheck

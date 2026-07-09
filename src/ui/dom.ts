@@ -2,6 +2,11 @@
    builders (KPI rings, mini-KPI cards, sparklines) reused across the views. */
 import { ICO } from "./icons.ts";
 
+// Typed getElementById. Most lookups target form controls, so it defaults to
+// HTMLInputElement (has .value/.checked/.select); pass a type arg for others,
+// e.g. $<HTMLSelectElement>("yearPicker").options.
+export function $<T extends HTMLElement = HTMLInputElement>(id: string): T { return document.getElementById(id) as unknown as T; }
+
 // Transient confirmation toast (bottom of the screen).
 export function toast(msg){ const t = document.getElementById("toast"); t.innerHTML = ICO.check + '<span>'+msg+'</span>'; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 2400); }
 
