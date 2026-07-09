@@ -36,8 +36,12 @@ export async function sendMagicLink(email: string){
   return supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + window.location.pathname } });
 }
 // Verify the emailed 6-digit code on this device → signs this browser in.
+// Existing users get an "email" OTP; brand-new users get a "signup" OTP — try
+// the common case first, then fall back (a failed verify doesn't burn the code).
 export async function verifyCode(email: string, token: string){
-  return supabase.auth.verifyOtp({ email, token, type: "email" });
+  let res = await supabase.auth.verifyOtp({ email, token, type: "email" });
+  if (res.error) res = await supabase.auth.verifyOtp({ email, token, type: "signup" });
+  return res;
 }
 export async function signOut(){ return supabase.auth.signOut(); }
 export async function getSession(){ const { data } = await supabase.auth.getSession(); return data.session; }
