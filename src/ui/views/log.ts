@@ -122,7 +122,9 @@ export function renderLog(){
   };
   const filtered = getFilteredEntries().sort(fromToday);
   const total = state.entries.length;
-  $("logCount").textContent = logIsFiltered() ? `${filtered.length} of ${total} entries` : `${total} entries`;
+  const totalGroups = groupByBatch(state.entries).length;
+  const filteredGroups = groupByBatch(filtered);
+  $("logCount").textContent = logIsFiltered() ? `${filteredGroups.length} of ${totalGroups} entries` : `${totalGroups} entries`;
 
   if (!filtered.length){
     tb.innerHTML = total === 0
@@ -147,24 +149,53 @@ export function renderLog(){
       const [yy, mm] = k.split("-").map(Number);
       const totalHrs = items.reduce((s,e) => s + Number(e.hours||0), 0);
       const days = new Set(items.map(e => e.date)).size;
+      const monthGroups = groupByBatch(items);
       const collapsed = !!(state.collapsedMonths && state.collapsedMonths[k]);
-      const header = `<tr class="log-group${collapsed?' collapsed':''}" onclick="toggleMonthCollapse('${k}')"><td colspan="8"><div class="log-group-head"><span class="log-group-chev">${collapsed?ICO.chevRight:ICO.chevDown}</span><span class="log-group-title">${MONTHNAMES[mm-1]} ${yy}</span><span class="log-group-stats">${items.length} ${items.length===1?"entry":"entries"} · ${totalHrs}h · ${days} ${days===1?"day":"days"}</span></div></td></tr>`;
-      return header + (collapsed ? "" : items.map(logRowHtml).join(""));
+      const header = `<tr class="log-group${collapsed?' collapsed':''}" onclick="toggleMonthCollapse('${k}')"><td colspan="8"><div class="log-group-head"><span class="log-group-chev">${collapsed?ICO.chevRight:ICO.chevDown}</span><span class="log-group-title">${MONTHNAMES[mm-1]} ${yy}</span><span class="log-group-stats">${monthGroups.length} ${monthGroups.length===1?"entry":"entries"} · ${totalHrs}h · ${days} ${days===1?"day":"days"}</span></div></td></tr>`;
+      return header + (collapsed ? "" : monthGroups.map(logRowHtml).join(""));
     }).join("");
   } else {
-    tb.innerHTML = filtered.map(logRowHtml).join("");
+    tb.innerHTML = filteredGroups.map(logRowHtml).join("");
   }
   updateLogBulkBar();
 }
-function logRowHtml(e){
-  const idx = state.entries.indexOf(e); const d = parseDate(e.date);
-  let cls = 'a';
-  if (e.type==='PTO') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p'; else if (e.type==='Work Event') cls='b';
-  const chk = `<td class="no-print cell-check"><input type="checkbox" class="log-check" data-idx="${idx}" ${selectedLog.has(idx)?'checked':''} onchange="onLogCheck(${idx},this.checked)" aria-label="Select entry"></td>`;
-  return `<tr${selectedLog.has(idx)?' class="row-selected"':''}>${chk}<td data-label="Date"><b>${fmt(d)}</b></td><td data-label="Day" style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td data-label="Type"><span class="chip ${cls}">${e.type}</span></td><td data-label="Hours" class="num">${e.hours}</td><td data-label="Status"><span class="chip n">${e.status||"-"}</span></td><td data-label="Notes" style="color:var(--n-500)">${e.notes||"—"}</td><td class="cell-actions"><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
+// Consolidate entries that were booked together as a multi-day range (shared
+// batchId) into display groups — a range shows as ONE row. Entries without a
+// batchId (single days, imported rows) are their own group. Order is preserved.
+function groupByBatch(entries){
+  const groups = []; const byId = new Map();
+  for (const e of entries){
+    if (e && e.batchId){
+      const g = byId.get(e.batchId);
+      if (g){ g.push(e); continue; }
+      const ng = [e]; byId.set(e.batchId, ng); groups.push(ng);
+    } else groups.push([e]);
+  }
+  return groups;
 }
-export function onLogCheck(idx, checked){ if (checked) selectedLog.add(idx); else selectedLog.delete(idx); const tr = document.querySelector(`.log-check[data-idx="${idx}"]`)?.closest('tr'); if (tr) tr.classList.toggle('row-selected', checked); updateLogBulkBar(); }
-export function toggleLogSelectAll(checked){ document.querySelectorAll<HTMLInputElement>('#logTable .log-check').forEach(cb => { const idx = Number(cb.dataset.idx); cb.checked = checked; if (checked) selectedLog.add(idx); else selectedLog.delete(idx); cb.closest('tr').classList.toggle('row-selected', checked); }); updateLogBulkBar(); }
+
+// Render one table row for a display group (a single entry, or a consolidated
+// multi-day batch shown as a date range + summed hours).
+function logRowHtml(group){
+  const entries = [...group].sort((a,b) => a.date.localeCompare(b.date));
+  const first = entries[0], last = entries[entries.length-1];
+  const single = entries.length === 1;
+  const idxs = entries.map(e => state.entries.indexOf(e)).filter(i => i >= 0);
+  const firstIdx = idxs[0];
+  const allSel = idxs.length > 0 && idxs.every(i => selectedLog.has(i));
+  const df = parseDate(first.date), dl = parseDate(last.date);
+  const totalHours = entries.reduce((s,e) => s + Number(e.hours||0), 0);
+  let cls = 'a';
+  if (first.type==='PTO') cls='g'; else if (first.type==='Sick') cls='r'; else if (first.type==='Personal Holiday') cls='p'; else if (first.type==='Work Event') cls='b';
+  const dateCell = single ? `<b>${fmt(df)}</b>` : `<b>${fmt(df,{month:"short",day:"numeric"})} – ${fmt(dl,{month:"short",day:"numeric",year:"numeric"})}</b>`;
+  const dayCell = single ? DAYNAMES[df.getDay()] : `${entries.length} days`;
+  const idxsAttr = idxs.join(',');
+  const chk = `<td class="no-print cell-check"><input type="checkbox" class="log-check" data-idxs="${idxsAttr}" ${allSel?'checked':''} onchange="onLogCheck('${idxsAttr}',this.checked)" aria-label="Select entry"></td>`;
+  return `<tr${allSel?' class="row-selected"':''}>${chk}<td data-label="Date">${dateCell}</td><td data-label="Day" style="color:var(--n-500)">${dayCell}</td><td data-label="Type"><span class="chip ${cls}">${first.type}</span></td><td data-label="Hours" class="num">${totalHours}</td><td data-label="Status"><span class="chip n">${first.status||"-"}</span></td><td data-label="Notes" style="color:var(--n-500)">${first.notes||"—"}</td><td class="cell-actions"><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${firstIdx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${firstIdx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
+}
+const idxList = (s) => String(s == null ? "" : s).split(',').filter(x => x !== '').map(Number);
+export function onLogCheck(idxs, checked){ idxList(idxs).forEach(i => { if (checked) selectedLog.add(i); else selectedLog.delete(i); }); const tr = document.querySelector(`.log-check[data-idxs="${idxs}"]`)?.closest('tr'); if (tr) tr.classList.toggle('row-selected', checked); updateLogBulkBar(); }
+export function toggleLogSelectAll(checked){ document.querySelectorAll<HTMLInputElement>('#logTable .log-check').forEach(cb => { cb.checked = checked; idxList(cb.dataset.idxs).forEach(i => { if (checked) selectedLog.add(i); else selectedLog.delete(i); }); cb.closest('tr').classList.toggle('row-selected', checked); }); updateLogBulkBar(); }
 function updateLogBulkBar(){ const bar = $('logBulkBar'); const cnt = $('logBulkCount'); const n = selectedLog.size; if (bar) bar.classList.toggle('show', n>0); if (cnt) cnt.textContent = `${n} selected`; const all = $('logSelectAll'); const boxes = document.querySelectorAll<HTMLInputElement>('#logTable .log-check'); if (all) all.checked = boxes.length>0 && [...boxes].every(b=>b.checked); }
 export function clearLogSelection(){ selectedLog.clear(); renderLog(); }
 export function bulkStatusLog(status){ if (!selectedLog.size) return; [...selectedLog].forEach(i => { if (state.entries[i]) state.entries[i].status = status; }); const n = selectedLog.size; selectedLog.clear(); save(); refresh(); toast(`Marked ${n} as ${status}`); }

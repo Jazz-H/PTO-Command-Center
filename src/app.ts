@@ -72,7 +72,9 @@ function drillFriday(iso){ switchTab("fri"); setTimeout(() => { const row = $("f
 function openEditModal(idx){
   editingIdx = idx;
   const e = state.entries[idx]; if (!e) return;
-  dpSet("edit_date", e.date);
+  // For a multi-day batch, edit the range from its start date.
+  const startDate = e.batchId ? state.entries.filter(x => x.batchId === e.batchId).map(x => x.date).sort()[0] : e.date;
+  dpSet("edit_date", startDate);
   $("edit_type").value = e.type;
   $("edit_hours").value = String(e.hours);
   $("edit_status").value = e.status || "Scheduled";
@@ -87,6 +89,18 @@ function saveEditEntry(){
   const newDate = $("edit_date").value;
   const newType = $("edit_type").value;
   if (!newDate){ toast("Date is required"); return; }
+  // Multi-day batch: apply type/hours/status/notes to every day, and if the
+  // start date moved, shift the whole range by the same delta (preserving span).
+  if (e.batchId){
+    const batch = state.entries.filter(x => x.batchId === e.batchId).sort((a,b) => a.date.localeCompare(b.date));
+    const oldStart = batch[0].date;
+    const deltaDays = Math.round((parseDate(newDate).getTime() - parseDate(oldStart).getTime()) / 86400000);
+    const newHours = Number($("edit_hours").value) || 8;
+    const newStatus = $("edit_status").value, newNotes = $("edit_notes").value;
+    batch.forEach(x => { if (deltaDays) x.date = isoDate(addDays(parseDate(x.date), deltaDays)); x.type = newType; x.hours = newHours; x.status = newStatus; x.notes = newNotes; });
+    save(); closeEditModal(); refresh(); toast("Entry updated");
+    return;
+  }
   e.date = newDate;
   e.type = newType;
   e.hours = Number($("edit_hours").value) || 8;
@@ -237,7 +251,7 @@ function addEntry(){
     if (!days.length){ toast("Those dates are already in your log"); return; }
     if (days.length === 1){ state.entries.push({date:days[0], type, hours:wd, status, notes}); }
     else { const batchId = uid(); days.forEach(iso => state.entries.push({date:iso, type, hours:wd, status, notes, batchId})); }
-    save(); $("e_notes").value=""; dpSet("e_end",""); refresh(); toast(`Added ${days.length} ${days.length===1?"entry":"entries"}`);
+    save(); $("e_notes").value=""; dpSet("e_end",""); refresh(); toast(days.length===1 ? "Entry added" : `Added a ${days.length}-day entry (${days.length*wd} hrs)`);
     return;
   }
   const hours = Number($("e_hours").value) || wd;
@@ -247,12 +261,14 @@ function addEntry(){
 }
 function deleteEntry(i){
   const entry = state.entries[i]; if (!entry) return;
+  // A multi-day booking shows as one row → delete the whole range together.
   if (entry.batchId){
     const batch = state.entries.filter(e => e.batchId === entry.batchId);
-    if (batch.length > 1 && confirm(`This entry is part of a batch of ${batch.length}. OK to delete all ${batch.length} in the batch — Cancel to delete just this one.`)){
+    if (batch.length > 1){
+      if (!confirm(`Delete this ${batch.length}-day entry?`)) return;
       batch.forEach(detachPH);
       state.entries = state.entries.filter(e => e.batchId !== entry.batchId);
-      save(); refresh(); toast(`Deleted ${batch.length} entries`); return;
+      save(); refresh(); toast(`Deleted ${batch.length}-day entry`); return;
     }
   }
   detachPH(entry);
