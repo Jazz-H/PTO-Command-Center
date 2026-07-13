@@ -261,9 +261,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .kpi-title.pink{color:var(--data-magenta)}
 .kpi-chev{width:16px;height:16px;color:var(--n-400);margin-left:auto;flex-shrink:0;transition:transform .15s,color .15s}
 .kpi-link:hover .kpi-chev{color:var(--n-600);transform:translateX(2px)}
-.kpi-body{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.kpi-body{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .kpi-main{min-width:0;flex:1}
-.kpi-ring.lg{width:58px;height:58px}
+.kpi-ring.lg{width:52px;height:52px}
 .kpi-ring .rl2{fill:var(--n-500);font-size:6.5px;font-weight:600;text-anchor:middle;dominant-baseline:central;letter-spacing:.04em}
 .kpi-sparkbox{width:96px;flex-shrink:0}
 .kpi-sparkbox .kpi-spark{margin-top:0;height:40px}
@@ -788,6 +788,12 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   .kpi-top .kpi-icon{width:28px;height:28px}
   .kpi-value{font-size:23px}
   .kpi-value.sm{font-size:16px}
+}
+/* 5-across KPI cards get narrow in this band — trim the value + ring so a long
+   or negative balance never crowds the "% used" ring. */
+@media(min-width:821px) and (max-width:1150px){
+  .g-kpi .kpi-value{font-size:22px}
+  .g-kpi .kpi-ring.lg{width:48px;height:48px}
 }
 /* Responsive tables -> stacked cards on phones */
 @media(max-width:640px){
