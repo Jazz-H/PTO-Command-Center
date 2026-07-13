@@ -9,7 +9,7 @@ import { state, save } from "../../state/store.ts";
 import { refresh } from "../refresh.ts";
 import { detachPH } from "../../domain/personalholiday.ts";
 import { parseDate, fmt, today, DAYNAMES, MONTHNAMES } from "../../domain/dates.ts";
-import { ytdUsage } from "../../domain/balance.ts";
+import { ytdUsage, countsTowardUsage } from "../../domain/balance.ts";
 import { toast, miniKpi, cssVar, $ } from "../dom.ts";
 import { ICO } from "../icons.ts";
 
@@ -76,7 +76,7 @@ function renderLogChart(){
   const y = state.config.year; const dark = document.documentElement.getAttribute('data-theme')==='dark';
   const labels = MONTHNAMES.map(m => m.slice(0,3));
   const series = {PTO:new Array(12).fill(0), Sick:new Array(12).fill(0), "Personal Holiday":new Array(12).fill(0), Other:new Array(12).fill(0)};
-  state.entries.forEach(e => { const d = parseDate(e.date); if (d.getFullYear()!==y) return; const mo = d.getMonth(); const h = Number(e.hours||0);
+  state.entries.forEach(e => { if (!countsTowardUsage(e.status)) return; const d = parseDate(e.date); if (d.getFullYear()!==y) return; const mo = d.getMonth(); const h = Number(e.hours||0);
     if (e.type==="PTO") series.PTO[mo]+=h; else if (e.type==="Sick") series.Sick[mo]+=h; else if (e.type==="Personal Holiday") series["Personal Holiday"][mo]+=h; else series.Other[mo]+=h; });
   const col = {PTO:cssVar('--data-green'), Sick:cssVar('--accent'), "Personal Holiday":cssVar('--data-magenta'), Other:cssVar('--data-amber')};
   const meta = $("logChartMeta"); if (meta) meta.textContent = `${y} · hours per month`;

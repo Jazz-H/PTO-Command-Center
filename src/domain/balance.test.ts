@@ -46,15 +46,17 @@ describe("balance", () => {
     expect(currentBalance(parseDate("2026-12-31")!)).toBe(48);
   });
 
-  it("excludes Cancelled entries from usage and balance", () => {
+  it("excludes Cancelled and Pending entries from usage and balance", () => {
     seed({ entries: [
       entry("2026-01-15", "PTO", 8, "Scheduled"),
       entry("2026-02-10", "PTO", 8, "Cancelled"),   // cancelled → didn't happen
+      entry("2026-02-20", "PTO", 8, "Pending"),     // not yet confirmed → doesn't count yet
       entry("2026-03-01", "Sick", 8, "Cancelled"),
+      entry("2026-03-05", "Sick", 8, "Pending"),
     ]});
     expect(ytdUsage("PTO", 2026)).toBe(8);
     expect(ytdUsage("Sick", 2026)).toBe(0);
-    expect(currentBalance(parseDate("2026-12-31")!)).toBe(72);  // 80 − 8, cancelled ignored
+    expect(currentBalance(parseDate("2026-12-31")!)).toBe(72);  // 80 − 8; cancelled + pending ignored
   });
 
   it("Work Event entries don't count against PTO or sick balances", () => {
