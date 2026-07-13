@@ -619,6 +619,9 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
 [data-theme="dark"] .cal-tag.fri-appt{background:var(--cyan);color:var(--bg)}
 .cal-tag.other{background:var(--n-500);color:#fff}
 [data-theme="dark"] .cal-tag.other{background:var(--n-500);color:var(--bg)}
+/* "US" badge on a company holiday that is also a US federal holiday */
+.cal-tag .us-badge{display:inline-block;font-size:7px;font-weight:800;letter-spacing:.03em;line-height:1;margin-right:4px;padding:2px 3px;border-radius:3px;background:rgba(255,255,255,.3);color:inherit;vertical-align:middle;flex-shrink:0}
+[data-theme="dark"] .cal-tag.hol .us-badge{background:rgba(0,0,0,.22)}
 /* US federal holiday — reference only (not a paid day off): outlined, muted */
 .cal-tag.usfed{background:transparent;color:var(--n-500);border:1px dashed var(--n-400);font-weight:600}
 .cal-day.usfed{border-style:dashed;border-color:var(--n-300)}

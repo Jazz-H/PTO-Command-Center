@@ -20,14 +20,14 @@ let calCursor = new Date();
 // cursor from outside the view go through here (they then refresh/render).
 export function gotoCalendarMonth(d){ calCursor = new Date(d.getFullYear(), d.getMonth(), 1); }
 
-// US federal holidays for the years a month grid can touch, as { iso: name },
-// excluding any that are already company holidays (so they aren't double-marked).
-// Reference-only: these are shown but never treated as paid days off.
+// ALL US federal holidays for the years a month grid can touch, as { iso: name }.
+// Never treated as paid days off. Dates that are also company holidays keep the
+// company (day-off) styling but get a small "US" badge; the rest render as a
+// dashed reference-only "US holiday" tag.
 function usFedForGrid(centerYear){
-  const company = new Set((state.holidays || []).map(h => h.date));
   const map: Record<string,string> = {};
   [centerYear - 1, centerYear, centerYear + 1].forEach(yy =>
-    usFederalHolidays(yy).forEach(h => { const iso = isoDate(h.d); if (!company.has(iso)) map[iso] = h.name; }));
+    usFederalHolidays(yy).forEach(h => { map[isoDate(h.d)] = h.name; }));
   return map;
 }
 
@@ -75,7 +75,7 @@ export function renderCalendar(){
     // Build tag stack (multiple tags per day possible)
     const tags = [];
     if (isAnniv && f.anniv!==false){ const tier = state.tiers.find(tr => isoDate(anniversaryFor(tr.years))===iso); if (tier) tags.push(`<span class="cal-tag anniv">${tier.label}</span>`); }
-    if (hn && f.hol!==false){ tags.push(`<span class="cal-tag hol" title="${hn}">${hn.length>14?hn.slice(0,13)+'…':hn}</span>`); }
+    if (hn && f.hol!==false){ const isFed = !!fedHol[iso] && f.usfed!==false; const usB = isFed ? `<span class="us-badge">US</span>` : ""; tags.push(`<span class="cal-tag hol" title="${hn}${isFed?' · US federal holiday':''}">${usB}${hn.length>14?hn.slice(0,13)+'…':hn}</span>`); }
     else if (fedHol[iso] && f.usfed!==false){ const nm = fedHol[iso]; tags.push(`<span class="cal-tag usfed" title="${esc(nm)} · US holiday">${nm.length>14?esc(nm.slice(0,13))+'…':esc(nm)}</span>`); }
     if (e){
       const eIdx = state.entries.indexOf(e);
@@ -165,10 +165,11 @@ function renderCalEvents(y, m){
     else if (e.type==="Work Event"){ color = "var(--data-blue)"; title = `Work Event · ${e.hours}h`; }
     evs.push({d, iso:isoDate(d), color, title, meta:(e.status||"") + (e.notes?` · ${e.notes}`:"")});
   });
-  // Company holidays
-  (state.holidays||[]).forEach(h => { const d = parseDate(h.date); if (!inMonth(d) || f.hol===false) return; evs.push({d, iso:h.date, color:"var(--violet)", title:h.name, meta:"Company holiday"}); });
-  // US federal holidays not observed by CCCI (reference only — not a day off)
-  { const fedHol = usFedForGrid(y); Object.keys(fedHol).forEach(iso => { const d = parseDate(iso); if (!inMonth(d) || f.usfed===false) return; evs.push({d, iso, color:"var(--n-400)", title:fedHol[iso], meta:"US holiday"}); }); }
+  const fedHol = usFedForGrid(y); const companySet = new Set((state.holidays||[]).map(h => h.date));
+  // Company holidays (badge the ones that are also US federal holidays)
+  (state.holidays||[]).forEach(h => { const d = parseDate(h.date); if (!inMonth(d) || f.hol===false) return; const isFed = !!fedHol[h.date] && f.usfed!==false; evs.push({d, iso:h.date, color:"var(--violet)", title:h.name, meta:isFed ? "Company holiday · US" : "Company holiday"}); });
+  // US federal holidays NOT observed by CCCI (reference only — not a day off)
+  Object.keys(fedHol).forEach(iso => { if (companySet.has(iso)) return; const d = parseDate(iso); if (!inMonth(d) || f.usfed===false) return; evs.push({d, iso, color:"var(--n-400)", title:fedHol[iso], meta:"US holiday"}); });
   // Personal holiday (scheduled, no entry)
   state.personalHolidays.filter(p => p.date).forEach(p => { const d = parseDate(p.date); if (!inMonth(d) || f.personal===false) return; if (state.entries.some(e => e.date===p.date)) return; evs.push({d, iso:p.date, color:"var(--pink)", title:"Personal Holiday", meta:p.status||"Scheduled"}); });
   // Anniversaries
