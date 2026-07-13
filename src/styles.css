@@ -515,6 +515,12 @@ input:disabled,select:disabled{background:var(--input-disabled);color:var(--n-40
 .log-view-toggle button{width:auto;border:none;background:transparent;color:var(--n-500);font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;box-shadow:none}
 .log-view-toggle button:hover{color:var(--n-800)}
 .log-view-toggle button.active{background:var(--card);color:var(--n-900);box-shadow:var(--shadow-xs)}
+/* Per-column filter row inside the log table header */
+#logTable thead th{position:static}
+.log-head-row th{border-bottom:none;padding-bottom:8px}
+.log-filter-row th{padding:0 10px 10px;vertical-align:top;background:var(--hover-bg)}
+.log-filter-row select{width:100%;min-width:0;font-size:12px;padding:6px 8px;box-shadow:var(--shadow-xs);text-transform:none;letter-spacing:normal;font-weight:400}
+.log-filter-row .th-filter{display:flex;gap:6px}
 tr.log-group{cursor:pointer;user-select:none}
 tr.log-group td{background:var(--hover-bg);border-bottom:1px solid var(--line)}
 tr.log-group:hover td{background:var(--hover-strong)}
@@ -783,6 +789,15 @@ td.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
   .table-wrap:has(.rtable){border:none;background:transparent;overflow:visible;border-radius:0}
   .table-wrap .rtable{min-width:0!important}
   .rtable thead{display:none}
+  /* Log table keeps its column filters accessible as a filter bar */
+  #logTable thead{display:block}
+  #logTable .log-head-row{display:none}
+  #logTable .log-filter-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;border:none;padding:0;background:transparent}
+  #logTable .log-filter-row th{display:block;flex:1 1 46%;padding:0;background:transparent;border:none}
+  #logTable .log-filter-row th:empty{display:none}
+  #logTable .log-filter-row th[data-col="Date"]{flex:1 1 100%}
+  #logTable .log-filter-row .th-filter{display:flex;gap:6px}
+  #logTable .log-filter-row select{width:100%;font-size:13px;padding:8px 10px;max-width:none;flex:1 1 0}
   .rtable, .rtable tbody{display:block;width:100%}
   .rtable tr{display:block;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:10px;background:var(--card);position:relative}
   .rtable tr.row-selected{border-color:var(--primary);background:var(--primary-soft)}

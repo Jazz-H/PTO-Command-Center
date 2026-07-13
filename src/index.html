@@ -183,39 +183,24 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
         <input type="text" id="logSearch" placeholder="Search… or /vac /sick /2026 /jul" title="Type to search, or use slash-commands: /vac /sick /personal /holiday, /2026, /jul — they stack with each other and your text" autocomplete="off" oninput="onLogSearch(this.value)"/>
         <button type="button" class="log-search-clear" id="logSearchClear" onclick="clearLogSearch()" title="Clear search" aria-label="Clear search"></button>
       </div>
-      <select id="logTypeFilter" onchange="onLogFilter('logType',this.value)" title="Filter by type">
-        <option value="All">All types</option>
-        <option value="PTO">PTO</option>
-        <option value="Sick">Sick</option>
-        <option value="Personal Holiday">Personal Holiday</option>
-        <option value="Work Event">Work Event</option>
-        <option value="Bereavement">Bereavement</option>
-        <option value="Jury Duty">Jury Duty</option>
-        <option value="Unpaid">Unpaid</option>
-        <option value="Other">Other</option>
-      </select>
-      <select id="logMonthFilter" onchange="onLogFilter('logMonth',this.value)" title="Filter by month">
-        <option value="All">All months</option>
-        <option value="0">January</option><option value="1">February</option><option value="2">March</option>
-        <option value="3">April</option><option value="4">May</option><option value="5">June</option>
-        <option value="6">July</option><option value="7">August</option><option value="8">September</option>
-        <option value="9">October</option><option value="10">November</option><option value="11">December</option>
-      </select>
-      <select id="logYearFilter" onchange="onLogFilter('logYear',this.value)" title="Filter by year"></select>
-      <select id="logStatusFilter" onchange="onLogFilter('logStatus',this.value)" title="Filter by status">
-        <option value="All">All statuses</option>
-        <option value="Scheduled">Scheduled</option>
-        <option value="Pending">Pending</option>
-        <option value="Taken">Taken</option>
-        <option value="Cancelled">Cancelled</option>
-      </select>
-      <select id="logHoursFilter" onchange="onLogFilter('logHours',this.value)" title="Filter by hours"></select>
       <div class="log-view-toggle" id="logViewToggle">
         <button type="button" data-view="list" onclick="setLogView('list')">List</button>
         <button type="button" data-view="month" onclick="setLogView('month')">By month</button>
       </div>
     </div>
-    <div class="table-wrap"><table id="logTable" class="rtable"><thead><tr><th style="width:34px" class="no-print"><input type="checkbox" id="logSelectAll" onchange="toggleLogSelectAll(this.checked)" title="Select all" aria-label="Select all entries"></th><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr></thead><tbody></tbody></table></div>
+    <div class="table-wrap"><table id="logTable" class="rtable"><thead>
+      <tr class="log-head-row"><th style="width:34px" class="no-print"><input type="checkbox" id="logSelectAll" onchange="toggleLogSelectAll(this.checked)" title="Select all" aria-label="Select all entries"></th><th>Date</th><th>Day</th><th>Type</th><th style="text-align:right">Hours</th><th>Status</th><th>Notes</th><th style="width:110px"></th></tr>
+      <tr class="log-filter-row no-print">
+        <th></th>
+        <th data-col="Date"><div class="th-filter"><select id="logMonthFilter" onchange="onLogFilter('logMonth',this.value)" title="Filter by month" aria-label="Filter by month"><option value="All">All months</option><option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option><option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option><option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option><option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option></select><select id="logYearFilter" onchange="onLogFilter('logYear',this.value)" title="Filter by year" aria-label="Filter by year"></select></div></th>
+        <th></th>
+        <th data-col="Type"><select id="logTypeFilter" onchange="onLogFilter('logType',this.value)" title="Filter by type" aria-label="Filter by type"><option value="All">All types</option><option value="PTO">PTO</option><option value="Sick">Sick</option><option value="Personal Holiday">Personal Holiday</option><option value="Work Event">Work Event</option><option value="Bereavement">Bereavement</option><option value="Jury Duty">Jury Duty</option><option value="Unpaid">Unpaid</option><option value="Other">Other</option></select></th>
+        <th data-col="Hours"><select id="logHoursFilter" onchange="onLogFilter('logHours',this.value)" title="Filter by hours" aria-label="Filter by hours"></select></th>
+        <th data-col="Status"><select id="logStatusFilter" onchange="onLogFilter('logStatus',this.value)" title="Filter by status" aria-label="Filter by status"><option value="All">All statuses</option><option value="Scheduled">Scheduled</option><option value="Pending">Pending</option><option value="Taken">Taken</option><option value="Cancelled">Cancelled</option></select></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead><tbody></tbody></table></div>
   </div>
 </div>
 
