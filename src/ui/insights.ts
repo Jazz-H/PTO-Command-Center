@@ -35,6 +35,11 @@ export function buildInsights(){
     ins.push({t:"warn", priority:3, icon:ICO.warn, h:"Unbooked PTO will forfeit",
       b:`<b>${atRiskDays.toFixed(1)} days (${atRiskHrs.toFixed(0)} hrs)</b> aren't planned yet. PTO doesn't roll over — pacing <b>~${perMonth.toFixed(1)} day${perMonth>=1.05?"s":""}/month</b> uses it all by Dec 31.`,
       action:{label:"See suggestions", fn:"switchTab('sug')"}});
+  } else if (vacUsedAll > allot.vacation && allot.vacation > 0){
+    const overHrs = vacUsedAll - allot.vacation;
+    ins.push({t:"warn", priority:2, icon:ICO.warn, h:"Over your PTO allotment",
+      b:`You've booked/used <b>${D(vacUsedAll).toFixed(1)} days (${vacUsedAll.toFixed(0)} hrs)</b> of PTO — <b>${D(overHrs).toFixed(1)} day${D(overHrs)>=2?"s":""} over</b> your ${D(allot.vacation).toFixed(0)}-day allotment for ${y}. Some may be unpaid or need extra approval.`,
+      action:{label:"Review entries", fn:"switchTab('log')"}});
   } else if (atRiskHrs <= 0 && allot.vacation > 0){
     ins.push({t:"good", priority:6, icon:ICO.check, h:"PTO fully planned",
       b:`Every one of your <b>${D(allot.vacation).toFixed(0)} days</b> for ${y} is booked or used — nothing will be forfeited. Nice.`});

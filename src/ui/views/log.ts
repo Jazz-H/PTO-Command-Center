@@ -61,9 +61,10 @@ function renderLogSummary(){
   const kp = $("logKpis"); if (!kp) return;
   const cfg = state.config, y = cfg.year;
   const uv = ytdUsage("PTO", y), us = ytdUsage("Sick", y);
-  const uph = ytdUsage("Personal Holiday", y);
-  const total = state.entries.length;
-  const totalHrs = state.entries.filter(e => parseDate(e.date).getFullYear()===y).reduce((s,e)=>s+Number(e.hours||0),0);
+  const total = groupByBatch(state.entries).length;   // count bookings, matching the consolidated table
+  // Only realized time counts toward hours (Pending/Cancelled excluded), so the
+  // three usage buckets add up to the logged total.
+  const totalHrs = state.entries.filter(e => parseDate(e.date).getFullYear()===y && countsTowardUsage(e.status)).reduce((s,e)=>s+Number(e.hours||0),0);
   const otherHrs = Math.max(0, totalHrs - uv - us);
   kp.innerHTML =
     miniKpi("blue", ICO.calendar, "Total Entries", `${total}`, "v-blue", `${totalHrs.toFixed(0)} hrs logged in ${y}`) +
@@ -110,10 +111,10 @@ export function renderLog(){
   const view = state.logView||"list";
   document.querySelectorAll<HTMLElement>("#logViewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
 
-  // The log is a chronological record: strictly oldest → newest → future,
+  // Chronological, newest → oldest (most recent / upcoming dates at the top),
   // regardless of the order entries were added. Dates are ISO strings, so a
   // plain string compare sorts them by date.
-  const filtered = getFilteredEntries().sort((a,b) => a.date.localeCompare(b.date));
+  const filtered = getFilteredEntries().sort((a,b) => b.date.localeCompare(a.date));
   const total = state.entries.length;
   const totalGroups = groupByBatch(state.entries).length;
   const filteredGroups = groupByBatch(filtered);
@@ -131,7 +132,7 @@ export function renderLog(){
   if (view === "month"){
     const groups = {};
     filtered.forEach(e => { const k = monthKey(parseDate(e.date)); (groups[k] = groups[k] || []).push(e); });
-    const keys = Object.keys(groups).sort((a,b) => a.localeCompare(b));   // oldest month → newest → future
+    const keys = Object.keys(groups).sort((a,b) => b.localeCompare(a));   // newest month → oldest
     tb.innerHTML = keys.map(k => {
       const items = groups[k];
       const [yy, mm] = k.split("-").map(Number);

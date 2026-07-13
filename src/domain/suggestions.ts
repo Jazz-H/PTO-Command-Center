@@ -2,7 +2,7 @@
    Pure domain — reads state, uses date + balance helpers. */
 import { state } from "../state/store.ts";
 import { isoDate, isWeekend, addDays, DAYNAMES, parseDate, today, fmt } from "./dates.ts";
-import { isHoliday, currentBalance } from "./balance.ts";
+import { isHoliday, getAllotment, ytdUsage } from "./balance.ts";
 
 export function buildSuggestions(year){
   const workday = state.config.workday || 8; const out = [];
@@ -86,8 +86,8 @@ export function buildAllSuggestions(year){
     out.push({category:"personal", occasion:a.name, date:new Date(a.d), dayName:DAYNAMES[a.d.getDay()], takeOn:[new Date(a.d)], result: span >= 3 ? `${span}-day break` : "A day for you", hours:wd, roi:span, reason:`${a.name} falls on a ${fmt(a.d,{weekday:"long"})} this year — take it off.`, bookable:true});
   });
   // S5 — balance plan (informational)
-  { const bal = currentBalance(); const daysLeft = bal / wd; const mLeft = Math.max(1, 12 - t.getMonth());
-    if (daysLeft >= 1){ out.push({category:"balance", occasion:"Use your remaining balance", date:null, dayName:"", takeOn:[], result:`${daysLeft.toFixed(1)} days over ~${mLeft} mo (≈${(daysLeft/mLeft).toFixed(1)}/mo)`, hours:bal, roi:Math.round(daysLeft), reason:"PTO doesn't roll over on Dec 31 — spread the rest across the remaining months so you don't forfeit any.", bookable:false}); }
+  { const committed = getAllotment(year).vacation - ytdUsage("PTO", year); const daysLeft = committed / wd; const mLeft = Math.max(1, 12 - t.getMonth());
+    if (daysLeft >= 1){ out.push({category:"balance", occasion:"Use your remaining balance", date:null, dayName:"", takeOn:[], result:`${daysLeft.toFixed(1)} days over ~${mLeft} mo (≈${(daysLeft/mLeft).toFixed(1)}/mo)`, hours:committed, roi:Math.round(daysLeft), reason:"PTO doesn't roll over on Dec 31 — spread the rest across the remaining months so you don't forfeit any.", bookable:false}); }
   }
   return out;
 }
