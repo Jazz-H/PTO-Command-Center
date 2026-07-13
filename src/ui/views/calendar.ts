@@ -9,7 +9,7 @@ import { state, save } from "../../state/store.ts";
 import { refresh } from "../refresh.ts";
 import { today, isoDate, parseDate, fmt, isWeekend, DOWABBR, DAYNAMES, MONTHNAMES, ordSuffix } from "../../domain/dates.ts";
 import { holidayName } from "../../domain/balance.ts";
-import { suggestedDates } from "../../domain/suggestions.ts";
+import { suggestedDates, usFederalHolidays } from "../../domain/suggestions.ts";
 import { anniversaryDates, anniversaryFor } from "../../domain/anniversaries.ts";
 import { personalHolidayDates, getPersonalHoliday } from "../../domain/personalholiday.ts";
 import { toast, esc, $ } from "../dom.ts";
@@ -19,6 +19,17 @@ let calCursor = new Date();
 // Set the visible month to the month containing `d`. Callers that mutate the
 // cursor from outside the view go through here (they then refresh/render).
 export function gotoCalendarMonth(d){ calCursor = new Date(d.getFullYear(), d.getMonth(), 1); }
+
+// US federal holidays for the years a month grid can touch, as { iso: name },
+// excluding any that are already company holidays (so they aren't double-marked).
+// Reference-only: these are shown but never treated as paid days off.
+function usFedForGrid(centerYear){
+  const company = new Set((state.holidays || []).map(h => h.date));
+  const map: Record<string,string> = {};
+  [centerYear - 1, centerYear, centerYear + 1].forEach(yy =>
+    usFederalHolidays(yy).forEach(h => { const iso = isoDate(h.d); if (!company.has(iso)) map[iso] = h.name; }));
+  return map;
+}
 
 // Scheduled/done Friday appointments, keyed by ISO date — calendar overlay data.
 function scheduledFridayAppts(){
@@ -42,6 +53,7 @@ export function renderCalendar(){
   const em = {}; state.entries.forEach(e => { em[e.date]=e; });
   const sug = suggestedDates(); const annivs = anniversaryDates(); const phDates = personalHolidayDates(); const friAppts = scheduledFridayAppts(); const t = today();
   const f = state.calFilters || {};
+  const fedHol = usFedForGrid(y);   // US federal holidays not already company holidays (reference only)
   $("calBody").innerHTML = cells.map(d => {
     if (!d) return `<div class="cal-day empty"></div>`;
     const iso = isoDate(d); const c = ["cal-day"];
@@ -49,6 +61,7 @@ export function renderCalendar(){
     if (d.getDay()===5 && f.fri!==false) c.push("fri");
     const hn = holidayName(d);
     if (hn && f.hol!==false) c.push("hol");
+    else if (fedHol[iso] && f.usfed!==false) c.push("usfed");
     const e = em[iso];
     if (e && e.type==="PTO" && f.vac!==false) c.push("vac");
     if (e && e.type==="Sick" && f.sick!==false) c.push("sick");
@@ -63,6 +76,7 @@ export function renderCalendar(){
     const tags = [];
     if (isAnniv && f.anniv!==false){ const tier = state.tiers.find(tr => isoDate(anniversaryFor(tr.years))===iso); if (tier) tags.push(`<span class="cal-tag anniv">${tier.label}</span>`); }
     if (hn && f.hol!==false){ tags.push(`<span class="cal-tag hol" title="${hn}">${hn.length>14?hn.slice(0,13)+'…':hn}</span>`); }
+    else if (fedHol[iso] && f.usfed!==false){ const nm = fedHol[iso]; tags.push(`<span class="cal-tag usfed" title="${esc(nm)} · US holiday (not a company day off)">${nm.length>14?esc(nm.slice(0,13))+'…':esc(nm)}</span>`); }
     if (e){
       const eIdx = state.entries.indexOf(e);
       const drag = `draggable="true" ondragstart="dragStart(event,'entry',${eIdx})" title="Drag to reschedule"`;
@@ -153,6 +167,8 @@ function renderCalEvents(y, m){
   });
   // Company holidays
   (state.holidays||[]).forEach(h => { const d = parseDate(h.date); if (!inMonth(d) || f.hol===false) return; evs.push({d, iso:h.date, color:"var(--violet)", title:h.name, meta:"Company holiday"}); });
+  // US federal holidays not observed by CCCI (reference only — not a day off)
+  { const fedHol = usFedForGrid(y); Object.keys(fedHol).forEach(iso => { const d = parseDate(iso); if (!inMonth(d) || f.usfed===false) return; evs.push({d, iso, color:"var(--n-400)", title:fedHol[iso], meta:"US holiday · not a day off"}); }); }
   // Personal holiday (scheduled, no entry)
   state.personalHolidays.filter(p => p.date).forEach(p => { const d = parseDate(p.date); if (!inMonth(d) || f.personal===false) return; if (state.entries.some(e => e.date===p.date)) return; evs.push({d, iso:p.date, color:"var(--pink)", title:"Personal Holiday", meta:p.status||"Scheduled"}); });
   // Anniversaries
