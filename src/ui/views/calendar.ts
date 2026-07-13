@@ -148,6 +148,7 @@ function renderCalEvents(y, m){
     if (e.type==="PTO"){ if (f.vac===false) return; color = "var(--success)"; title = `PTO · ${e.hours}h`; }
     else if (e.type==="Sick"){ if (f.sick===false) return; color = "var(--accent)"; title = `Sick · ${e.hours}h`; }
     else if (e.type==="Personal Holiday"){ if (f.personal===false) return; color = "var(--pink)"; title = "Personal Holiday"; }
+    else if (e.type==="Work Event"){ color = "var(--data-blue)"; title = `Work Event · ${e.hours}h`; }
     evs.push({d, iso:isoDate(d), color, title, meta:(e.status||"") + (e.notes?` · ${e.notes}`:"")});
   });
   // Company holidays

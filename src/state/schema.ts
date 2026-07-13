@@ -2,7 +2,7 @@
    These describe the shape of `state` (see store.ts) so the domain and view
    layers get real autocomplete + checking instead of implicit `any`. */
 
-export type EntryType = "PTO" | "Sick" | "Personal Holiday" | "Bereavement" | "Jury Duty" | "Unpaid" | string;
+export type EntryType = "PTO" | "Sick" | "Personal Holiday" | "Work Event" | "Bereavement" | "Jury Duty" | "Unpaid" | string;
 export type EntryStatus = "Scheduled" | "Pending" | "Taken" | "Cancelled" | string;
 
 export interface Entry {

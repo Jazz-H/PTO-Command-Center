@@ -28,7 +28,7 @@ function parseLogQuery(raw){
     if (tok[0] === "/" && tok.length > 1){
       const c = tok.slice(1).toLowerCase();
       if (/^\d{4}$/.test(c)){ out.year = c; return; }
-      const typeMap = { pto:"PTO", vac:"PTO", vacation:"PTO", personal:"PTO", sick:"Sick", holiday:"Personal Holiday", ph:"Personal Holiday", bereavement:"Bereavement", jury:"Jury Duty", unpaid:"Unpaid" };
+      const typeMap = { pto:"PTO", vac:"PTO", vacation:"PTO", personal:"PTO", sick:"Sick", holiday:"Personal Holiday", ph:"Personal Holiday", work:"Work Event", "work event":"Work Event", conference:"Work Event", event:"Work Event", bereavement:"Bereavement", jury:"Jury Duty", unpaid:"Unpaid" };
       if (typeMap[c]){ out.type = typeMap[c]; return; }
       const mi = MONTHNAMES.findIndex(m => m.toLowerCase() === c || m.toLowerCase().slice(0,3) === c);
       if (mi >= 0){ out.month = mi; return; }
@@ -159,7 +159,7 @@ export function renderLog(){
 function logRowHtml(e){
   const idx = state.entries.indexOf(e); const d = parseDate(e.date);
   let cls = 'a';
-  if (e.type==='PTO') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p';
+  if (e.type==='PTO') cls='g'; else if (e.type==='Sick') cls='r'; else if (e.type==='Personal Holiday') cls='p'; else if (e.type==='Work Event') cls='b';
   const chk = `<td class="no-print cell-check"><input type="checkbox" class="log-check" data-idx="${idx}" ${selectedLog.has(idx)?'checked':''} onchange="onLogCheck(${idx},this.checked)" aria-label="Select entry"></td>`;
   return `<tr${selectedLog.has(idx)?' class="row-selected"':''}>${chk}<td data-label="Date"><b>${fmt(d)}</b></td><td data-label="Day" style="color:var(--n-500)">${DAYNAMES[d.getDay()]}</td><td data-label="Type"><span class="chip ${cls}">${e.type}</span></td><td data-label="Hours" class="num">${e.hours}</td><td data-label="Status"><span class="chip n">${e.status||"-"}</span></td><td data-label="Notes" style="color:var(--n-500)">${e.notes||"—"}</td><td class="cell-actions"><div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn subtle sm" onclick="openEditModal(${idx})" title="Edit">${ICO.edit}</button><button class="btn subtle sm" onclick="deleteEntry(${idx})" title="Delete">${ICO.trash}</button></div></td></tr>`;
 }

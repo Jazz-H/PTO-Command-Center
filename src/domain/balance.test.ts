@@ -57,6 +57,17 @@ describe("balance", () => {
     expect(currentBalance(parseDate("2026-12-31")!)).toBe(72);  // 80 − 8, cancelled ignored
   });
 
+  it("Work Event entries don't count against PTO or sick balances", () => {
+    seed({ entries: [
+      entry("2026-02-01", "PTO", 8, "Scheduled"),
+      entry("2026-03-15", "Work Event", 8, "Scheduled"),   // conference/offsite — not time off
+      entry("2026-04-10", "Work Event", 8, "Scheduled"),
+    ]});
+    expect(ytdUsage("PTO", 2026)).toBe(8);
+    expect(ytdUsage("Work Event", 2026)).toBe(16);          // tracked separately
+    expect(currentBalance(parseDate("2026-12-31")!)).toBe(72);  // 80 − 8 PTO; Work Events ignored
+  });
+
   it("daysUntilNextRefill counts to next Jan 1", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 11, 25, 12, 0, 0)); // Dec 25 2026

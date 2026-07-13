@@ -303,7 +303,7 @@ function exportICS(){
     lines.push("TRANSP:TRANSPARENT");
     lines.push("END:VEVENT");
   };
-  const emoji = t => t==="PTO" ? "🌴" : t==="Sick" ? "🤒" : t==="Personal Holiday" ? "🎁" : "📅";
+  const emoji = t => t==="PTO" ? "🌴" : t==="Sick" ? "🤒" : t==="Personal Holiday" ? "🎁" : t==="Work Event" ? "💼" : "📅";
   [...state.entries].sort((a,b) => a.date.localeCompare(b.date)).forEach(e => {
     const hoursNote = (e.hours && e.hours !== wd) ? ` (${e.hours}h)` : "";
     const summary = `${emoji(e.type)} ${e.type}${hoursNote}`;

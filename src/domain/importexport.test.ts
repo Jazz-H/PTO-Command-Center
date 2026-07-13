@@ -52,6 +52,9 @@ describe("importexport — pure serializers/parsers", () => {
     expect(normImportType("OOO")).toBe("PTO");
     expect(normImportType("Out of Office")).toBe("PTO");
     expect(normImportType("Out Sick")).toBe("Sick");
+    expect(normImportType("Conference")).toBe("Work Event");
+    expect(normImportType("work event")).toBe("Work Event");
+    expect(normImportType("Volunteer")).toBe("Work Event");
   });
 
   it("icsEscape / icsFold follow the RFC basics", () => {
