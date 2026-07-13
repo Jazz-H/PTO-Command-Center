@@ -354,7 +354,7 @@ function loadXLSX(){
 }
 function finishSpreadsheetImport(rows){
   const res = ingestEntryRows(rows);
-  if (!res || res.added === -1){ toast("Unrecognized format — the first row should have columns like Date, Type, Hours, Status, Notes"); return; }
+  if (!res || res.added === -1){ toast("Unrecognized format — needs a header row with a Date (or Start Date) column, plus Type and Hours/# of Days"); return; }
   if (res.added === 0){
     const parts = [];
     if (res.dup) parts.push(`${res.dup} already in your log`);
@@ -382,9 +382,12 @@ function importSpreadsheet(ev){
       try { XLSX = await loadXLSX(); }
       catch(err){ toast("Couldn't load the Excel reader (offline?) — save the file as CSV and import that."); return; }
       try {
-        const wb = XLSX.read(buf, {type:"array"});
+        // cellDates → real date cells become JS Dates; dateNF forces those to
+        // emit as ISO strings (not the sheet's locale display format, which can
+        // be day-first or "9-Jul-26" and defeat date parsing).
+        const wb = XLSX.read(buf, {type:"array", cellDates:true});
         const ws = wb.Sheets[wb.SheetNames[0]];
-        finishSpreadsheetImport(XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:""}));
+        finishSpreadsheetImport(XLSX.utils.sheet_to_json(ws, {header:1, raw:false, dateNF:"yyyy-mm-dd", defval:""}));
       } catch(err){ toast("Couldn't read that Excel file"); }
       return;
     }

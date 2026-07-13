@@ -31,6 +31,17 @@ describe("importexport — pure serializers/parsers", () => {
     expect(serial).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
+  it("normImportDate handles slash/dash/dot and day-first text dates", () => {
+    expect(normImportDate("7/9/2026")).toBe("2026-07-09");     // US month-first
+    expect(normImportDate("07/09/26")).toBe("2026-07-09");     // 2-digit year
+    expect(normImportDate("13/07/2026")).toBe("2026-07-13");   // day-first (13 can't be a month)
+    expect(normImportDate("7-9-2026")).toBe("2026-07-09");     // dash separators
+    expect(normImportDate("7.9.2026")).toBe("2026-07-09");     // dot separators
+    expect(normImportDate("9-Jul-2026")).toBe("2026-07-09");   // dash + named month
+    expect(normImportDate("Jul 9, 2026")).toBe("2026-07-09");  // named month
+    expect(normImportDate("99/99/2026")).toBeNull();           // still rejects junk
+  });
+
   it("normImportType maps aliases and passes through unknowns", () => {
     expect(normImportType("vac")).toBe("PTO");
     expect(normImportType("Vacation")).toBe("PTO");
@@ -38,6 +49,9 @@ describe("importexport — pure serializers/parsers", () => {
     expect(normImportType("ph")).toBe("Personal Holiday");
     expect(normImportType("")).toBe("PTO");
     expect(normImportType("Bereavement")).toBe("Bereavement");
+    expect(normImportType("OOO")).toBe("PTO");
+    expect(normImportType("Out of Office")).toBe("PTO");
+    expect(normImportType("Out Sick")).toBe("Sick");
   });
 
   it("icsEscape / icsFold follow the RFC basics", () => {
@@ -66,6 +80,23 @@ describe("importexport — ingestEntryRows", () => {
   it("signals an unrecognized format with added:-1", () => {
     expect(ingestEntryRows([["totally", "wrong"]])).toEqual({ added: -1 });
     expect(ingestEntryRows([])).toEqual({ added: -1 });
+  });
+
+  it("skips preamble, reads Start/End Date + # of Days, maps OOO/Out Sick, skips trailer rows", () => {
+    const res = ingestEntryRows([
+      ["2026 PTO / Sick Time Tracker Upload", "", "", "", "", ""],   // title preamble
+      ["Name: Harris, Jazz", "", "", "", "", ""],                    // preamble
+      ["", "", "", "", "", ""],                                      // blank
+      ["Name", "Start Date", "End Date", "# of Days", "Type (PTO / Holiday / OOO)", "Coverage / Notes"],
+      ["Harris, Jazz", "1/29/26", "1/30/26", "1.5", "OOO", "PTO"],   // range → note; 1.5 days → 12h
+      ["Harris, Jazz", "4/30/26", "5/1/26", "", "Out Sick", ""],     // blank days → 1 workday; Sick
+      ["Harris, Jazz", "6/15/26", "6/15/26", "1.0", "OOO", "PTO"],   // single day
+      ["", "", "Total Days from Screenshot", "11.5", "", ""],        // trailer → blank date, skipped (not "bad")
+    ]);
+    expect(res).toEqual({ added: 3, dup: 0, bad: 0 });
+    expect(state.entries[0]).toMatchObject({ date: "2026-01-29", type: "PTO", hours: 12, notes: "PTO (through 2026-01-30)" });
+    expect(state.entries[1]).toMatchObject({ date: "2026-04-30", type: "Sick", hours: 8, notes: "(through 2026-05-01)" });
+    expect(state.entries[2]).toMatchObject({ date: "2026-06-15", type: "PTO", hours: 8, notes: "PTO" });
   });
 
   it("de-dupes against entries already in state", () => {
