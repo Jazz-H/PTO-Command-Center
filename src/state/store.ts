@@ -9,6 +9,14 @@ const CCCI_2026_HOLIDAYS = [
   {date:"2026-07-03", name:"Independence Day"},{date:"2026-09-07", name:"Labor Day"},
   {date:"2026-11-26", name:"Thanksgiving Day"},{date:"2026-12-25", name:"Christmas Day"}
 ];
+// Same 8 company holidays on their 2027 observed dates (Independence Day &
+// Christmas shift to the observed weekday).
+const CCCI_2027_HOLIDAYS = [
+  {date:"2027-01-01", name:"New Year's Day"},{date:"2027-01-18", name:"Martin Luther King Day"},
+  {date:"2027-03-26", name:"Good Friday"},{date:"2027-05-31", name:"Memorial Day"},
+  {date:"2027-07-05", name:"Independence Day"},{date:"2027-09-06", name:"Labor Day"},
+  {date:"2027-11-25", name:"Thanksgiving Day"},{date:"2027-12-24", name:"Christmas Day"}
+];
 
 export const DEFAULTS = {
   config: { name:"", hire:"", year:2026, workday:8, birthday:"" },
@@ -25,8 +33,8 @@ export const DEFAULTS = {
     {years:20, vacDays:25, label:"20 Years", notes:"Two decades!"},
     {years:25, vacDays:30, label:"25 Years", notes:"Quarter century"}
   ],
-  holidays: [ ...CCCI_2026_HOLIDAYS, {date:"2027-01-01", name:"New Year's Day"} ],
-  entries: [], holidaysV: "ccci-2026-v1", calFilters: {}, fridays: {},
+  holidays: [ ...CCCI_2026_HOLIDAYS, ...CCCI_2027_HOLIDAYS ],
+  entries: [], holidaysV: "ccci-2026-v1", holidays2027: true, calFilters: {}, fridays: {},
   logSearch: "", logType: "All", logYear: "All", logView: "list", collapsedMonths: {},
   dismissedInsights: [], showDismissed: false, entryMode: "hours", sugFilters: {}, chartRange: 12,
   notificationsSeen: []
@@ -45,9 +53,12 @@ export function nameFromEmail(email: string): string {
   return parts.map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(" ");
 }
 
-// Migrate legacy entry fields. Safe + idempotent:
+// Migrate legacy state. Safe + idempotent. Runs on every load AND every remote
+// pull, so it must cover data coming from either source:
 //  - fold "Vacation"/"Personal" types into the unified "PTO" bucket (PH stays separate)
 //  - retire the "Approved" status (no CCCI approval workflow): past → "Taken", future → "Scheduled"
+//  - add the 2027 company holidays once (idempotent by date; respects any the
+//    user later removed, since it only runs while the holidays2027 flag is unset)
 export function ptoMigrate(st){
   if (st && Array.isArray(st.entries)){
     const todayIso = new Date().toISOString().slice(0, 10);
@@ -56,6 +67,12 @@ export function ptoMigrate(st){
       if (e.type === "Vacation" || e.type === "Personal") e.type = "PTO";
       if (e.status === "Approved") e.status = e.date < todayIso ? "Taken" : "Scheduled";
     });
+  }
+  if (st && !st.holidays2027){
+    if (!Array.isArray(st.holidays)) st.holidays = [];
+    const have = new Set(st.holidays.map(h => h.date));
+    CCCI_2027_HOLIDAYS.forEach(h => { if (!have.has(h.date)) st.holidays.push({ ...h }); });
+    st.holidays2027 = true;
   }
   return st;
 }

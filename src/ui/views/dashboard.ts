@@ -39,9 +39,13 @@ function applyIdentity(){
   document.querySelectorAll<HTMLElement>(".uc-name, .user-info .n, #umName").forEach(el => el.textContent = name || "Your profile");
 }
 export function renderKPIs(){
-  const cfg = state.config; const bal = currentBalance();
+  const cfg = state.config;
   const uv = ytdUsage("PTO", cfg.year); const us = ytdUsage("Sick", cfg.year);
   const allot = getAllotment(cfg.year); const daysToRefill = daysUntilNextRefill();
+  // Balance = allotment minus ALL PTO booked this year (past + upcoming), so
+  // booking beyond the allotment shows as a negative "over" balance rather than
+  // a misleading positive number that ignores upcoming time off.
+  const committed = allot.vacation - uv; const over = committed < 0;
   const sickIsNA = allot.sick === null;
   const usedPct = allot.vacation ? Math.round(uv/allot.vacation*100) : 0;
   const tr = usageThisVsLast();
@@ -78,7 +82,7 @@ export function renderKPIs(){
     <div class="kpi kpi-link" ${link("dashDrillLog('PTO')","View PTO entries")}>
       <div class="kpi-top"><div class="kpi-icon green">${ICO.palm}</div><span class="kpi-title">PTO Balance</span></div>
       <div class="kpi-body">
-        <div class="kpi-main"><div class="kpi-value v-green">${bal.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${(bal/cfg.workday).toFixed(1)} days of ${allot.vacation} hrs</div></div>
+        <div class="kpi-main"><div class="kpi-value ${over?'':'v-green'}"${over?' style="color:var(--accent)"':''}>${committed.toFixed(1)}<span class="unit">hrs</span></div><div class="kpi-sub">${over ? `Over by ${Math.abs(committed/cfg.workday).toFixed(1)} days · ${allot.vacation} hr allotment` : `${(committed/cfg.workday).toFixed(1)} days of ${allot.vacation} hrs`}</div></div>
         ${ringSVG2(usedPct, ringCls)}
       </div>
       <div class="kpi-foot">${calICO} Next refill: ${fmt(refillDate,{month:"short",day:"numeric",year:"numeric"})} (${daysToRefill} days)</div>

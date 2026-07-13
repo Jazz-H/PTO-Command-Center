@@ -1,5 +1,21 @@
 import { describe, it, expect } from "vitest";
-import { nameFromEmail } from "./store.ts";
+import { nameFromEmail, ptoMigrate } from "./store.ts";
+
+describe("ptoMigrate — 2027 company holidays", () => {
+  it("adds the eight 2027 holidays once, idempotently, without duplicating existing dates", () => {
+    const st: any = ptoMigrate({ entries: [], holidays: [{ date: "2027-01-01", name: "New Year's Day" }] });
+    const h2027 = st.holidays.filter(h => h.date.startsWith("2027")).map(h => h.date).sort();
+    expect(h2027).toEqual(["2027-01-01","2027-01-18","2027-03-26","2027-05-31","2027-07-05","2027-09-06","2027-11-25","2027-12-24"]);
+    expect(st.holidays2027).toBe(true);
+    const again: any = ptoMigrate(st);   // idempotent
+    expect(again.holidays.filter(h => h.date.startsWith("2027")).length).toBe(8);
+  });
+
+  it("does not re-add once the flag is set (respects user-removed holidays)", () => {
+    const st: any = ptoMigrate({ entries: [], holidays: [], holidays2027: true });
+    expect(st.holidays.filter(h => h.date.startsWith("2027")).length).toBe(0);
+  });
+});
 
 describe("nameFromEmail", () => {
   it("splits and title-cases dotted / underscored / hyphenated locals", () => {
