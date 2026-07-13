@@ -76,7 +76,7 @@ export function renderCalendar(){
     const tags = [];
     if (isAnniv && f.anniv!==false){ const tier = state.tiers.find(tr => isoDate(anniversaryFor(tr.years))===iso); if (tier) tags.push(`<span class="cal-tag anniv">${tier.label}</span>`); }
     if (hn && f.hol!==false){ tags.push(`<span class="cal-tag hol" title="${hn}">${hn.length>14?hn.slice(0,13)+'…':hn}</span>`); }
-    else if (fedHol[iso] && f.usfed!==false){ const nm = fedHol[iso]; tags.push(`<span class="cal-tag usfed" title="${esc(nm)} · US holiday (not a company day off)">${nm.length>14?esc(nm.slice(0,13))+'…':esc(nm)}</span>`); }
+    else if (fedHol[iso] && f.usfed!==false){ const nm = fedHol[iso]; tags.push(`<span class="cal-tag usfed" title="${esc(nm)} · US holiday">${nm.length>14?esc(nm.slice(0,13))+'…':esc(nm)}</span>`); }
     if (e){
       const eIdx = state.entries.indexOf(e);
       const drag = `draggable="true" ondragstart="dragStart(event,'entry',${eIdx})" title="Drag to reschedule"`;
@@ -168,7 +168,7 @@ function renderCalEvents(y, m){
   // Company holidays
   (state.holidays||[]).forEach(h => { const d = parseDate(h.date); if (!inMonth(d) || f.hol===false) return; evs.push({d, iso:h.date, color:"var(--violet)", title:h.name, meta:"Company holiday"}); });
   // US federal holidays not observed by CCCI (reference only — not a day off)
-  { const fedHol = usFedForGrid(y); Object.keys(fedHol).forEach(iso => { const d = parseDate(iso); if (!inMonth(d) || f.usfed===false) return; evs.push({d, iso, color:"var(--n-400)", title:fedHol[iso], meta:"US holiday · not a day off"}); }); }
+  { const fedHol = usFedForGrid(y); Object.keys(fedHol).forEach(iso => { const d = parseDate(iso); if (!inMonth(d) || f.usfed===false) return; evs.push({d, iso, color:"var(--n-400)", title:fedHol[iso], meta:"US holiday"}); }); }
   // Personal holiday (scheduled, no entry)
   state.personalHolidays.filter(p => p.date).forEach(p => { const d = parseDate(p.date); if (!inMonth(d) || f.personal===false) return; if (state.entries.some(e => e.date===p.date)) return; evs.push({d, iso:p.date, color:"var(--pink)", title:"Personal Holiday", meta:p.status||"Scheduled"}); });
   // Anniversaries
