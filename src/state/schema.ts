@@ -70,6 +70,9 @@ export interface AppState {
   logSearch?: string;
   logType?: string;
   logYear?: string;
+  logStatus?: string;
+  logMonth?: string;
+  logHours?: string;
   logView?: "list" | "month";
   collapsedMonths?: Record<string, boolean>;
   dismissedInsights?: string[];

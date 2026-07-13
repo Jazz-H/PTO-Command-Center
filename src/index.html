@@ -194,7 +194,22 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
         <option value="Unpaid">Unpaid</option>
         <option value="Other">Other</option>
       </select>
+      <select id="logMonthFilter" onchange="onLogFilter('logMonth',this.value)" title="Filter by month">
+        <option value="All">All months</option>
+        <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+        <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+        <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+        <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+      </select>
       <select id="logYearFilter" onchange="onLogFilter('logYear',this.value)" title="Filter by year"></select>
+      <select id="logStatusFilter" onchange="onLogFilter('logStatus',this.value)" title="Filter by status">
+        <option value="All">All statuses</option>
+        <option value="Scheduled">Scheduled</option>
+        <option value="Pending">Pending</option>
+        <option value="Taken">Taken</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+      <select id="logHoursFilter" onchange="onLogFilter('logHours',this.value)" title="Filter by hours"></select>
       <div class="log-view-toggle" id="logViewToggle">
         <button type="button" data-view="list" onclick="setLogView('list')">List</button>
         <button type="button" data-view="month" onclick="setLogView('month')">By month</button>

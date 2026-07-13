@@ -17,7 +17,8 @@ let logChart;
 const selectedLog = new Set<number>();
 
 function logIsFiltered(){
-  return !!((state.logSearch||"").trim()) || (state.logType||"All")!=="All" || (state.logYear||"All")!=="All";
+  return !!((state.logSearch||"").trim()) || (state.logType||"All")!=="All" || (state.logYear||"All")!=="All"
+    || (state.logStatus||"All")!=="All" || (state.logMonth||"All")!=="All" || (state.logHours||"All")!=="All";
 }
 // Parse slash-commands out of the search box (e.g. "/vac /2026 /jul dentist")
 function parseLogQuery(raw){
@@ -43,10 +44,16 @@ function getFilteredEntries(){
   const q = parsed.text.trim().toLowerCase();
   const type = state.logType||"All";
   const year = state.logYear||"All";
+  const status = state.logStatus||"All";
+  const month = state.logMonth||"All";
+  const hours = state.logHours||"All";
   return state.entries.filter(e => {
     if (type!=="All" && e.type!==type) return false;
     if (parsed.type && e.type !== parsed.type) return false;
+    if (status!=="All" && (e.status||"")!==status) return false;
+    if (hours!=="All" && Number(e.hours) !== Number(hours)) return false;
     const d = parseDate(e.date);
+    if (month!=="All" && String(d.getMonth())!==String(month)) return false;
     if (year!=="All" && String(d.getFullYear())!==String(year)) return false;
     if (parsed.year && String(d.getFullYear()) !== parsed.year) return false;
     if (parsed.month !== null && d.getMonth() !== parsed.month) return false;
@@ -108,6 +115,13 @@ export function renderLog(){
   const yearSel = $("logYearFilter");
   if (yearSel){ yearSel.innerHTML = `<option value="All">All years</option>` + years.map(y => `<option value="${y}">${y}</option>`).join(""); yearSel.value = state.logYear||"All"; }
   const typeSel = $("logTypeFilter"); if (typeSel) typeSel.value = state.logType||"All";
+  // Hours filter, auto-populated from the distinct per-entry hour values present
+  const hoursVals = [...new Set(state.entries.map(e => Number(e.hours)).filter(h => h > 0))].sort((a,b) => a-b);
+  if ((state.logHours||"All")!=="All" && !hoursVals.map(String).includes(String(Number(state.logHours)))) state.logHours = "All";
+  const hoursSel = $("logHoursFilter");
+  if (hoursSel){ hoursSel.innerHTML = `<option value="All">All hours</option>` + hoursVals.map(h => `<option value="${h}">${h} hrs</option>`).join(""); hoursSel.value = state.logHours||"All"; }
+  const statusSel = $("logStatusFilter"); if (statusSel) statusSel.value = state.logStatus||"All";
+  const monthSel = $("logMonthFilter"); if (monthSel) monthSel.value = state.logMonth||"All";
   const view = state.logView||"list";
   document.querySelectorAll<HTMLElement>("#logViewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
 
@@ -201,4 +215,4 @@ export function onLogSearch(v){
 }
 export function clearLogSearch(){ state.logSearch = ""; const el = $("logSearch"); if (el){ el.value = ""; el.focus(); } save(); renderLog(); }
 export function onLogFilter(key, val){ state[key] = val; save(); renderLog(); }
-export function clearLogFilters(){ state.logSearch = ""; state.logType = "All"; state.logYear = "All"; save(); renderLog(); }
+export function clearLogFilters(){ state.logSearch = ""; state.logType = "All"; state.logYear = "All"; state.logStatus = "All"; state.logMonth = "All"; state.logHours = "All"; save(); renderLog(); }
