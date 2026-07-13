@@ -101,6 +101,9 @@ function load(){
 
 export let state: AppState = load();
 export function setState(s: AppState){ state = s; }
+// A pristine blank-profile state — used to discard a cache that belongs to a
+// different account before syncing (prevents cross-account bleed on a shared browser).
+export function freshState(): AppState { return ptoMigrate(JSON.parse(JSON.stringify(DEFAULTS))); }
 
 // Save-sync seam: the Supabase layer registers a handler so every local save
 // also debounce-pushes to the account. No-op when signed out (offline-first).

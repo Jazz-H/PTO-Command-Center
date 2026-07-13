@@ -3,7 +3,7 @@
    with the account in the background; if absent we show the magic-link sign-in.
    Offline-first: the local cache is always the boot source, so an unreachable
    Supabase never blocks a returning, signed-in user. */
-import { state, setState, save, setOnSave, localTimestamp, ptoMigrate, nameFromEmail } from "./state/store.ts";
+import { state, setState, save, setOnSave, localTimestamp, ptoMigrate, nameFromEmail, freshState } from "./state/store.ts";
 import { refresh } from "./ui/refresh.ts";
 import { supabase, fetchRemoteState, pushRemoteState, sendMagicLink, verifyCode, signOut, getEmail } from "./state/supabase.ts";
 
@@ -14,6 +14,18 @@ function debouncedPush(){ clearTimeout(_pushTimer); _pushTimer = setTimeout(() =
 // timestamp), then wire future saves to push. Swallows network errors so an
 // offline session keeps working from cache.
 async function syncFromRemote(){
+  // Guard against cross-account bleed on a shared browser: the local cache is
+  // tagged with the account it belongs to. If the signed-in account differs,
+  // discard the cache before we reconcile/push, so one user's data can never be
+  // seeded into another's account. Uses the local session (no network).
+  try{
+    const { data: { session } } = await supabase.auth.getSession();
+    const email = session?.user?.email || "";
+    const cachedOwner = localStorage.getItem("pto_owner") || "";
+    const mismatch = !!email && !!cachedOwner && cachedOwner !== email;
+    if (email) localStorage.setItem("pto_owner", email);      // claim the cache for this account first
+    if (mismatch){ setState(freshState()); save(); refresh(); }  // cache belonged to someone else → discard
+  }catch(e){ /* ignore — fall through to normal sync */ }
   try{
     const remote = await fetchRemoteState();
     if (!remote){
@@ -85,6 +97,8 @@ function wireSignInForm(){
 export async function signOutAccount(){
   setOnSave(() => {});          // stop pushing during teardown
   try{ await signOut(); }catch(e){}
+  // Clear the local cache so nothing lingers for the next account on this browser.
+  try{ localStorage.removeItem("pto_state"); localStorage.removeItem("pto_state_ts"); localStorage.removeItem("pto_owner"); }catch(e){}
   location.reload();            // cleanest reset back to the gate
 }
 
