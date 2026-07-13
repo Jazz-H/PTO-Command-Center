@@ -517,10 +517,15 @@ input:disabled,select:disabled{background:var(--input-disabled);color:var(--n-40
 .log-view-toggle button.active{background:var(--card);color:var(--n-900);box-shadow:var(--shadow-xs)}
 /* Per-column filter row inside the log table header */
 #logTable thead th{position:static}
-.log-head-row th{border-bottom:none;padding-bottom:8px}
-.log-filter-row th{padding:0 10px 10px;vertical-align:top;background:var(--hover-bg)}
-.log-filter-row select{width:100%;min-width:0;font-size:12px;padding:6px 8px;box-shadow:var(--shadow-xs);text-transform:none;letter-spacing:normal;font-weight:400}
+.log-head-row th{border-bottom:none;padding-bottom:9px}
+.log-filter-row th{padding:0 10px 11px;vertical-align:top;background:var(--hover-bg)}
+.log-filter-row select{width:100%;min-width:0;font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--n-600);box-shadow:none;text-transform:none;letter-spacing:normal;font-weight:500;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.log-filter-row select:hover{border-color:var(--n-300);color:var(--n-800)}
+.log-filter-row select.active{border-color:var(--primary);background:var(--primary-soft);color:var(--primary);font-weight:600}
 .log-filter-row .th-filter{display:flex;gap:6px}
+.log-clear{border:none;background:transparent;color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:7px;box-shadow:none;width:auto;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.log-clear:hover{background:var(--accent-soft)}
+.log-clear svg{width:13px;height:13px}
 tr.log-group{cursor:pointer;user-select:none}
 tr.log-group td{background:var(--hover-bg);border-bottom:1px solid var(--line)}
 tr.log-group:hover td{background:var(--hover-strong)}

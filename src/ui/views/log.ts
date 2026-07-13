@@ -122,6 +122,9 @@ export function renderLog(){
   if (hoursSel){ hoursSel.innerHTML = `<option value="All">All hours</option>` + hoursVals.map(h => `<option value="${h}">${h} hrs</option>`).join(""); hoursSel.value = state.logHours||"All"; }
   const statusSel = $("logStatusFilter"); if (statusSel) statusSel.value = state.logStatus||"All";
   const monthSel = $("logMonthFilter"); if (monthSel) monthSel.value = state.logMonth||"All";
+  // Highlight any filter that's actually narrowing results, and reveal Clear.
+  [typeSel, monthSel, yearSel, statusSel, hoursSel].forEach(sel => { if (sel) sel.classList.toggle("active", sel.value !== "All"); });
+  const clearBtn = $("logClearBtn"); if (clearBtn) clearBtn.style.display = logIsFiltered() ? "" : "none";
   const view = state.logView||"list";
   document.querySelectorAll<HTMLElement>("#logViewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
 

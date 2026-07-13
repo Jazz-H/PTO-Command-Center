@@ -175,7 +175,7 @@ const c=localStorage.getItem('pto_sidebar');if(c==='collapsed')document.document
   </div>
   <div class="card no-print" style="margin-bottom:20px"><div class="card-title"><h3>Monthly usage</h3><span class="meta" id="logChartMeta"></span></div><div class="chart-wrap" style="height:180px"><canvas id="logMonthChart"></canvas></div></div>
   <div class="card">
-    <div class="card-title"><h3>All entries</h3><span class="meta" id="logCount">0 entries</span></div>
+    <div class="card-title"><h3>All entries</h3><div style="display:flex;align-items:center;gap:12px;margin-left:auto"><button type="button" class="log-clear" id="logClearBtn" onclick="clearLogFilters()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Clear filters</button><span class="meta" id="logCount">0 entries</span></div></div>
     <div class="bulk-bar no-print" id="logBulkBar"><span class="bulk-count" id="logBulkCount">0 selected</span><div class="bulk-actions"><button class="btn ghost sm" onclick="bulkStatusLog('Taken')">Mark Taken</button><button class="btn ghost sm" onclick="bulkStatusLog('Scheduled')">Mark Scheduled</button><button class="btn ghost sm" onclick="bulkStatusLog('Cancelled')">Cancel</button><button class="btn ghost sm" style="color:var(--accent);border-color:var(--accent-line)" onclick="bulkDeleteLog()">Delete</button><button class="btn subtle sm" onclick="clearLogSelection()">Clear</button></div></div>
     <div class="log-toolbar">
       <div class="log-search">
