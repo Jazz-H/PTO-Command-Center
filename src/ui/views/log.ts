@@ -124,7 +124,8 @@ export function renderLog(){
   const total = state.entries.length;
   const totalGroups = groupByBatch(state.entries).length;
   const filteredGroups = groupByBatch(filtered);
-  $("logCount").textContent = logIsFiltered() ? `${filteredGroups.length} of ${totalGroups} entries` : `${totalGroups} entries`;
+  const entWord = (n) => n === 1 ? "entry" : "entries";
+  $("logCount").textContent = logIsFiltered() ? `${filteredGroups.length} of ${totalGroups} ${entWord(totalGroups)}` : `${totalGroups} ${entWord(totalGroups)}`;
 
   if (!filtered.length){
     tb.innerHTML = total === 0

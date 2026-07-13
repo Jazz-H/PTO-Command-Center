@@ -72,9 +72,10 @@ function drillFriday(iso){ switchTab("fri"); setTimeout(() => { const row = $("f
 function openEditModal(idx){
   editingIdx = idx;
   const e = state.entries[idx]; if (!e) return;
-  // For a multi-day batch, edit the range from its start date.
-  const startDate = e.batchId ? state.entries.filter(x => x.batchId === e.batchId).map(x => x.date).sort()[0] : e.date;
-  dpSet("edit_date", startDate);
+  // For a multi-day batch, edit the range from its start to its end date.
+  const dates = e.batchId ? state.entries.filter(x => x.batchId === e.batchId).map(x => x.date).sort() : [e.date];
+  dpSet("edit_date", dates[0]);
+  dpSet("edit_end", dates.length > 1 ? dates[dates.length - 1] : "");
   $("edit_type").value = e.type;
   $("edit_hours").value = String(e.hours);
   $("edit_status").value = e.status || "Scheduled";
@@ -84,46 +85,32 @@ function openEditModal(idx){
 function closeEditModal(){ $("editModal").classList.remove("open"); editingIdx = -1; }
 function saveEditEntry(){
   if (editingIdx < 0) return;
-  const e = state.entries[editingIdx];
-  const oldDate = e.date; const oldType = e.type;
-  const newDate = $("edit_date").value;
-  const newType = $("edit_type").value;
-  if (!newDate){ toast("Date is required"); return; }
-  // Multi-day batch: apply type/hours/status/notes to every day, and if the
-  // start date moved, shift the whole range by the same delta (preserving span).
-  if (e.batchId){
-    const batch = state.entries.filter(x => x.batchId === e.batchId).sort((a,b) => a.date.localeCompare(b.date));
-    const oldStart = batch[0].date;
-    const deltaDays = Math.round((parseDate(newDate).getTime() - parseDate(oldStart).getTime()) / 86400000);
-    const newHours = Number($("edit_hours").value) || 8;
-    const newStatus = $("edit_status").value, newNotes = $("edit_notes").value;
-    batch.forEach(x => { if (deltaDays) x.date = isoDate(addDays(parseDate(x.date), deltaDays)); x.type = newType; x.hours = newHours; x.status = newStatus; x.notes = newNotes; });
-    save(); closeEditModal(); refresh(); toast("Entry updated");
-    return;
+  const e = state.entries[editingIdx]; if (!e) return;
+  const start = $("edit_date").value;
+  if (!start){ toast("Start date is required"); return; }
+  const end = $("edit_end").value || start;
+  const type = $("edit_type").value;
+  const hours = Number($("edit_hours").value) || (state.config.workday || 8);
+  const status = $("edit_status").value;
+  const notes = $("edit_notes").value;
+  // Rebuild the booking from the chosen start–end range. Replace the edited
+  // entry (or its whole batch) with a fresh set of per-day entries so the range
+  // can grow, shrink, or move. Remove the old ones first so the range calc
+  // doesn't treat them as already-booked.
+  const oldEntries = e.batchId ? state.entries.filter(x => x.batchId === e.batchId) : [e];
+  oldEntries.forEach(detachPH);
+  const oldSet = new Set(oldEntries);
+  state.entries = state.entries.filter(x => !oldSet.has(x));
+  let days = businessDaysInRange(start, end);
+  if (!days.length) days = [start];                     // never drop the entry entirely
+  const batchId = days.length > 1 ? uid() : undefined;
+  days.forEach(iso => { const ent: any = {date:iso, type, hours, status, notes}; if (batchId) ent.batchId = batchId; state.entries.push(ent); });
+  // Keep the Personal Holiday tracker in sync.
+  if (type === "Personal Holiday"){
+    days.forEach(iso => { const ph = getPersonalHoliday(parseDate(iso).getFullYear()); ph.date = iso; ph.status = status === "Taken" ? "Taken" : "Scheduled"; });
   }
-  e.date = newDate;
-  e.type = newType;
-  e.hours = Number($("edit_hours").value) || 8;
-  e.status = $("edit_status").value;
-  e.notes = $("edit_notes").value;
-  // Sync personal holiday tracking if type/date changed
-  if (oldType === "Personal Holiday" && (oldDate !== newDate || newType !== "Personal Holiday")){
-    const ph = state.personalHolidays.find(p => p.date === oldDate);
-    if (ph){ ph.date = null; ph.status = "Unscheduled"; ph.notes = ""; }
-  }
-  if (newType === "Personal Holiday"){
-    const year = parseDate(newDate).getFullYear();
-    const ph = getPersonalHoliday(year);
-    ph.date = newDate; ph.status = e.status === "Taken" ? "Taken" : "Scheduled";
-  }
-  // Batch edit: offer to apply type/status/notes to the rest of the batch
-  if (e.batchId){
-    const siblings = state.entries.filter(x => x.batchId === e.batchId && x !== e);
-    if (siblings.length && confirm(`Apply this entry's type, status, and notes to all ${siblings.length + 1} entries in its batch? (Dates and hours stay per-day.)`)){
-      siblings.forEach(x => { x.type = e.type; x.status = e.status; x.notes = e.notes; });
-    }
-  }
-  save(); closeEditModal(); refresh(); toast("Entry updated");
+  save(); closeEditModal(); refresh();
+  toast(days.length > 1 ? `Updated — ${days.length}-day entry (${days.length*hours} hrs)` : "Entry updated");
 }
 
 
