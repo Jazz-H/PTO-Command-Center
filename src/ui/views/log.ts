@@ -110,17 +110,10 @@ export function renderLog(){
   const view = state.logView||"list";
   document.querySelectorAll<HTMLElement>("#logViewToggle button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
 
-  // Order from the current date, like the Friday Planner / Smart Suggestions:
-  // upcoming entries first (soonest → later), then past entries (most recent → older).
-  const t0 = today();
-  const fromToday = (a,b) => {
-    const da = parseDate(a.date), db = parseDate(b.date);
-    const au = da >= t0, bu = db >= t0;
-    if (au && bu) return +da - +db;      // both upcoming → soonest first
-    if (!au && !bu) return +db - +da;    // both past → most recent first
-    return au ? -1 : 1;                // upcoming before past
-  };
-  const filtered = getFilteredEntries().sort(fromToday);
+  // The log is a chronological record: strictly oldest → newest → future,
+  // regardless of the order entries were added. Dates are ISO strings, so a
+  // plain string compare sorts them by date.
+  const filtered = getFilteredEntries().sort((a,b) => a.date.localeCompare(b.date));
   const total = state.entries.length;
   const totalGroups = groupByBatch(state.entries).length;
   const filteredGroups = groupByBatch(filtered);
@@ -138,13 +131,7 @@ export function renderLog(){
   if (view === "month"){
     const groups = {};
     filtered.forEach(e => { const k = monthKey(parseDate(e.date)); (groups[k] = groups[k] || []).push(e); });
-    const nowKey = monthKey(t0);
-    const keys = Object.keys(groups).sort((a,b) => {
-      const af = a >= nowKey, bf = b >= nowKey;    // current & future months first (ascending), then past (descending)
-      if (af && bf) return a.localeCompare(b);
-      if (!af && !bf) return b.localeCompare(a);
-      return af ? -1 : 1;
-    });
+    const keys = Object.keys(groups).sort((a,b) => a.localeCompare(b));   // oldest month → newest → future
     tb.innerHTML = keys.map(k => {
       const items = groups[k];
       const [yy, mm] = k.split("-").map(Number);
